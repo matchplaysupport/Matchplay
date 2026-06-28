@@ -46,7 +46,7 @@ function Step({ n, title, body, icon }: { n: string; title: string; body: string
 
 function AppBadges() {
   const Pill = ({ glyph, top, bottom }: { glyph: ReactNode; top: string; bottom: string }) => (
-    <span className="inline-flex items-center gap-2.5 rounded-xl px-4 py-2.5" style={{ background: "var(--text)", color: "#fff" }}>
+    <span className="inline-flex items-center gap-2.5 rounded-xl px-4 py-2.5" style={{ background: "#0B0F0C", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}>
       {glyph}
       <span className="flex flex-col leading-tight text-left">
         <span className="text-[10px] opacity-80">{top}</span>
@@ -74,81 +74,64 @@ function AppBadges() {
 
 export default function Home() {
   return (
-    <div id="top" className="flex flex-col min-h-screen">
+    <div id="top" className="theme-club flex flex-col min-h-screen">
       <Nav />
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <header className="relative overflow-hidden mesh noise">
-        <div className="container relative pt-12 pb-20 sm:pt-16 sm:pb-28 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          {/* copy */}
-          <div className="max-w-xl">
+      {/* ── Hero (cinematic full-bleed) ──────────────────────── */}
+      <header className="relative overflow-hidden">
+        {/* golden-hour imagery with a slow ken-burns drift */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 kenburns">
+            <Image
+              src="/hero-course.png"
+              alt="A private golf course fairway glowing at golden hour"
+              fill
+              priority
+              sizes="100vw"
+              style={{ objectFit: "cover", objectPosition: "center 45%" }}
+            />
+          </div>
+          {/* cinematic overlays for depth + legibility */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(6,13,9,0.62) 0%, rgba(6,13,9,0.30) 42%, rgba(6,13,9,0.88) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(96deg, rgba(6,13,9,0.86) 0%, rgba(6,13,9,0.25) 52%, transparent 100%)" }} />
+        </div>
+
+        <div className="container relative z-10 flex flex-col justify-center" style={{ minHeight: "92vh", paddingTop: "6rem", paddingBottom: "5rem" }}>
+          <div className="max-w-2xl">
             <Reveal>
-              <span className="chip pulse-dot" style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--brand)" }}>
-                <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--brand-bright)" }} />
-                Now accepting early access
-              </span>
+              <div className="flex items-center gap-3.5 mb-7">
+                <span className="gold-rule" />
+                <span className="text-[0.72rem] font-semibold uppercase" style={{ color: "var(--gold)", letterSpacing: "0.22em" }}>
+                  By invitation · Now accepting early access
+                </span>
+              </div>
             </Reveal>
             <Reveal delay={80}>
-              <h1 className="mt-5 text-[2.3rem] sm:text-5xl lg:text-[3.3rem] font-extrabold leading-[1.05]" style={{ color: "var(--text)" }}>
+              <h1 className="text-[2.9rem] sm:text-7xl lg:text-[5rem] leading-[1.02]" style={{ color: "#F6F1E6" }}>
                 Book the tee&nbsp;time.<br />
-                <span className="grad-text">Keep the score.</span>
+                <span className="grad-text" style={{ fontStyle: "italic" }}>Keep the&nbsp;score.</span>
               </h1>
             </Reveal>
             <Reveal delay={160}>
-              <p className="mt-5 text-lg leading-relaxed" style={{ color: "var(--text-2)" }}>
-                Match Play connects golfers to tee times at the courses they love — with match-play scoring,
-                handicaps, and leaderboards built in. And it gives operators a booking platform that charges
-                <strong style={{ color: "var(--brand)" }}> zero commission</strong>.
+              <p className="mt-7 text-lg sm:text-xl leading-relaxed max-w-xl" style={{ color: "rgba(244,239,227,0.82)" }}>
+                A members-grade booking experience for golfers and the courses they love — match-play
+                scoring, handicaps, and leaderboards built in. Zero commission, always.
               </p>
             </Reveal>
             <Reveal delay={240}>
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <a href="#waitlist" className="btn btn-primary">Get early access <IconArrow size={18} /></a>
-                <a href="#how" className="btn btn-ghost">See how it works</a>
+              <div className="mt-9 flex flex-col sm:flex-row gap-3">
+                <a href="#waitlist" className="btn btn-gold">Request early access <IconArrow size={18} /></a>
+                <a href="#how" className="btn btn-light">See how it works</a>
               </div>
             </Reveal>
             <Reveal delay={320}>
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm" style={{ color: "var(--muted)" }}>
+              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm" style={{ color: "rgba(244,239,227,0.72)" }}>
                 <span className="inline-flex items-center gap-1.5" style={{ color: "var(--gold)" }}>
                   {[0, 1, 2, 3, 4].map((i) => <IconStar key={i} size={15} />)}
                 </span>
                 <WaitlistCount />
               </div>
             </Reveal>
-          </div>
-
-          {/* visual */}
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[440px]">
-              {/* golden-hour course photo */}
-              <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5", borderRadius: 28, boxShadow: "var(--shadow-lg)" }}>
-                <Image
-                  src="/hero-course.png"
-                  alt="A pristine golf course fairway glowing at golden hour"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 88vw, 440px"
-                  style={{ objectFit: "cover" }}
-                />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(155deg, transparent 42%, rgba(12,58,34,0.34))" }} />
-              </div>
-
-              {/* product phone, floating in front (scale on outer, float on inner) */}
-              <div className="absolute z-20 hero-phone" style={{ right: -16, bottom: -28 }}>
-                <div className="float"><PhoneMockup /></div>
-              </div>
-
-              {/* last-minute alert chip */}
-              <div className="hidden sm:flex absolute z-30 card items-center gap-2.5 px-4 py-3" style={{ left: -20, bottom: 44, background: "var(--surface)" }}>
-                <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white" style={{ background: "var(--grad-gold)" }}>
-                  <IconBell size={17} />
-                </span>
-                <div className="leading-tight">
-                  <div className="text-xs font-bold">Last-minute slot!</div>
-                  <div className="text-[11px]" style={{ color: "var(--muted)" }}>7:20 AM · $48 · 3 left</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </header>
@@ -246,7 +229,7 @@ export default function Home() {
             </div>
           </div>
           <Reveal delay={120} className="order-1 lg:order-2 flex justify-center">
-            <PhoneMockup />
+            <div className="theme-light"><PhoneMockup /></div>
           </Reveal>
         </div>
       </section>
@@ -255,7 +238,7 @@ export default function Home() {
       <section id="courses" className="section" style={{ background: "var(--surface)" }}>
         <div className="container grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <Reveal className="flex justify-center">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md theme-light">
               <DashboardMockup />
             </div>
           </Reveal>
@@ -475,7 +458,7 @@ export default function Home() {
                   <AppBadges />
                 </div>
               </div>
-              <div className="rounded-2xl p-6 sm:p-7" style={{ background: "var(--bg)" }}>
+              <div className="theme-light rounded-2xl p-6 sm:p-7" style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
                 <WaitlistForm />
               </div>
             </div>

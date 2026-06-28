@@ -186,6 +186,78 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .marquee-track, .float, .spin-slow, .pulse-dot { animation: none !important; }
+  .marquee-track, .float, .spin-slow, .pulse-dot, .kenburns, .gold-rule { animation: none !important; }
   * { scroll-behavior: auto !important; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   CLUB THEME — dark, cinematic, premium. Scoped to the marketing
+   page only (the admin portal keeps the light :root tokens).
+   ════════════════════════════════════════════════════════════ */
+.theme-club {
+  --bg: #0A130E;
+  --surface: #0F1C15;
+  --surface-2: #13241B;
+  --surface-3: #1A3322;
+  --border: rgba(216,179,106,0.16);
+  --border-strong: rgba(216,179,106,0.34);
+  --text: #F4EFE3;
+  --text-2: #C9D2C4;
+  --muted: #8E9B8B;
+  --brand: #2FA65C;
+  --brand-bright: #45C275;
+  --brand-700: #228247;
+  --gold: #D8B36A;
+  --gold-light: #ECCD86;
+  --grad-brand: linear-gradient(135deg, #36B566 0%, #1E8F4C 100%);
+  --grad-gold: linear-gradient(135deg, #ECCD86 0%, #C99B45 100%);
+  --grad-deep: linear-gradient(165deg, #060D09 0%, #0C2014 55%, #123018 100%);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 22px rgba(0,0,0,0.5);
+  --shadow-lg: 0 34px 70px -22px rgba(0,0,0,0.75);
+  --shadow-glow: 0 24px 70px -22px rgba(216,179,106,0.38);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Serif display headings */
+.theme-club h1,
+.theme-club h2 {
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+/* Gold accents */
+.theme-club .eyebrow { color: var(--gold); }
+.theme-club .grad-text {
+  background: var(--grad-gold);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Gold primary CTA — premium, dark text on gold */
+.btn-gold { background: var(--grad-gold); color: #1A1206; box-shadow: var(--shadow-glow); }
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 30px 84px -22px rgba(216,179,106,0.6); }
+
+/* Cinematic slow zoom on the hero image */
+.kenburns { animation: kenburns 28s ease-in-out infinite alternate; transform-origin: 58% 42%; }
+@keyframes kenburns { from { transform: scale(1.05); } to { transform: scale(1.16); } }
+
+/* Animated gold hairline */
+.gold-rule {
+  display: inline-block; height: 1px; width: 56px;
+  background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold-light), transparent);
+  background-size: 220% 100%; animation: shimmer 4.5s linear infinite;
+}
+@keyframes shimmer { to { background-position: -220% 0; } }
+
+/* ── Light re-scope (device mockups stay bright on the dark page) ── */
+.theme-light {
+  --bg: #FAFCF9; --surface: #FFFFFF; --surface-2: #F2F7F0; --surface-3: #E9F1E6;
+  --border: #E4EADF; --border-strong: #D2DCCC;
+  --text: #0E1A12; --text-2: #44544A; --muted: #6B7A70;
+  --brand: #1A7A45; --brand-bright: #1FA055; --gold: #D29B22;
+  --grad-brand: linear-gradient(135deg, #22A85B 0%, #15864A 100%);
+  --grad-gold: linear-gradient(135deg, #F0C44E 0%, #D29B22 100%);
 }

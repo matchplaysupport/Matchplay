@@ -34,7 +34,7 @@ export function Nav() {
     <nav
       className="sticky top-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled ? "rgba(250,252,249,0.82)" : "transparent",
+        background: scrolled ? "rgba(8,15,11,0.78)" : "transparent",
         backdropFilter: scrolled ? "blur(14px)" : "none",
         borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
