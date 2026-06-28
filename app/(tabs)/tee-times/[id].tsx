@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useStripe } from "@stripe/stripe-react-native";
+import { useQuery } from "@tanstack/react-query";
 import {
   Body,
   Button,
@@ -17,7 +18,6 @@ import {
   Title,
   useTheme,
 } from "@/design-system/components";
-import { demoCourses, demoTeeTimes } from "@/features/courses/demoData";
 import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
 import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
 import { env } from "@/lib/env";
@@ -34,8 +34,15 @@ export default function TeeTimeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const p = useTheme();
 
-  const teeTime = demoTeeTimes.find((t) => t.id === id);
-  const course = teeTime ? demoCourses.find((c) => c.id === teeTime.courseId) : null;
+  // Load the tee time (and its course) through the provider so this works on
+  // live Supabase data, not just the static demo inventory.
+  const { data, isLoading } = useQuery({
+    queryKey: ["tee-time", id],
+    queryFn: () => provider.getTeeTime(id),
+    enabled: Boolean(id),
+  });
+  const teeTime = data?.teeTime;
+  const course = data?.course ?? null;
 
   const [players, setPlayers] = useState(2);
   const [communitySpots, setCommunitySpots] = useState(0);
@@ -47,6 +54,16 @@ export default function TeeTimeDetailScreen() {
 
   const totalPrice = teeTime ? (teeTime.priceCents / 100) * players : 0;
   const selectedTeeSet = course?.teeSets[0];
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: p.background }}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator color={p.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!teeTime || !course) {
     return (
