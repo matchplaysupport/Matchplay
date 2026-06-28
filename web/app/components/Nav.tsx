@@ -9,6 +9,7 @@ const LINKS = [
   { href: "#how", label: "How it works" },
   { href: "#golfers", label: "For Golfers" },
   { href: "#courses", label: "For Courses" },
+  { href: "#savings", label: "Savings" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
