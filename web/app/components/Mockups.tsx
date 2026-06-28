@@ -154,13 +154,15 @@ export function DashboardMockup() {
           <span className="text-[11px] font-semibold uppercase" style={{ color: "var(--muted)", letterSpacing: "0.06em" }}>Bookings by hour</span>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Peak 8–9a</span>
         </div>
-        {/* Bar chart */}
-        <div className="mt-3 flex items-end justify-between gap-1.5" style={{ height: 92 }}>
+        {/* Bar chart — fixed-height bar row, labels in a separate row so bars render */}
+        <div className="mt-3 flex items-end gap-1.5" style={{ height: 80 }}>
           {fill.map((h, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-              <div className="w-full rounded-t" style={{ height: `${h}%`, background: i === peak ? "var(--grad-brand)" : "rgba(26,122,69,0.22)" }} />
-              <span className="text-[9px] font-medium" style={{ color: "var(--muted)" }}>{hours[i]}</span>
-            </div>
+            <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: i === peak ? "var(--grad-brand)" : "rgba(26,122,69,0.3)" }} />
+          ))}
+        </div>
+        <div className="mt-1.5 flex gap-1.5">
+          {hours.map((hr) => (
+            <span key={hr} className="flex-1 text-center text-[9px] font-medium" style={{ color: "var(--muted)" }}>{hr}</span>
           ))}
         </div>
         {/* next booking */}
