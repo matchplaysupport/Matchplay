@@ -1,0 +1,6 @@
+appId: com.matchplay.mobile
+---
+- launchApp
+- tapOn: "Sign in / create development account"
+- tapOn: "Accept terms and complete onboarding"
+- assertVisible: "Good round"

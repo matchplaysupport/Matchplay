@@ -1,0 +1,7 @@
+appId: com.matchplay.mobile
+---
+- launchApp
+- tapOn: "Tee Times"
+- tapOn: "Search simulated inventory"
+- tapOn: "Review and confirm"
+- assertVisible: "Tee Times"
