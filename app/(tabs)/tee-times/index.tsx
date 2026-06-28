@@ -16,7 +16,9 @@ import {
 } from "@/design-system/components";
 import { demoCourses } from "@/features/courses/demoData";
 import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
+import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
 import { analytics } from "@/lib/analytics";
+import { env } from "@/lib/env";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { TeeTime } from "@/types/domain";
@@ -24,7 +26,9 @@ import type { TeeTime } from "@/types/domain";
 type SortOption = "earliest" | "lowest_price" | "recommended";
 type HoleFilter = "all" | 9 | 18;
 
-const provider = new SimulatedTeeTimeProvider();
+const provider = env.EXPO_PUBLIC_USE_MOCK_AUTH
+  ? new SimulatedTeeTimeProvider()
+  : new SupabaseTeeTimeProvider();
 
 export default function TeeTimesScreen() {
   const [query, setQuery] = useState("Nashville");

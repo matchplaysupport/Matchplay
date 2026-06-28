@@ -33,6 +33,8 @@ interface AppState {
   // Auth
   profile: Profile | null;
   isOnboarded: boolean;
+  /** Supabase auth user id — null when using mock auth */
+  authUserId: string | null;
 
   // Data
   bookings: Booking[];
@@ -45,11 +47,14 @@ interface AppState {
 
   // Active scoring session (survives app restarts)
   activeRound: ActiveRoundState | null;
-  // The course associated with the active (or most recent) round
   activeCourse: Course | null;
 
   // Auth actions
+  /** Mock sign-in for local dev (EXPO_PUBLIC_USE_MOCK_AUTH=true) */
   signIn(email: string): void;
+  /** Called by root layout after Supabase auth resolves a session */
+  setAuthSession(authUserId: string, profile: Profile | null): void;
+  /** Called after onboarding writes profile to DB */
   completeOnboarding(profile: Profile): void;
   logout(): void;
 
@@ -78,6 +83,7 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       profile: null,
       isOnboarded: false,
+      authUserId: null,
       bookings: [],
       rounds: [],
       openGames: seededOpenGames,
@@ -88,6 +94,7 @@ export const useAppStore = create<AppState>()(
       activeRound: null,
       activeCourse: null,
 
+      // ── Mock auth (dev only) ─────────────────────────────────────────────────
       signIn: (email) => {
         const demoProfile = demoProfiles[0];
         if (!demoProfile) throw new Error("Missing demo profile");
@@ -97,8 +104,19 @@ export const useAppStore = create<AppState>()(
             id: `local-${email}`,
             username: email.split("@")[0] ?? "golfer",
           },
+          isOnboarded: true,
+          authUserId: null,
         });
       },
+
+      // ── Real auth ────────────────────────────────────────────────────────────
+      setAuthSession: (authUserId, profile) =>
+        set({
+          authUserId,
+          profile,
+          // Mark onboarded if we found an existing profile in the DB
+          isOnboarded: profile !== null,
+        }),
 
       completeOnboarding: (profile) =>
         set((state) => ({
@@ -110,8 +128,16 @@ export const useAppStore = create<AppState>()(
           },
         })),
 
-      logout: () => set({ profile: null, isOnboarded: false, activeRound: null }),
+      logout: () =>
+        set({
+          profile: null,
+          isOnboarded: false,
+          authUserId: null,
+          activeRound: null,
+          bookings: [],
+        }),
 
+      // ── Data ─────────────────────────────────────────────────────────────────
       addBooking: (booking) =>
         set((state) => ({ bookings: [booking, ...state.bookings] })),
 
@@ -136,7 +162,9 @@ export const useAppStore = create<AppState>()(
 
       updateTournament: (tournament) =>
         set((state) => ({
-          tournaments: state.tournaments.map((t) => (t.id === tournament.id ? tournament : t)),
+          tournaments: state.tournaments.map((t) =>
+            t.id === tournament.id ? tournament : t,
+          ),
         })),
 
       addScramble: (scramble) =>
@@ -144,7 +172,9 @@ export const useAppStore = create<AppState>()(
 
       updateScramble: (scramble) =>
         set((state) => ({
-          scrambles: state.scrambles.map((s) => (s.id === scramble.id ? scramble : s)),
+          scrambles: state.scrambles.map((s) =>
+            s.id === scramble.id ? scramble : s,
+          ),
         })),
 
       recordMetric: (metric) =>
@@ -154,6 +184,7 @@ export const useAppStore = create<AppState>()(
 
       updateProfile: (profile) => set({ profile }),
 
+      // ── Scoring ──────────────────────────────────────────────────────────────
       startRound: (state, course) => set({ activeRound: state, activeCourse: course }),
 
       scoreHole: (holeNumber, score) =>

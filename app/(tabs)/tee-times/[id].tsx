@@ -18,11 +18,15 @@ import {
 } from "@/design-system/components";
 import { demoCourses, demoTeeTimes } from "@/features/courses/demoData";
 import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
+import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
+import { env } from "@/lib/env";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 
-const provider = new SimulatedTeeTimeProvider();
+const provider = env.EXPO_PUBLIC_USE_MOCK_AUTH
+  ? new SimulatedTeeTimeProvider()
+  : new SupabaseTeeTimeProvider();
 
 export default function TeeTimeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, Body, Button, Chip, Field, Muted, ProgressBar, Row, Subheading, Title, useTheme } from "@/design-system/components";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { analytics } from "@/lib/analytics";
+import { env } from "@/lib/env";
+import { createProfile, fetchProfile } from "@/lib/auth";
 import { useAppStore } from "@/stores/appStore";
 import type { Profile, SkillLevel } from "@/types/domain";
 
@@ -26,6 +28,7 @@ const TOTAL_STEPS = 4;
 
 export default function OnboardingScreen() {
   const profile = useAppStore((state) => state.profile);
+  const authUserId = useAppStore((state) => state.authUserId);
   const completeOnboarding = useAppStore((state) => state.completeOnboarding);
   const p = useTheme();
 
@@ -43,22 +46,53 @@ export default function OnboardingScreen() {
   const advance = () => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
-  const finish = () => {
+  const finish = async () => {
     const handicapValue = handicapStr ? parseFloat(handicapStr) : undefined;
-    const completed: Profile = {
-      ...profile,
-      displayName: displayName || profile.displayName,
-      username: username || profile.username,
-      city: city || profile.city,
-      state: state || profile.state,
-      skillLevel,
-      preferredGameStyle: preferredStyle,
-      handicapSource: handicapValue != null ? "official_unverified" : "match_play_estimate",
-      handicapValue: handicapValue != null && !isNaN(handicapValue) ? handicapValue : undefined,
-    };
-    completeOnboarding(completed);
-    analytics.track("onboarding_completed", { city, skillLevel });
-    router.replace("/(tabs)");
+
+    if (env.EXPO_PUBLIC_USE_MOCK_AUTH || !authUserId) {
+      // Mock / dev path
+      const completed: Profile = {
+        ...profile,
+        displayName: displayName || profile.displayName,
+        username: username || profile.username,
+        city: city || profile.city,
+        state: state || profile.state,
+        skillLevel,
+        preferredGameStyle: preferredStyle,
+        handicapSource: handicapValue != null ? "official_unverified" : "match_play_estimate",
+        handicapValue: handicapValue != null && !isNaN(handicapValue) ? handicapValue : undefined,
+      };
+      completeOnboarding(completed);
+      analytics.track("onboarding_completed", { city, skillLevel });
+      router.replace("/(tabs)");
+      return;
+    }
+
+    // Real path — write to Supabase
+    try {
+      await createProfile(authUserId, {
+        displayName: displayName || "Golfer",
+        username: username || `golfer_${Date.now()}`,
+        city: city || "Nashville",
+        state: state || "TN",
+        zipCode: "",
+        skillLevel,
+        handicapSource: handicapValue != null ? "official_unverified" : "match_play_estimate",
+        handicapValue: handicapValue != null && !isNaN(handicapValue) ? handicapValue : undefined,
+        preferredRadiusMiles: 25,
+        preferredGameStyle: preferredStyle,
+      });
+
+      const saved = await fetchProfile(authUserId);
+      if (saved) {
+        completeOnboarding(saved);
+        analytics.track("onboarding_completed", { city, skillLevel });
+        router.replace("/(tabs)");
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save profile.";
+      Alert.alert("Error", message);
+    }
   };
 
   const steps = [
@@ -111,7 +145,7 @@ export default function OnboardingScreen() {
         <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
           <Button
             label={step < TOTAL_STEPS - 1 ? "Continue" : "Complete profile"}
-            onPress={step < TOTAL_STEPS - 1 ? advance : finish}
+            onPress={step < TOTAL_STEPS - 1 ? advance : () => void finish()}
             size="lg"
           />
         </View>
