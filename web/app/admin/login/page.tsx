@@ -1,6 +1,6 @@
 import AdminLoginForm from "./AdminLoginForm";
 
-export const metadata = { title: "Operator Sign In · Match Play" };
+export const metadata = { title: "Operator Sign In · The Clubhouse" };
 
 export default function AdminLoginPage() {
   return (

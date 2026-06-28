@@ -3,7 +3,7 @@ import { LegalPage, Section } from "../components/LegalPage";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How Match Play collects, uses, and protects your information.",
+  description: "How The Clubhouse collects, uses, and protects your information.",
   robots: { index: true, follow: true },
 };
 
@@ -12,7 +12,7 @@ export default function Privacy() {
     <LegalPage title="Privacy Policy" updated="June 28, 2026">
       <Section heading="Overview">
         <p>
-          Match Play (&quot;we,&quot; &quot;us&quot;) operates a golf tee-time booking and scoring platform. This policy explains what
+          The Clubhouse (&quot;we,&quot; &quot;us&quot;) operates a golf tee-time booking and scoring platform. This policy explains what
           information we collect, why, and the choices you have. By joining our waitlist or using our products, you agree to this policy.
         </p>
       </Section>
@@ -49,7 +49,7 @@ export default function Privacy() {
         <p>You can unsubscribe from emails at any time using the link in any message, or request access to or deletion of your data by contacting us.</p>
       </Section>
       <Section heading="Contact">
-        <p>Questions about this policy? Email <strong>privacy@matchplay.golf</strong>.</p>
+        <p>Questions about this policy? Email <strong>privacy@golftheclubhouse.com</strong>.</p>
       </Section>
     </LegalPage>
   );

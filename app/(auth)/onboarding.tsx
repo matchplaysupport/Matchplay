@@ -176,7 +176,7 @@ function StepBasics({ displayName, username, onDisplayName, onUsername }: {
     <View style={{ gap: spacing.lg }}>
       <View style={{ gap: spacing.xs }}>
         <Title>Your golfer profile</Title>
-        <Body color={p.muted}>How other players will see you on Match Play.</Body>
+        <Body color={p.muted}>How other players will see you on The Clubhouse.</Body>
       </View>
       <Field label="Display name" value={displayName} onChangeText={onDisplayName} placeholder="Jackson Reed" autoComplete="name" returnKeyType="next" />
       <Field
@@ -287,7 +287,7 @@ function StepPreferences({ style, onStyle, handicap, onHandicap }: {
       <View style={{ gap: spacing.md, paddingTop: spacing.sm }}>
         <View style={{ gap: spacing.xs }}>
           <Subheading>Current handicap (optional)</Subheading>
-          <Body color={p.muted} style={{ fontSize: fontSizes.small }}>Enter your known handicap or leave blank. Match Play will generate an estimate once you complete rounds.</Body>
+          <Body color={p.muted} style={{ fontSize: fontSizes.small }}>Enter your known handicap or leave blank. The Clubhouse will generate an estimate once you complete rounds.</Body>
         </View>
         <Field
           label="Handicap Index"

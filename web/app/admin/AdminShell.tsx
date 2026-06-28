@@ -51,7 +51,7 @@ export default function AdminShell({
         <div style={{ padding: "1.25rem 1.25rem 1rem", borderBottom: "1px solid var(--border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
             <span style={{ fontSize: "1.1rem" }}>⛳</span>
-            <span style={{ fontWeight: 700, color: "var(--brand)", fontSize: "0.95rem" }}>Match Play</span>
+            <span style={{ fontWeight: 700, color: "var(--brand)", fontSize: "0.95rem" }}>The Clubhouse</span>
           </div>
           {courseName ? (
             <p style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600, lineHeight: 1.3 }}>{courseName}</p>

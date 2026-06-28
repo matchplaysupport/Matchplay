@@ -54,7 +54,7 @@ export default function LoginScreen() {
             <View style={styles.logoMark}>
               <Text style={styles.logoText}>⛳</Text>
             </View>
-            <Text style={[styles.brandName, { color: "#FFFFFF" }]}>Match Play</Text>
+            <Text style={[styles.brandName, { color: "#FFFFFF" }]}>The Clubhouse</Text>
             <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body, textAlign: "center", lineHeight: 22 }}>
               Find golfers. Book tee times. Track every round.
             </Text>

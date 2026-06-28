@@ -37,7 +37,7 @@ export const calculateEstimatedHandicap = (rounds: Round[]): HandicapAuditResult
   return {
     value: Number(average.toFixed(1)),
     roundsUsed,
-    explanation: "Match Play Estimate based on eligible submitted rounds. This is not an official USGA Handicap Index.",
+    explanation: "Clubhouse Estimate based on eligible submitted rounds. This is not an official USGA Handicap Index.",
     differentials,
   };
 };

@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
-import { IconMenu, IconX } from "./icons";
+import { IconMenu, IconX, IconSun, IconMoon } from "./icons";
+import { useTheme } from "./ThemeProvider";
 import { track } from "../../lib/track";
 
-const LINKS = [
+type NavLink = { href: string; label: string };
+
+const DEFAULT_LINKS: NavLink[] = [
   { href: "#how", label: "How it works" },
   { href: "#golfers", label: "For Golfers" },
   { href: "#courses", label: "For Courses" },
@@ -14,9 +17,22 @@ const LINKS = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export function Nav() {
+interface NavProps {
+  links?: NavLink[];
+  ctaHref?: string;
+  ctaLabel?: string;
+  logoHref?: string;
+}
+
+export function Nav({
+  links = DEFAULT_LINKS,
+  ctaHref = "#waitlist",
+  ctaLabel = "Join the waitlist",
+  logoHref = "#top",
+}: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { dark, toggle } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -34,31 +50,53 @@ export function Nav() {
     <nav
       className="sticky top-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled ? "rgba(8,15,11,0.78)" : "transparent",
+        background: scrolled
+          ? dark ? "rgba(8,15,11,0.82)" : "rgba(250,252,249,0.92)"
+          : "transparent",
         backdropFilter: scrolled ? "blur(14px)" : "none",
         borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
     >
       <div className="container flex items-center justify-between h-16 sm:h-[68px]">
-        <a href="#top" aria-label="Match Play home"><Logo size={30} /></a>
+        <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} /></a>
 
         <div className="hidden md:flex items-center gap-7">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm font-medium transition-colors hover:text-[var(--brand)]" style={{ color: "var(--text-2)" }}>
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-sm font-medium transition-colors hover:text-[var(--brand)]"
+              style={{ color: "var(--text-2)" }}
+            >
               {l.label}
             </a>
           ))}
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Dark / light toggle */}
+          <button
+            onClick={toggle}
+            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-colors"
+            style={{
+              background: "var(--surface-2)",
+              border: "1px solid var(--border)",
+              color: "var(--text-2)",
+            }}
+          >
+            {dark ? <IconSun size={16} /> : <IconMoon size={16} />}
+          </button>
+
           <a
-            href="#waitlist"
+            href={ctaHref}
             onClick={() => track("nav_cta_click")}
             className="btn btn-primary hidden sm:inline-flex"
             style={{ padding: "0.6rem 1.15rem", fontSize: "0.875rem" }}
           >
-            Join the waitlist
+            {ctaLabel}
           </a>
+
           <button
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
             style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }}
@@ -75,7 +113,7 @@ export function Nav() {
       {open && (
         <div className="md:hidden fixed inset-0 top-16 z-40" style={{ background: "var(--bg)" }}>
           <div className="container py-6 flex flex-col gap-1">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -87,11 +125,11 @@ export function Nav() {
               </a>
             ))}
             <a
-              href="#waitlist"
+              href={ctaHref}
               onClick={() => { setOpen(false); track("nav_cta_click", { source: "mobile" }); }}
               className="btn btn-primary mt-5 w-full"
             >
-              Join the waitlist
+              {ctaLabel}
             </a>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 
-export const metadata = { title: "Bookings · Match Play Admin" };
+export const metadata = { title: "Bookings · The Clubhouse Admin" };
 
 export default async function BookingsPage() {
   const supabase = await createClient();

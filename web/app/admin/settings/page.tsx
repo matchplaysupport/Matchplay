@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import SettingsClient from "./SettingsClient";
 
-export const metadata = { title: "Settings · Match Play Admin" };
+export const metadata = { title: "Settings · The Clubhouse Admin" };
 
 export default async function SettingsPage() {
   const supabase = await createClient();

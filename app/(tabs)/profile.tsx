@@ -91,7 +91,7 @@ export default function ProfileScreen() {
             <View style={[styles.notice, { backgroundColor: p.accentBg }]}>
               <Ionicons name="information-circle-outline" size={14} color={p.accentText} />
               <Text style={{ flex: 1, fontSize: fontSizes.tiny, color: p.accentText, lineHeight: 17 }}>
-                Match Play estimates are calculated from submitted rounds and are not official USGA Handicap Indexes.
+                The Clubhouse estimates are calculated from submitted rounds and are not official USGA Handicap Indexes.
               </Text>
             </View>
           </Card>
@@ -148,12 +148,12 @@ export default function ProfileScreen() {
           </Card>
         </View>
 
-        {/* Match Play Pro */}
+        {/* Clubhouse Pro */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
           <Card elevated style={{ backgroundColor: p.primaryDark, borderColor: "transparent" }}>
             <Row align="space-between">
               <View style={{ flex: 1, gap: spacing.xs }}>
-                <Chip label="Match Play Pro" variant="accent" />
+                <Chip label="Clubhouse Pro" variant="accent" />
                 <Subheading style={{ color: "#FFFFFF", marginTop: spacing.xs }}>Unlock the full game</Subheading>
                 <Body style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small, lineHeight: 19 }}>
                   Unlimited discovery, advanced stats, detailed leaderboards, match history, private groups, and more.
@@ -164,7 +164,7 @@ export default function ProfileScreen() {
               label="View Pro options"
               variant="accent"
               onPress={() => Alert.alert(
-                "Match Play Pro",
+                "Clubhouse Pro",
                 "Pricing and subscriptions are configured via RevenueCat. Monthly and annual plans will be available at launch.",
               )}
             />
@@ -178,7 +178,7 @@ export default function ProfileScreen() {
             {[
               { icon: "notifications-outline" as const, label: "Notifications", onPress: () => Alert.alert("Notifications", "Notification preferences coming soon.") },
               { icon: "lock-closed-outline" as const, label: "Security", onPress: () => Alert.alert("Security", "Password change and 2FA coming soon.") },
-              { icon: "help-circle-outline" as const, label: "Help & support", onPress: () => Alert.alert("Support", "support@matchplay.golf") },
+              { icon: "help-circle-outline" as const, label: "Help & support", onPress: () => Alert.alert("Support", "support@golftheclubhouse.com") },
               { icon: "document-text-outline" as const, label: "Terms of Service", onPress: () => Alert.alert("Terms", "Legal review required before launch.") },
               { icon: "shield-outline" as const, label: "Privacy Policy", onPress: () => Alert.alert("Privacy", "Legal review required before launch.") },
             ].map((item, i) => (
@@ -236,7 +236,7 @@ export default function ProfileScreen() {
 
         {/* Build info */}
         <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.xl, alignItems: "center", gap: spacing.xs }}>
-          <Muted>Match Play · MVP Build</Muted>
+          <Muted>The Clubhouse · MVP Build</Muted>
           <Muted>Demo mode · No backend connected</Muted>
         </View>
       </ScrollView>

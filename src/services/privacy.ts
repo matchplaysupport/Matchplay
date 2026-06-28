@@ -23,7 +23,7 @@ export const projectPublicProfile = (profile: Profile): PublicProfile | null => 
       profile.privacy.hideHandicap || profile.handicapValue === undefined
         ? null
         : `${profile.handicapValue.toFixed(1)} ${
-            profile.handicapSource === "match_play_estimate" ? "Match Play Estimate" : "Official, unverified"
+            profile.handicapSource === "match_play_estimate" ? "Clubhouse Estimate" : "Official, unverified"
           }`,
     skillLevel: profile.skillLevel,
     reliabilityLabel: profile.reliabilityLabel,

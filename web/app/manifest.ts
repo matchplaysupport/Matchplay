@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Match Play — Golf Tee Times & Scoring",
-    short_name: "Match Play",
+    name: "The Clubhouse — Golf Tee Times & Scoring",
+    short_name: "The Clubhouse",
     description:
       "Book tee times, track match-play scoring and handicaps, and compete on leaderboards — with zero-commission booking for courses.",
     start_url: "/",

@@ -7,7 +7,7 @@ export function LegalPage({ title, updated, children }: { title: string; updated
     <div className="flex flex-col min-h-screen">
       <header className="border-b" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
         <div className="container h-16 flex items-center justify-between">
-          <Link href="/" aria-label="Match Play home"><Logo size={28} /></Link>
+          <Link href="/" aria-label="The Clubhouse home"><Logo size={28} /></Link>
           <Link href="/" className="text-sm font-medium hover:text-[var(--brand)]" style={{ color: "var(--text-2)" }}>← Back to home</Link>
         </div>
       </header>
@@ -23,7 +23,7 @@ export function LegalPage({ title, updated, children }: { title: string; updated
 
       <footer className="border-t mt-auto" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
         <div className="container py-6 text-xs" style={{ color: "var(--muted)" }}>
-          © {new Date().getFullYear()} Match Play. All rights reserved.
+          © {new Date().getFullYear()} The Clubhouse. All rights reserved.
         </div>
       </footer>
     </div>

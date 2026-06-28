@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   if (!operator) {
     return (
       <div style={{ padding: "3rem 2rem", maxWidth: 600 }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>Welcome to Match Play</h1>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>Welcome to The Clubhouse</h1>
         <p style={{ color: "var(--muted)", marginBottom: "1.5rem" }}>
           Your account is active but isn't linked to a course yet. Go to Settings to register your course.
         </p>

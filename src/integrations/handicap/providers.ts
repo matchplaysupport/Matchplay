@@ -7,7 +7,7 @@ export class DemoHandicapProvider implements HandicapProvider {
     const result = calculateEstimatedHandicap(rounds);
     return Promise.resolve({
       value: result.value,
-      label: "Match Play Estimate",
+      label: "Clubhouse Estimate",
       source: "match_play_estimate" as const,
       roundsUsed: result.roundsUsed,
     });

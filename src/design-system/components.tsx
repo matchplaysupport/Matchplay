@@ -807,7 +807,7 @@ export function HandicapLabel({
         {value.toFixed(1)}
       </Text>
       <Chip
-        label={isEstimate ? "Match Play Est." : "Self-reported"}
+        label={isEstimate ? "Clubhouse Est." : "Self-reported"}
         variant={isEstimate ? "accent" : "primary"}
         size="xs"
       />

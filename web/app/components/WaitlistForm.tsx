@@ -130,7 +130,7 @@ export function WaitlistForm({ defaultAudience = "golfer" }: { defaultAudience?:
           <a
             className="btn btn-ghost"
             style={{ padding: "0.6rem 1.1rem", fontSize: "0.85rem" }}
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Just joined the @MatchPlay waitlist — zero-commission golf tee times 🏌️ matchplay.golf")}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Just joined The Clubhouse waitlist — zero-commission golf tee times 🏌️ golftheclubhouse.com")}`}
             target="_blank" rel="noopener noreferrer"
             onClick={() => track("waitlist_share", { network: "x" })}
           >

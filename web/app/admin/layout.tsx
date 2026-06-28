@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import AdminShell from "./AdminShell";
 
-export const metadata = { title: "Match Play Admin" };
+export const metadata = { title: "The Clubhouse Admin" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

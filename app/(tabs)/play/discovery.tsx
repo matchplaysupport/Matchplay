@@ -67,7 +67,7 @@ export default function DiscoveryScreen() {
           <Ionicons name="people-outline" size={64} color={p.mutedLight} />
           <Title style={{ textAlign: "center" }}>You&rsquo;ve seen everyone nearby</Title>
           <Body color={p.muted} style={{ textAlign: "center", lineHeight: 22 }}>
-            Match Play will surface new golfers as more players join in your area. Expand your search radius in Settings.
+            The Clubhouse will surface new golfers as more players join in your area. Expand your search radius in Settings.
           </Body>
         </View>
       </SafeAreaView>

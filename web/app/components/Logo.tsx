@@ -1,4 +1,4 @@
-// Match Play wordmark — a golf-flag roundel + type. Works on light or dark.
+// The Clubhouse wordmark — a golf-flag roundel + type. Works on light or dark.
 export function LogoMark({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
@@ -32,7 +32,7 @@ export function Logo({ size = 32, light = false }: { size?: number; light?: bool
           color: light ? "#fff" : "var(--text)",
         }}
       >
-        Match Play
+        The Clubhouse
       </span>
     </span>
   );

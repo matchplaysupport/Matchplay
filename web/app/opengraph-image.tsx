@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Match Play — Book the tee time. Keep the score.";
+export const alt = "The Clubhouse — Book the tee time. Keep the score.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -18,7 +18,7 @@ export default function OpengraphImage() {
         {/* top: logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#22A85B,#15803D)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34 }}>⛳️</div>
-          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>Match Play</div>
+          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>The Clubhouse</div>
         </div>
 
         {/* middle: headline */}

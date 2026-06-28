@@ -17,34 +17,34 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://matchplay.golf";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golftheclubhouse.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Match Play — Book Tee Times. Keep the Score. Zero Commission.",
-    template: "%s · Match Play",
+    default: "The Clubhouse — Book Tee Times. Keep the Score. Zero Commission.",
+    template: "%s · The Clubhouse",
   },
   description:
-    "Match Play connects golfers to tee times at their favourite courses and gives operators a zero-commission booking platform. Search, book, and play — with match-play scoring, handicaps, and leaderboards built in.",
+    "The Clubhouse connects golfers to tee times at their favourite courses and gives operators a zero-commission booking platform. Search, book, and play — with match-play scoring, handicaps, and leaderboards built in.",
   keywords: [
     "golf tee times", "tee time booking", "golf course software", "zero commission tee times",
     "match play scoring", "golf handicap app", "tee sheet management", "golf marketplace",
   ],
-  authors: [{ name: "Match Play" }],
+  authors: [{ name: "The Clubhouse" }],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Match Play — Book Tee Times. Keep the Score.",
+    title: "The Clubhouse — Book Tee Times. Keep the Score.",
     description:
       "The zero-commission booking platform for modern golf. Find a tee time in seconds, track your match, and never leave a slot empty.",
     url: SITE_URL,
-    siteName: "Match Play",
+    siteName: "The Clubhouse",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Match Play — Book Tee Times. Keep the Score.",
+    title: "The Clubhouse — Book Tee Times. Keep the Score.",
     description:
       "The zero-commission booking platform for modern golf. Find a tee time in seconds, track your match, and never leave a slot empty.",
   },
@@ -58,13 +58,13 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
-      name: "Match Play",
+      name: "The Clubhouse",
       url: SITE_URL,
       description: "Zero-commission golf tee-time booking and match-play scoring platform.",
     },
     {
       "@type": "SoftwareApplication",
-      name: "Match Play",
+      name: "The Clubhouse",
       applicationCategory: "SportsApplication",
       operatingSystem: "iOS, Android",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },

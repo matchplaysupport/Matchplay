@@ -171,7 +171,7 @@ export function DashboardMockup() {
             <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ background: "var(--grad-brand)" }}>8:20</span>
             <div className="leading-tight">
               <div className="text-xs font-semibold" style={{ color: "var(--text)" }}>Next group · 4 players</div>
-              <div className="text-[10px]" style={{ color: "var(--muted)" }}>Paid $248 · via Match Play</div>
+              <div className="text-[10px]" style={{ color: "var(--muted)" }}>Paid $248 · via The Clubhouse</div>
             </div>
           </div>
           <span className="text-[10px] font-semibold px-2 py-1 rounded-md" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Confirmed</span>

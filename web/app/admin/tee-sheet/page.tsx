@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import TeeSheetClient from "./TeeSheetClient";
 
-export const metadata = { title: "Tee Sheet · Match Play Admin" };
+export const metadata = { title: "Tee Sheet · The Clubhouse Admin" };
 
 export default async function TeeSheetPage() {
   const supabase = await createClient();

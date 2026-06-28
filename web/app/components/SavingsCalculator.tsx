@@ -172,7 +172,7 @@ export function SavingsCalculator() {
 
           {/* Plan toggle */}
           <div>
-            <label className="text-sm font-medium" style={{ color: "var(--text-2)" }}>Your Match Play plan</label>
+            <label className="text-sm font-medium" style={{ color: "var(--text-2)" }}>Your Clubhouse plan</label>
             <div className="mt-2.5 inline-flex w-full rounded-xl p-1 gap-1" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
               {(Object.keys(PLANS) as PlanKey[]).map((k) => (
                 <button
@@ -230,7 +230,7 @@ export function SavingsCalculator() {
               valueColor="rgba(255,255,255,0.9)"
             />
             <Bar
-              label="Match Play"
+              label="The Clubhouse"
               value={mpAnnual}
               widthPct={(mpAnnual / max) * 100}
               gradient="var(--grad-gold)"
@@ -243,7 +243,7 @@ export function SavingsCalculator() {
               <IconX size={15} /> ${feePerBooking.toFixed(2)} in fees per booking today
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <IconCheck size={15} /> $0 per booking with Match Play
+              <IconCheck size={15} /> $0 per booking with The Clubhouse
             </span>
           </div>
 
@@ -256,7 +256,7 @@ export function SavingsCalculator() {
             Lock in these savings <IconArrow size={18} />
           </a>
           <p className="mt-3 text-xs text-center" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Estimate only. Stripe processing (~2.9% + 30¢) is a pass-through, not a Match Play fee.
+            Estimate only. Stripe processing (~2.9% + 30¢) is a pass-through, not a Clubhouse fee.
           </p>
         </div>
       </div>

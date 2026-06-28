@@ -101,7 +101,7 @@ export default function LeaderboardsScreen() {
           <View style={{ gap: 4 }}>
             <Title style={{ color: "#FFFFFF" }}>Leaderboards</Title>
             <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body }}>
-              {scopeLabel} · {periodLabel} Match Play points
+              {scopeLabel} · {periodLabel} Clubhouse points
             </Text>
           </View>
           <Ionicons name="podium" size={36} color="rgba(255,255,255,0.3)" />

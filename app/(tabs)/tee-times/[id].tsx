@@ -96,7 +96,7 @@ export default function TeeTimeDetailScreen() {
 
         if (piJson.clientSecret) {
           const { error: initErr } = await initPaymentSheet({
-            merchantDisplayName: "Match Play",
+            merchantDisplayName: "The Clubhouse",
             paymentIntentClientSecret: piJson.clientSecret,
           });
           if (initErr) throw new Error(initErr.message);
@@ -274,7 +274,7 @@ export default function TeeTimeDetailScreen() {
                 </Row>
               </Row>
 
-              <Muted>Share unused spots with nearby Match Play golfers looking for a group.</Muted>
+              <Muted>Share unused spots with nearby Clubhouse golfers looking for a group.</Muted>
             </View>
 
             <Divider />

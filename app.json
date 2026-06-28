@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "Match Play",
-    "slug": "match-play",
+    "name": "The Clubhouse",
+    "slug": "the-clubhouse",
     "version": "0.1.0",
     "orientation": "portrait",
-    "scheme": "matchplay",
+    "scheme": "theclubbhouse",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
-      "bundleIdentifier": "com.matchplay.mobile",
+      "bundleIdentifier": "com.theclubbhouse.mobile",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Match Play uses approximate location to suggest nearby tee times, golfers, and open games."
+        "NSLocationWhenInUseUsageDescription": "The Clubhouse uses approximate location to suggest nearby tee times, golfers, and open games."
       }
     },
     "android": {
-      "package": "com.matchplay.mobile",
+      "package": "com.theclubbhouse.mobile",
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
     "plugins": ["expo-router", "expo-secure-store", "expo-notifications", "expo-location", "@stripe/stripe-react-native"],
