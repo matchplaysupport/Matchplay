@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { IconArrow, IconCheck, IconZap } from "./icons";
+import { IconArrow, IconCheck, IconX, IconZap } from "./icons";
 import { track } from "../../lib/track";
 
 // ── Plans ─────────────────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ export function SavingsCalculator() {
   const [rounds, setRounds] = useState(300);     // bookings/mo through the channel
   const [fee, setFee] = useState(48);            // avg green fee
   const [commission, setCommission] = useState(15); // % taken now
+  const [monthlySub, setMonthlySub] = useState(0);   // flat monthly fee they pay now
   const [plan, setPlan] = useState<PlanKey>("founding");
   const interacted = useRef(false);
 
@@ -113,7 +114,7 @@ export function SavingsCalculator() {
     };
   }
 
-  const currentAnnual = rounds * fee * (commission / 100) * 12;
+  const currentAnnual = (rounds * fee * (commission / 100) + monthlySub) * 12;
   const mpAnnual = PLANS[plan].monthly * 12;
   const savings = currentAnnual - mpAnnual;
   const pctSaved = currentAnnual > 0 ? Math.round((savings / currentAnnual) * 100) : 0;
@@ -143,6 +144,31 @@ export function SavingsCalculator() {
             value={commission} min={0} max={30} step={1}
             onChange={onChange(setCommission)} format={(n) => `${n}%`}
           />
+
+          {/* Current monthly software fee */}
+          <div>
+            <label htmlFor="mp-monthly-sub" className="text-sm font-medium" style={{ color: "var(--text-2)" }}>
+              Your current monthly software fee
+            </label>
+            <div className="mt-2.5 relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold" style={{ color: "var(--muted)" }}>$</span>
+              <input
+                id="mp-monthly-sub"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={monthlySub === 0 ? "" : monthlySub}
+                placeholder="0"
+                onChange={(e) => {
+                  if (!interacted.current) { interacted.current = true; track("calc_interact"); }
+                  setMonthlySub(Math.max(0, Number(e.target.value) || 0));
+                }}
+                className="w-full rounded-xl pl-8 pr-4 py-3 text-sm outline-none transition-colors"
+                style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }}
+              />
+            </div>
+            <p className="mt-1.5 text-xs" style={{ color: "var(--muted)" }}>Put 0 if you don&apos;t pay a subscription.</p>
+          </div>
 
           {/* Plan toggle */}
           <div>
@@ -214,7 +240,7 @@ export function SavingsCalculator() {
 
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm" style={{ color: "rgba(255,255,255,0.82)" }}>
             <span className="inline-flex items-center gap-1.5">
-              <IconCheck size={15} /> ${feePerBooking.toFixed(2)} in fees per booking today
+              <IconX size={15} /> ${feePerBooking.toFixed(2)} in fees per booking today
             </span>
             <span className="inline-flex items-center gap-1.5">
               <IconCheck size={15} /> $0 per booking with Match Play
