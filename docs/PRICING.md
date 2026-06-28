@@ -12,8 +12,9 @@ landing page and the un-priced `free`/`pro` enum in
 | | **Pro** ⭐ | **$199/mo** ($1,990/yr — 2 mo free) | Core revenue engine |
 | | Premium / Multi-Course | **$399/mo** or custom | Groups, integrations, upsell |
 | | *Founding rate* | **$99/mo locked for life** (first 100 courses) | Acquisition wedge |
-| **Golfer (B2C)** | Free | **$0 forever** | Keeps the brand promise; drives liquidity |
-| | **Match Play+** | **$4.99/mo or $39.99/yr** (founding $29.99/yr) | Optional power-user upsell |
+| **Golfer (B2C)** | Free — "Browse" | **$0** | View-only hook; see live inventory, do nothing |
+| | **Match Play+** — "Play" | **$9.99/mo** | Booking, scoring, handicap, stats — the full golf app |
+| | **Match Play Pro** — "Compete" | **$19.99/mo** | Competitive, social-power, and organizer layer |
 
 **Commission stays 0%.** All revenue comes from subscriptions. Payment processing
 (Stripe Connect, ~2.9% + 30¢) is a transparent pass-through, *not* a Match Play cut —
@@ -36,9 +37,14 @@ Against GolfNow, $199/mo is a ~94% cost reduction *and* the course keeps the gol
 relationship. That contrast — not the absolute number — is the sales pitch. Pricing
 much below $199 leaves money on the table and signals "tool," not "channel."
 
-Consumer comps (18Birdies $60–90/yr, TheGrint $30–80/yr) put Match Play+ at the **low
-end on purpose**: booking is free, so + only sells power/social features and should
-convert on impulse, not deliberation.
+On the consumer side we chose a **gated three-tier model** instead of "free forever."
+Free is view-only (see live tee times, do nothing); booking and everything else sit
+behind Match Play+ ($9.99) and Pro ($19.99). This is a deliberate bet: booking *alone*
+never justifies $9.99 (golfers book free on GolfNow), so Match Play+ is positioned as
+"your entire golf app — booking + scoring + handicap + stats — for $10/mo," i.e.
+18Birdies Premium ($60–90/yr) *plus* real tee-time booking. Pro earns its 2× by being
+explicitly for competitive players and event organizers. The split rule:
+**record-your-own-golf → Match Play+; measure-against-others or run-events → Pro.**
 
 ## Course tiers (primary revenue)
 
@@ -67,28 +73,60 @@ maximizes course density so golfers find inventory; the 25-booking cap and missi
 tee-sheet/analytics tools make Pro the obvious upgrade once a course sees real volume.
 If supply turns out *not* to be the constraint, drop Listing and make Pro the entry tier.
 
-## Golfer tiers (secondary — protects "free forever")
+## Golfer tiers
 
-The free tier must keep the public promise: **searching, booking, scoring, and all
-safety tools are free forever.** Match Play+ only sells features that are *power/social*,
-never booking — so "free to book, forever" stays literally true.
+Each tier has a job: **Free = "Browse"** (see everything, do nothing — the hook),
+**Match Play+ = "Play"** (everything you need to actually golf with the app),
+**Pro = "Compete"** (the competitive, social-power, and organizer layer). Features below
+are mapped from the real app surface (`app/(tabs)` + `src/services`).
 
-| Feature | Free ($0) | **Match Play+ ($4.99/mo)** |
-|---|:--:|:--:|
-| Unlimited tee-time search & booking, 0 fees | ✅ | ✅ |
-| Match-play & stroke-play scoring | ✅ | ✅ |
-| Handicap tracking (estimate) | ✅ | ✅ |
-| Last-minute deal alerts | ✅ | Priority / early access |
-| Block, report, delete account (safety) | ✅ | ✅ (never paid) |
-| Leaderboards | Local | **State & national** |
-| Open games | Join up to 2 active | **Unlimited + private groups** |
-| Discovery filters | Basic | **Advanced** (price, conditions, radius, time) |
-| Discovery undo / rewind | — | ✅ |
-| Advanced stats & match history | — | ✅ |
+| Feature | Free | **Match Play+ $9.99** | **Pro $19.99** |
+|---|:--:|:--:|:--:|
+| **Booking & discovery** | | | |
+| View live tee times + green fees | ✅ | ✅ | ✅ |
+| Course profiles, photos, info | ✅ | ✅ | ✅ |
+| Basic search (date, time, players) | ✅ | ✅ | ✅ |
+| **Book a tee time** | — | ✅ | ✅ |
+| Saved / favorite courses | — | 5 | Unlimited |
+| Last-minute deal alerts | — | ✅ | Priority + early access |
+| Advanced filters (price, conditions, radius, time) | — | — | ✅ |
+| Waitlist priority on full tee sheets | — | — | ✅ |
+| **Scoring & handicap** | | | |
+| Digital scorecard (stroke play) | — | ✅ | ✅ |
+| All formats (match play, stableford, practice) | — | ✅ | ✅ |
+| Hole-by-hole + hole maps | — | ✅ | ✅ |
+| Resume in-progress rounds | — | ✅ | ✅ |
+| Handicap tracking (estimate) | — | ✅ | ✅ |
+| Round history | — | Last 20 | Full + trends |
+| Advanced analytics (strokes-gained, club/hole) | — | — | ✅ |
+| GHIN / official handicap sync *(when live)* | — | — | ✅ |
+| **Social & competitive** | | | |
+| Local leaderboards | — | ✅ | ✅ |
+| State & national leaderboards | — | — | ✅ |
+| Find playing partners (discovery) | — | ✅ | ✅ |
+| Discovery undo / rewind | — | — | ✅ |
+| Open games — join | — | Up to 2 active | Unlimited |
+| Open games — host / create | — | — | ✅ |
+| Match-play challenges (head-to-head + verification) | — | Casual | Ranked + verified |
+| Private groups | — | — | ✅ |
+| In-app messaging | — | ✅ | ✅ |
+| **Tournaments & events** | | | |
+| Join tournaments / scrambles | — | ✅ | ✅ |
+| Create + manage tournaments | — | — | ✅ |
+| Scramble organizer suite (sponsors, flights, packages) | — | — | ✅ |
+| **Safety** (never gated) | | | |
+| Block, report, delete account | ✅ | ✅ | ✅ |
 
-These map 1:1 to the existing `ProFeature` enum:
-`state_national_leaderboards`, `unlimited_open_games`, `advanced_filters`,
-`discovery_undo`. No new gating primitives are needed.
+**Design logic:** tier on intensity of use, not random feature scatter. Limits (2 open
+games, 5 saved courses on +) let avid golfers *feel* the ceiling and self-select into
+Pro — better than hiding a feature outright. The scramble organizer suite is the quiet
+Pro anchor: running a charity scramble with sponsors and flights is worth $20/mo to that
+segment by itself.
+
+**Scoring-hook caveat:** locking *all* scoring behind + gives up the free on-course
+scorecard that 18Birdies/TheGrint use as their daily-habit funnel. Strong alternative:
+move basic stroke-play scoring to Free, keep advanced formats, history depth, and
+analytics paid. The matrix works either way.
 
 ## Revenue model (illustrative, modest scale)
 
@@ -96,26 +134,39 @@ These map 1:1 to the existing `ProFeature` enum:
 |---|---|---|
 | Pro courses | 250 @ $199/mo | ~$597k |
 | Premium courses | 25 @ $399/mo | ~$120k |
-| Match Play+ | 50k MAU × 3% × $39.99/yr | ~$60k |
-| **Total** | | **~$777k** |
+| Match Play+ | 100k registered × 5% @ $9.99/mo | ~$599k |
+| Match Play Pro (golfer) | 100k registered × 1% @ $19.99/mo | ~$240k |
+| **Total** | | **~$1.56M** |
 
-~420 paying Pro courses = $1M ARR from courses alone, against a US TAM of ~16,000
-facilities. The course subscription is the business; golfer + is gravy that also lifts
-retention.
+The course lines (~$717k) are the **reliable floor** — a sales problem you control. The
+consumer lines (~$839k) are the **upside bet**: real if you hit 100k engaged golfers
+converting at 5%/1% with booking gated, but that conversion is the single biggest
+unknown in this plan. Treat courses as the business and consumer revenue as the lever
+to prove. US TAM: ~16,000 facilities, ~25M golfers.
 
 ## Open decisions / flags
 
-1. **Landing page** currently shows "Flat rate" with no number. Recommend showing
-   **"From $99/mo — founding"** to anchor value without locking GA pricing publicly.
-2. **"Free forever" for golfers** is compatible with Match Play+ *only* because + never
-   gates booking. Keep that line bright; legal review (see `MVP_LIMITATIONS.md`) should
-   confirm consumer-subscription disclosure.
+1. ⚠️ **Landing page directly contradicts this model.** `web/app/page.tsx` markets to
+   golfers: "Free for golfers, forever," "Zero booking fees," and lists *unlimited
+   search, scoring, handicap, leaderboards, and deal alerts* as **free**. The gated
+   model paywalls booking + scoring + handicap + leaderboards + alerts behind $9.99/+.
+   These cannot both ship. Decide the golfer story first, then rewrite the page —
+   recommend reframing free as "Free to browse — see every tee time near you" and adding
+   the +/Pro cards. This is the highest-priority reconciliation.
+2. **Course landing card** still shows "Flat rate" with no number. Recommend
+   **"From $99/mo — founding."**
 3. **Payment-processing margin** is an optional future lever (e.g., bill courses a flat
    3.5% all-in, keep ~0.6% over Stripe cost). It technically dilutes "keep 100%," so
    it's *off* by default — subscriptions carry the model.
-4. **Schema/code gaps to implement next:**
+4. **Naming:** "Premium vs Pro" is ambiguous on which is higher. Recommend brand-tied
+   **Match Play+** ($9.99) and **Match Play Pro** ($19.99).
+5. **Schema/code gaps to implement next:**
    - Add a `plan` / `subscription_tier` column + status to `course_operators` (or a new
      `course_subscriptions` table) with Stripe Billing as source of truth.
-   - Extend `SubscriptionProvider` with course-side tiers, or add a parallel
-     `CourseSubscriptionProvider`; today it only models the golfer `free`/`pro` enum.
-   - Create Stripe Products/Prices for all five plans (3 course + founding + golfer+).
+   - Extend `SubscriptionProvider`: the entitlement enum is two-state (`free`/`pro`) and
+     must become three-state (`free`/`plus`/`pro`); add the new Match Play+ gates
+     (`booking`, `scoring`, `handicap`, `local_leaderboards`, `discovery`, `messaging`)
+     alongside the existing Pro gates (`state_national_leaderboards`,
+     `unlimited_open_games`, `advanced_filters`, `discovery_undo`, plus host-games,
+     advanced-analytics, tournament-create, scramble-organizer).
+   - Create Stripe Products/Prices for all plans (3 course + founding + 2 golfer).
