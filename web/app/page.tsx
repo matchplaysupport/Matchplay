@@ -4,6 +4,7 @@ import { Reveal, Counter } from "./components/motion";
 import { WaitlistForm, WaitlistCount } from "./components/WaitlistForm";
 import { Faq } from "./components/Faq";
 import { PhoneMockup, ScoreCardChip, DashboardMockup } from "./components/Mockups";
+import { SavingsCalculator } from "./components/SavingsCalculator";
 import { Logo } from "./components/Logo";
 import {
   IconCalendar, IconDollar, IconChart, IconSearch, IconTrophy,
@@ -320,6 +321,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Savings calculator ───────────────────────────────── */}
+      <section id="savings" className="section">
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto">
+            <span className="eyebrow">Savings calculator</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
+              See what you&apos;re really paying
+            </h2>
+            <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
+              Drag the sliders to match your course. We&apos;ll show what a commission-based platform costs you
+              today versus a flat Match Play subscription.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120} className="mt-12 max-w-4xl mx-auto">
+            <SavingsCalculator />
+          </Reveal>
+        </div>
+      </section>
+
       {/* ── Pricing ──────────────────────────────────────────── */}
       <section id="pricing" className="section" style={{ background: "var(--surface)" }}>
         <div className="container">
@@ -327,41 +348,79 @@ export default function Home() {
             <span className="eyebrow">Pricing</span>
             <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>Simple, honest pricing</h2>
             <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
-              Free for golfers, forever. A flat subscription for courses — no commission, no per-booking fees.
+              Browse every tee time free. Subscribe to book and play. Courses pay one flat rate — never commission.
             </p>
           </Reveal>
 
-          <div className="mt-12 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <p className="mt-10 text-center text-xs font-bold tracking-widest uppercase" style={{ color: "var(--muted)" }}>For golfers</p>
+          <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <Reveal className="card p-8 flex flex-col">
-              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Golfers</span>
+              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Free · Browse</span>
               <div className="mt-5 flex items-end gap-1">
-                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)" }}>Free</span>
+                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)" }}>$0</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>forever</span>
               </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>Download, search, book, and score. You only ever pay the course&apos;s green fee.</p>
+              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>See every tee time near you. Subscribe when you&apos;re ready to play.</p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["Unlimited tee-time search", "Zero booking fees", "Match-play & stroke-play scoring", "Handicap tracking & leaderboards", "Last-minute deal alerts"].map((f) => (
+                {["Live tee times & green fees", "Course profiles & info", "Search by date, time & players"].map((f) => (
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-ghost mt-8 w-full">Join the waitlist</a>
+              <a href="#waitlist" className="btn btn-ghost mt-8 w-full">Join free</a>
             </Reveal>
 
-            <Reveal delay={120} className="card p-8 flex flex-col relative overflow-hidden" style={{ borderColor: "var(--brand)", boxShadow: "var(--shadow-lg)" }}>
-              <span className="absolute top-5 right-5 chip" style={{ background: "var(--grad-gold)", color: "#3a2c05" }}>Founding pricing</span>
-              <span className="chip self-start" style={{ background: "var(--grad-brand)", color: "#fff" }}>Courses</span>
+            <Reveal delay={80} className="card p-8 flex flex-col relative overflow-hidden" style={{ borderColor: "var(--brand)", boxShadow: "var(--shadow-lg)" }}>
+              <span className="absolute top-5 right-5 chip" style={{ background: "var(--grad-brand)", color: "#fff" }}>Most popular</span>
+              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Match Play+ · Play</span>
               <div className="mt-5 flex items-end gap-1">
-                <span className="text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>Flat rate</span>
+                <span className="text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>$9.99</span>
+                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo</span>
               </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>One predictable monthly subscription. Keep 100% of every green fee — early partners lock in founding rates.</p>
+              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>Your whole golf app — book, score, and track every round.</p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
+                {["Book tee times in two taps", "Match & stroke-play scoring", "Handicap tracking & round stats", "Local leaderboards", "Find partners & deal alerts"].map((f) => (
+                  <Check key={f}>{f}</Check>
+                ))}
+              </ul>
+              <a href="#waitlist" className="btn btn-primary mt-8 w-full">Get early access</a>
+            </Reveal>
+
+            <Reveal delay={160} className="card p-8 flex flex-col">
+              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Match Play Pro · Compete</span>
+              <div className="mt-5 flex items-end gap-1">
+                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)" }}>$19.99</span>
+                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo</span>
+              </div>
+              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>For competitors and organizers who live on the leaderboard.</p>
+              <ul className="mt-6 flex flex-col gap-3 flex-1">
+                {["Everything in Match Play+", "State & national leaderboards", "Ranked matches & private groups", "Advanced analytics & GHIN sync", "Host games & run tournaments"].map((f) => (
+                  <Check key={f}>{f}</Check>
+                ))}
+              </ul>
+              <a href="#waitlist" className="btn btn-ghost mt-8 w-full">Go Pro</a>
+            </Reveal>
+          </div>
+
+          <p className="mt-12 text-center text-xs font-bold tracking-widest uppercase" style={{ color: "var(--muted)" }}>For courses</p>
+          <Reveal delay={120} className="mt-5 max-w-5xl mx-auto card p-8 relative overflow-hidden" style={{ borderColor: "var(--gold)" }}>
+            <span className="absolute top-6 right-6 chip" style={{ background: "var(--grad-gold)", color: "#3a2c05" }}>Founding pricing</span>
+            <div className="grid lg:grid-cols-[1.05fr_1fr] gap-8 items-center">
+              <div>
+                <span className="chip self-start" style={{ background: "var(--grad-brand)", color: "#fff" }}>Courses</span>
+                <div className="mt-5 flex items-end gap-2">
+                  <span className="text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>From $99</span>
+                  <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo · founding</span>
+                </div>
+                <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>One predictable subscription, never a cut of your bookings. Keep 100% of every green fee — early partners lock in founding rates for life.</p>
+                <a href="#waitlist" className="btn btn-primary mt-7">Request early access</a>
+              </div>
+              <ul className="grid sm:grid-cols-2 gap-3">
                 {["0% commission on bookings", "Full tee-sheet & pricing control", "Stripe Connect payouts (~2 days)", "Booking & revenue analytics", "Waitlist & last-minute fills", "Group & tournament bookings (soon)"].map((f) => (
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-primary mt-8 w-full">Request early access</a>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -410,7 +469,7 @@ export default function Home() {
                   Join the waitlist and we&apos;ll reach out the moment we&apos;re live near you. Tell us whether you play or run a course.
                 </p>
                 <div className="mt-7 flex flex-col gap-3 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-                  {["Free for golfers — no booking fees, ever", "Zero commission for courses", "Founding members lock in perks"].map((t) => (
+                  {["Browse tee times free — subscribe to play", "Zero commission for courses", "Founding members lock in perks"].map((t) => (
                     <span key={t} className="inline-flex items-center gap-2.5">
                       <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.18)" }}><IconCheck size={13} /></span>
                       {t}

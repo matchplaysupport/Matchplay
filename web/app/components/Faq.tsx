@@ -6,7 +6,7 @@ import { IconChevron } from "./icons";
 const ITEMS = [
   {
     q: "How much does Match Play cost golfers?",
-    a: "The golfer app is free to download and free to book. You pay only the course's green fee — no booking fees, no service charges, no markup.",
+    a: "Browsing tee times is free — download the app and see live availability and green fees near you. To book and play, golfers subscribe to Match Play+ ($9.99/mo) for booking, scoring, handicap tracking, and leaderboards, or Match Play Pro ($19.99/mo) for competitive play, advanced stats, and event hosting. On top of your plan you only ever pay the course's green fee — no per-booking fees or markups.",
   },
   {
     q: "What's the catch with “zero commission” for courses?",
