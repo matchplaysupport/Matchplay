@@ -36,7 +36,10 @@ function Step({ n, title, body, icon }: { n: string; title: string; body: string
         <span className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: "var(--grad-brand)" }}>
           {icon}
         </span>
-        <span className="text-xs font-bold tracking-widest" style={{ color: "var(--muted)" }}>STEP {n}</span>
+        <span className="inline-flex items-baseline gap-1.5">
+          <span className="text-[0.62rem] font-bold tracking-[0.2em] uppercase" style={{ color: "var(--muted)" }}>Step</span>
+          <span style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.55rem", fontStyle: "italic", color: "var(--gold)", lineHeight: 1 }}>{n}</span>
+        </span>
       </div>
       <h4 className="font-semibold text-lg" style={{ color: "var(--text)" }}>{title}</h4>
       <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{body}</p>
@@ -238,7 +241,10 @@ export default function Home() {
             </div>
           </div>
           <Reveal delay={120} className="order-1 lg:order-2 flex justify-center">
-            <div className="theme-light"><PhoneMockup /></div>
+            <div className="relative">
+              <div aria-hidden className="absolute -inset-10 rounded-full" style={{ background: "radial-gradient(circle, rgba(216,179,106,0.16), transparent 68%)" }} />
+              <div className="theme-light relative"><PhoneMockup /></div>
+            </div>
           </Reveal>
         </div>
       </section>
@@ -356,9 +362,9 @@ export default function Home() {
               <a href="#waitlist" className="btn btn-ghost mt-8 w-full">Join free</a>
             </Reveal>
 
-            <Reveal delay={80} className="card p-8 flex flex-col relative overflow-hidden" style={{ borderColor: "var(--brand)", boxShadow: "var(--shadow-lg)" }}>
-              <span className="absolute top-5 right-5 chip" style={{ background: "var(--grad-brand)", color: "#fff" }}>Most popular</span>
-              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Match Play+ · Play</span>
+            <Reveal delay={80} className="card p-8 flex flex-col relative overflow-hidden" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg), 0 0 34px -12px rgba(216,179,106,0.45)" }}>
+              <span className="absolute top-5 right-5 chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>
+              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Match Play+ · Play</span>
               <div className="mt-5 flex items-end gap-1">
                 <span className="text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>$9.99</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo</span>
@@ -369,7 +375,7 @@ export default function Home() {
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-primary mt-8 w-full">Get early access</a>
+              <a href="#waitlist" className="btn btn-gold mt-8 w-full">Get early access</a>
             </Reveal>
 
             <Reveal delay={160} className="card p-8 flex flex-col">
