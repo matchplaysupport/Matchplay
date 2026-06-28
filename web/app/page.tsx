@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Nav } from "./components/Nav";
 import { Reveal, Counter } from "./components/motion";
-import { WaitlistForm, WaitlistCount } from "./components/WaitlistForm";
+import { WaitlistForm } from "./components/WaitlistForm";
 import { Faq } from "./components/Faq";
 import { PhoneMockup, DashboardMockup } from "./components/Mockups";
 import { SavingsCalculator } from "./components/SavingsCalculator";
@@ -125,29 +125,38 @@ export default function Home() {
               </div>
             </Reveal>
             <Reveal delay={320}>
-              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm" style={{ color: "rgba(244,239,227,0.72)" }}>
-                <span className="inline-flex items-center gap-1.5" style={{ color: "var(--gold)" }}>
-                  {[0, 1, 2, 3, 4].map((i) => <IconStar key={i} size={15} />)}
-                </span>
-                <WaitlistCount />
+              <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.82rem]" style={{ color: "rgba(244,239,227,0.64)" }}>
+                {["Free to browse", "Zero commission for courses", "Founding pricing for life"].map((t, i) => (
+                  <span key={t} className="inline-flex items-center gap-4">
+                    {i > 0 && <span aria-hidden style={{ width: 4, height: 4, borderRadius: 99, background: "var(--gold)", opacity: 0.85 }} />}
+                    {t}
+                  </span>
+                ))}
               </div>
             </Reveal>
           </div>
         </div>
+
+        {/* scroll cue */}
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 hidden sm:flex flex-col items-center gap-2.5" aria-hidden style={{ color: "rgba(244,239,227,0.5)" }}>
+          <span className="text-[0.6rem] tracking-[0.24em] uppercase">Scroll</span>
+          <span style={{ width: 1, height: 34, background: "linear-gradient(var(--gold), transparent)" }} />
+        </div>
       </header>
 
       {/* ── Category marquee ─────────────────────────────────── */}
-      <section className="py-12 border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-        <p className="text-center text-[0.7rem] font-semibold tracking-[0.2em] uppercase mb-8" style={{ color: "var(--muted)" }}>
+      <section className="py-14 border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <p className="text-center text-[0.7rem] font-semibold tracking-[0.24em] uppercase mb-9" style={{ color: "var(--gold)" }}>
           Built for every kind of course
         </p>
         <div className="marquee-mask overflow-hidden">
           <div className="marquee-track">
             {[...Array(2)].map((_, dup) => (
-              <div key={dup} className="flex gap-12 items-center" aria-hidden={dup === 1}>
+              <div key={dup} className="flex items-center" style={{ gap: "2.75rem" }} aria-hidden={dup === 1}>
                 {["Independent courses", "Municipals", "Resort & destination", "Private clubs", "9-hole tracks", "Driving ranges", "University courses", "Links & heathland"].map((t) => (
-                  <span key={t} className="inline-flex items-center gap-2 text-[0.95rem] font-medium whitespace-nowrap" style={{ color: "var(--muted)" }}>
-                    <IconFlag size={15} /> {t}
+                  <span key={t} className="inline-flex items-center whitespace-nowrap" style={{ gap: "2.75rem" }}>
+                    <span style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.4rem", color: "var(--text-2)" }}>{t}</span>
+                    <span aria-hidden style={{ width: 5, height: 5, borderRadius: 99, background: "var(--gold)", opacity: 0.55 }} />
                   </span>
                 ))}
               </div>
@@ -157,17 +166,17 @@ export default function Home() {
       </section>
 
       {/* ── Stats ────────────────────────────────────────────── */}
-      <section className="section" style={{ paddingBlock: "4rem" }}>
-        <div className="container grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+      <section className="section" style={{ paddingBlock: "4.5rem" }}>
+        <div className="container grid grid-cols-2 lg:grid-cols-4 gap-y-10">
           {[
             { v: <Counter to={0} suffix="%" />, l: "Commission on bookings" },
             { v: <Counter to={5} prefix="<" suffix=" min" />, l: "To set up a course" },
             { v: <Counter to={2} suffix="-day" />, l: "Stripe payouts" },
-            { v: <span>iOS + Android</span>, l: "Native golfer app" },
+            { v: <span className="whitespace-nowrap" style={{ fontSize: "clamp(1.6rem, 4vw, 2.1rem)" }}>iOS + Android</span>, l: "Native golfer app" },
           ].map((s, i) => (
-            <Reveal key={i} delay={i * 80}>
-              <p className="text-4xl sm:text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>{s.v}</p>
-              <p className="text-sm mt-2 font-medium" style={{ color: "var(--muted)" }}>{s.l}</p>
+            <Reveal key={i} delay={i * 80} className={`text-center px-4 lg:px-6 ${i > 0 ? "lg:border-l" : ""}`} style={i > 0 ? { borderColor: "var(--border)" } : undefined}>
+              <p className="text-4xl sm:text-5xl font-extrabold grad-text leading-none" style={{ fontFamily: "var(--font-sora)" }}>{s.v}</p>
+              <p className="text-[0.78rem] mt-3 font-medium uppercase" style={{ color: "var(--muted)", letterSpacing: "0.08em" }}>{s.l}</p>
             </Reveal>
           ))}
         </div>
