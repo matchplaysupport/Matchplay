@@ -185,7 +185,7 @@ export default function CourseSearchScreen() {
             query.length >= 2 ? (
               <View style={{ alignItems: "center", marginTop: spacing.xxxl, gap: spacing.md }}>
                 <Ionicons name="golf-outline" size={48} color={p.mutedLight} />
-                <Body color={p.muted}>No courses found for "{query}"</Body>
+                <Body color={p.muted}>No courses found for &ldquo;{query}&rdquo;</Body>
                 <Muted>Try a different name or city</Muted>
               </View>
             ) : (

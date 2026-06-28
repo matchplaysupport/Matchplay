@@ -29,10 +29,12 @@ export default function SettingsClient({
   authUserId,
   courseId,
   course,
+  stripeOnboarded,
 }: {
   authUserId: string;
   courseId: string | null;
   course: CourseData;
+  stripeOnboarded: boolean;
 }) {
   const router = useRouter();
   const [name, setName] = useState(course?.name ?? "");
@@ -45,6 +47,19 @@ export default function SettingsClient({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [connectingStripe, setConnectingStripe] = useState(false);
+
+  const handleConnectStripe = async () => {
+    setConnectingStripe(true);
+    const res = await fetch("/api/stripe/create-connect-account", { method: "POST" });
+    const json = await res.json() as { url?: string; error?: string };
+    if (json.url) {
+      window.location.href = json.url;
+    } else {
+      setError(json.error ?? "Failed to start Stripe onboarding.");
+      setConnectingStripe(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +115,34 @@ export default function SettingsClient({
           {courseId ? "Update your course details." : "Register your course to start publishing tee times."}
         </p>
       </div>
+
+      {/* Stripe Connect */}
+      {courseId && (
+        <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--text)" }}>Stripe payouts</p>
+            <p style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.2rem" }}>
+              {stripeOnboarded
+                ? "Your Stripe account is connected. Golfers can now pay and you'll receive direct payouts."
+                : "Connect Stripe to accept payments and receive direct payouts from bookings."}
+            </p>
+          </div>
+          {stripeOnboarded ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.875rem", borderRadius: 99, background: "rgba(26,122,69,0.1)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, whiteSpace: "nowrap" }}>
+              ✓ Connected
+            </span>
+          ) : (
+            <button
+              className="btn btn-primary"
+              onClick={() => void handleConnectStripe()}
+              disabled={connectingStripe}
+              style={{ fontSize: "0.8rem", whiteSpace: "nowrap", opacity: connectingStripe ? 0.7 : 1 }}
+            >
+              {connectingStripe ? "Redirecting…" : "Connect Stripe"}
+            </button>
+          )}
+        </div>
+      )}
 
       <form onSubmit={(e) => void handleSave(e)}>
         <div className="card" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.125rem" }}>

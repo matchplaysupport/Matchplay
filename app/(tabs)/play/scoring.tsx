@@ -37,6 +37,16 @@ export default function ScoringScreen() {
   const [penalty, setPenalty] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Derive current-hole context defensively so every Hook runs on every render.
+  // activeRound can be null on first mount or right after a round ends — calling
+  // useState after the early return below would violate the Rules of Hooks.
+  const course = activeCourse ?? (activeRound ? demoCourses.find((c) => c.id === activeRound.courseId) : undefined);
+  const currentHoleNum = activeRound?.currentHole ?? 1;
+  const holeData = course?.holes.find((h) => h.number === currentHoleNum);
+  const par = holeData?.par ?? 4;
+  const currentScore = activeRound?.scores.find((s) => s.holeNumber === currentHoleNum)?.grossScore ?? par;
+  const [score, setScore] = useState(currentScore);
+
   if (!activeRound) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: p.background }}>
@@ -59,16 +69,8 @@ export default function ScoringScreen() {
     );
   }
 
-  // Use real course from store; fall back to demo data if somehow missing
-  const course = activeCourse ?? demoCourses.find((c) => c.id === activeRound.courseId);
-  const currentHoleNum = activeRound.currentHole;
-  const holeData = course?.holes.find((h) => h.number === currentHoleNum);
-  const par = holeData?.par ?? 4;
   const yardage = holeData?.yardsByTeeSet[activeRound.teeSetId] ?? 0;
   const teeSet = course?.teeSets.find((ts) => ts.id === activeRound.teeSetId);
-
-  const currentScore = activeRound.scores.find((s) => s.holeNumber === currentHoleNum)?.grossScore ?? par;
-  const [score, setScore] = useState(currentScore);
 
   const runningTotal = activeRound.scores.reduce((sum, s) => {
     const holePar = course?.holes.find((h) => h.number === s.holeNumber)?.par ?? 4;

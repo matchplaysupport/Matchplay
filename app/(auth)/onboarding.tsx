@@ -106,14 +106,16 @@ export default function OnboardingScreen() {
 
   const steps = [
     <StepBasics
+      key="basics"
       displayName={displayName}
       username={username}
       onDisplayName={setDisplayName}
       onUsername={setUsername}
     />,
-    <StepLocation city={city} state={state} onCity={setCity} onState={setState} />,
-    <StepSkill selected={skillLevel} onSelect={setSkillLevel} />,
+    <StepLocation key="location" city={city} state={state} onCity={setCity} onState={setState} />,
+    <StepSkill key="skill" selected={skillLevel} onSelect={setSkillLevel} />,
     <StepPreferences
+      key="preferences"
       style={preferredStyle}
       onStyle={setPreferredStyle}
       handicap={handicapStr}

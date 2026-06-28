@@ -19,7 +19,7 @@
       "package": "com.matchplay.mobile",
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-notifications", "expo-location"],
+    "plugins": ["expo-router", "expo-secure-store", "expo-notifications", "expo-location", "@stripe/stripe-react-native"],
     "experiments": {
       "typedRoutes": true
     }

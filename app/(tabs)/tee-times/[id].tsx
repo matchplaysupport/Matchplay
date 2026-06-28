@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useStripe } from "@stripe/stripe-react-native";
 import {
   Body,
   Button,
@@ -20,8 +21,9 @@ import { demoCourses, demoTeeTimes } from "@/features/courses/demoData";
 import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
 import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
 import { env } from "@/lib/env";
+import { supabase } from "@/lib/supabase";
 import { analytics } from "@/lib/analytics";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 
 const provider = env.EXPO_PUBLIC_USE_MOCK_AUTH
@@ -41,6 +43,7 @@ export default function TeeTimeDetailScreen() {
   const [booked, setBooked] = useState(false);
   const addBooking = useAppStore((state) => state.addBooking);
   const recordMetric = useAppStore((state) => state.recordMetric);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const totalPrice = teeTime ? (teeTime.priceCents / 100) * players : 0;
   const selectedTeeSet = course?.teeSets[0];
@@ -61,9 +64,37 @@ export default function TeeTimeDetailScreen() {
     setBooking(true);
     try {
       const result = await provider.reserve({ teeTimeId: teeTime.id, players, communitySpots });
-      addBooking(result);
       recordMetric("bookingRequests");
-      analytics.track("simulated_booking_completed", { courseId: teeTime.courseId, players });
+
+      if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const jwt = sessionData.session?.access_token;
+
+        const piRes = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/stripe/create-payment-intent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}) },
+          body: JSON.stringify({ teeTimeId: teeTime.id, players, bookingId: result.id }),
+        });
+        const piJson = await piRes.json() as { clientSecret?: string; error?: string };
+
+        if (piJson.clientSecret) {
+          const { error: initErr } = await initPaymentSheet({
+            merchantDisplayName: "Match Play",
+            paymentIntentClientSecret: piJson.clientSecret,
+          });
+          if (initErr) throw new Error(initErr.message);
+
+          const { error: payErr } = await presentPaymentSheet();
+          if (payErr) {
+            Alert.alert("Payment cancelled", payErr.message);
+            return;
+          }
+        }
+        // If no clientSecret (course not yet on Stripe), fall through and confirm anyway
+      }
+
+      addBooking(result);
+      analytics.track("booking_completed", { courseId: teeTime.courseId, players, mock: env.EXPO_PUBLIC_USE_MOCK_AUTH });
       setBooked(true);
     } catch (err) {
       Alert.alert("Could not book", err instanceof Error ? err.message : "Unknown error");
@@ -82,7 +113,7 @@ export default function TeeTimeDetailScreen() {
             </View>
             <Title style={{ textAlign: "center" }}>Request received!</Title>
             <Body color={p.muted} style={{ textAlign: "center", lineHeight: 22 }}>
-              Your demo booking for {course.name} has been added to your upcoming rounds.
+              Your booking for {course.name} has been added to your upcoming rounds.
             </Body>
           </View>
           <Card elevated>
@@ -95,17 +126,19 @@ export default function TeeTimeDetailScreen() {
             </Row>
             <Divider />
             <Row align="space-between">
-              <Text style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, color: p.text }}>Demo total</Text>
+              <Text style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, color: p.text }}>Total</Text>
               <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.heavy, color: p.primary }}>
                 ${totalPrice.toFixed(0)}
               </Text>
             </Row>
           </Card>
-          <View style={{ backgroundColor: p.accentBg, borderRadius: radii.md, padding: spacing.md }}>
-            <Text style={{ fontSize: fontSizes.small, color: p.accentText, lineHeight: 18 }}>
-              ⓘ This is a simulated booking. No payment was processed and no real reservation was created.
-            </Text>
-          </View>
+          {env.EXPO_PUBLIC_USE_MOCK_AUTH && (
+            <View style={{ backgroundColor: p.accentBg, borderRadius: radii.md, padding: spacing.md }}>
+              <Text style={{ fontSize: fontSizes.small, color: p.accentText, lineHeight: 18 }}>
+                ⓘ Demo mode — no payment was processed and no real reservation was created.
+              </Text>
+            </View>
+          )}
           <Button label="View upcoming rounds" onPress={() => router.replace("/(tabs)")} />
           <Button label="Find more tee times" variant="secondary" onPress={() => router.back()} />
         </ScrollView>
@@ -230,17 +263,24 @@ export default function TeeTimeDetailScreen() {
             <Divider />
 
             <Row align="space-between">
-              <Text style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, color: p.text }}>Demo total ({players} golfer{players !== 1 ? "s" : ""})</Text>
+              <Text style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, color: p.text }}>Total ({players} golfer{players !== 1 ? "s" : ""})</Text>
               <Text style={{ fontSize: fontSizes.title, fontWeight: fontWeights.heavy, color: p.primary }}>${totalPrice.toFixed(0)}</Text>
             </Row>
 
-            <Button label={booking ? "Processing..." : "Request this tee time"} onPress={() => void handleBook()} loading={booking} size="lg" />
+            <Button
+              label={booking ? "Processing..." : env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Request this tee time (demo)" : "Pay & book"}
+              onPress={() => void handleBook()}
+              loading={booking}
+              size="lg"
+            />
 
-            <View style={{ backgroundColor: p.accentBg, borderRadius: radii.md, padding: spacing.md }}>
-              <Text style={{ fontSize: fontSizes.tiny, color: p.accentText, lineHeight: 17 }}>
-                ⓘ Demo mode: no payment required. Real booking integrations will be added when operator partnerships are established.
-              </Text>
-            </View>
+            {env.EXPO_PUBLIC_USE_MOCK_AUTH && (
+              <View style={{ backgroundColor: p.accentBg, borderRadius: radii.md, padding: spacing.md }}>
+                <Text style={{ fontSize: fontSizes.tiny, color: p.accentText, lineHeight: 17 }}>
+                  ⓘ Demo mode — no payment required.
+                </Text>
+              </View>
+            )}
           </Card>
         </View>
       </ScrollView>

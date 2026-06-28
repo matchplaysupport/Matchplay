@@ -1,6 +1,26 @@
 import { demoCourses, demoTeeTimes } from "@/features/courses/demoData";
-import type { Booking } from "@/types/domain";
-import type { CreateBookingInput, TeeTimeProvider, TeeTimeSearchFilters } from "./TeeTimeProvider";
+import type { Booking, Course, CourseSummary, TeeTime } from "@/types/domain";
+import type {
+  CreateBookingInput,
+  TeeTimeDetail,
+  TeeTimeProvider,
+  TeeTimeSearchFilters,
+} from "./TeeTimeProvider";
+
+const summarize = (course: Course): CourseSummary => ({
+  id: course.id,
+  name: course.name,
+  facilityName: course.facilityName,
+  city: course.city,
+  state: course.state,
+  zipCode: course.zipCode,
+});
+
+/** Attach the course summary so screens never need to look up demo data themselves. */
+const withCourse = (teeTime: TeeTime): TeeTime => {
+  const course = demoCourses.find((item) => item.id === teeTime.courseId);
+  return course ? { ...teeTime, course: summarize(course) } : teeTime;
+};
 
 export class SimulatedTeeTimeProvider implements TeeTimeProvider {
   private bookings: Booking[] = [];
@@ -27,7 +47,14 @@ export class SimulatedTeeTimeProvider implements TeeTimeProvider {
     if (filters.sortBy === "lowest_price") {
       results = [...results].sort((a, b) => a.priceCents - b.priceCents);
     }
-    return Promise.resolve(results);
+    return Promise.resolve(results.map(withCourse));
+  }
+
+  async getTeeTime(id: string): Promise<TeeTimeDetail | null> {
+    const teeTime = demoTeeTimes.find((item) => item.id === id);
+    if (!teeTime) return Promise.resolve(null);
+    const course = demoCourses.find((item) => item.id === teeTime.courseId) ?? null;
+    return Promise.resolve({ teeTime: withCourse(teeTime), course });
   }
 
   async reserve(input: CreateBookingInput) {

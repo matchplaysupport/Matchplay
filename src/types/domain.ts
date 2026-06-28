@@ -74,6 +74,16 @@ export interface Course {
   externalId?: number;
 }
 
+/** Minimal course fields needed to render a tee-time card without a full Course. */
+export interface CourseSummary {
+  id: string;
+  name: string;
+  facilityName: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
 export interface TeeTime {
   id: string;
   courseId: string;
@@ -85,6 +95,8 @@ export interface TeeTime {
   walkingAllowed: boolean;
   cancellationLabel: string;
   demoInventory?: true;
+  /** Embedded by providers so list/detail screens don't depend on demo data. */
+  course?: CourseSummary;
 }
 
 export interface Booking {

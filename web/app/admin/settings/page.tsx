@@ -11,7 +11,7 @@ export default async function SettingsPage() {
 
   const { data: operator } = await supabase
     .from("course_operators")
-    .select("course_id, courses(*)")
+    .select("course_id, stripe_onboarded, courses(*)")
     .eq("auth_user_id", user.id)
     .single();
 
@@ -26,6 +26,7 @@ export default async function SettingsPage() {
       authUserId={user.id}
       courseId={operator?.course_id ?? null}
       course={course}
+      stripeOnboarded={operator?.stripe_onboarded ?? false}
     />
   );
 }

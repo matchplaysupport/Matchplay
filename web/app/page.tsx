@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Nav } from "./components/Nav";
 import { Reveal, Counter } from "./components/motion";
 import { WaitlistForm, WaitlistCount } from "./components/WaitlistForm";
@@ -117,12 +118,32 @@ export default function Home() {
 
           {/* visual */}
           <div className="relative flex justify-center lg:justify-end">
-            <div className="relative float">
-              <PhoneMockup />
-              <div className="hidden sm:block absolute -left-10 top-16 z-20">
+            <div className="relative w-full max-w-[440px]">
+              {/* golden-hour course photo */}
+              <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5", borderRadius: 28, boxShadow: "var(--shadow-lg)" }}>
+                <Image
+                  src="/hero-course.png"
+                  alt="A pristine golf course fairway glowing at golden hour"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 88vw, 440px"
+                  style={{ objectFit: "cover" }}
+                />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(155deg, transparent 42%, rgba(12,58,34,0.34))" }} />
+              </div>
+
+              {/* product phone, floating in front (scale on outer, float on inner) */}
+              <div className="absolute z-20 hero-phone" style={{ right: -16, bottom: -28 }}>
+                <div className="float"><PhoneMockup /></div>
+              </div>
+
+              {/* floating score chip */}
+              <div className="hidden sm:block absolute z-30 float" style={{ left: -28, top: 26 }}>
                 <ScoreCardChip />
               </div>
-              <div className="hidden sm:flex absolute -right-4 bottom-24 z-20 card items-center gap-2.5 px-4 py-3" style={{ background: "var(--surface)" }}>
+
+              {/* last-minute alert chip */}
+              <div className="hidden sm:flex absolute z-30 card items-center gap-2.5 px-4 py-3" style={{ left: 6, bottom: 36, background: "var(--surface)" }}>
                 <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white" style={{ background: "var(--grad-gold)" }}>
                   <IconBell size={17} />
                 </span>

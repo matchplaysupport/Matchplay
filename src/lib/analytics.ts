@@ -4,6 +4,7 @@ type AnalyticsEvent =
   | "tee_time_viewed"
   | "concierge_booking_requested"
   | "simulated_booking_completed"
+  | "booking_completed"
   | "round_started"
   | "hole_scored"
   | "round_completed"

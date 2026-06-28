@@ -219,7 +219,7 @@ export default function CreateTournamentScreen() {
               <Subheading>Buy-In & Prize Pool</Subheading>
             </Row>
             <Muted style={{ marginBottom: spacing.md }}>
-              Money is collected in person (cash, Venmo, Apple Pay, etc.) before the round starts. The app tracks who's paid and calculates payouts.
+              Money is collected in person (cash, Venmo, Apple Pay, etc.) before the round starts. The app tracks who&rsquo;s paid and calculates payouts.
             </Muted>
 
             <FieldLabel label="Buy-In per Player ($)" />

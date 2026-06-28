@@ -185,12 +185,17 @@ export default function TeeTimesScreen() {
 }
 
 function TeeTimeCard({ teeTime }: { teeTime: TeeTime }) {
-  const course = demoCourses.find((c) => c.id === teeTime.courseId);
   const p = useTheme();
+  // Prefer the course summary embedded by the provider (works in live mode);
+  // fall back to demo data only for the cosmetic tee-set color bar.
+  const demo = demoCourses.find((c) => c.id === teeTime.courseId);
+  const courseName = teeTime.course?.name ?? demo?.name ?? "Course";
+  const courseCity = teeTime.course?.city ?? demo?.city ?? "";
+  const courseState = teeTime.course?.state ?? demo?.state ?? "";
   const time = new Date(teeTime.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const price = Math.round(teeTime.priceCents / 100);
   const spotsLeft = teeTime.availableSpots;
-  const teeSetColor = course?.teeSets[0]?.color ?? "#888888";
+  const teeSetColor = demo?.teeSets[0]?.color ?? "#3F7A4F";
 
   return (
     <Link href={`/(tabs)/tee-times/${teeTime.id}` as never} asChild>
@@ -200,11 +205,11 @@ function TeeTimeCard({ teeTime }: { teeTime: TeeTime }) {
 
         <Row align="space-between" style={{ marginTop: spacing.xs }}>
           <View style={{ flex: 1, gap: spacing.xs }}>
-            <Subheading numberOfLines={1}>{course?.name ?? "Course"}</Subheading>
+            <Subheading numberOfLines={1}>{courseName}</Subheading>
             <Row gap={spacing.xs}>
               <Ionicons name="location-outline" size={13} color={p.muted} />
               <Text style={{ fontSize: fontSizes.small, color: p.muted }}>
-                {course?.city}, {course?.state}
+                {courseCity}, {courseState}
               </Text>
             </Row>
           </View>

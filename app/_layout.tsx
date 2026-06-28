@@ -3,10 +3,12 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StripeProvider } from "@stripe/stripe-react-native";
 import { ThemeProvider } from "@/design-system/components";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase";
 import { fetchProfile } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { useAppStore } from "@/stores/appStore";
 
 const queryClient = new QueryClient({
@@ -21,13 +23,18 @@ function AuthListener() {
     if (env.EXPO_PUBLIC_USE_MOCK_AUTH) return;
 
     // Hydrate on mount
-    supabase.auth.getSession().then(async ({ data }) => {
-      const user = data.session?.user;
-      if (user) {
-        const profile = await fetchProfile(user.id);
-        setAuthSession(user.id, profile);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        const user = data.session?.user;
+        if (user) {
+          const profile = await fetchProfile(user.id);
+          setAuthSession(user.id, profile);
+        }
+      })
+      .catch((err) => {
+        logger.error("Failed to hydrate auth session", err);
+      });
 
     // Listen to future auth changes (skip token refreshes — profile hasn't changed)
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -37,8 +44,12 @@ function AuthListener() {
       }
       if (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION") {
         const user = session.user;
-        const profile = await fetchProfile(user.id);
-        setAuthSession(user.id, profile);
+        try {
+          const profile = await fetchProfile(user.id);
+          setAuthSession(user.id, profile);
+        } catch (err) {
+          logger.error("Failed to load profile on auth change", err);
+        }
       }
     });
 
@@ -49,7 +60,7 @@ function AuthListener() {
 }
 
 export default function RootLayout() {
-  return (
+  const inner = (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
@@ -64,4 +75,10 @@ export default function RootLayout() {
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
+
+  return env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ? (
+    <StripeProvider publishableKey={env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY}>
+      {inner}
+    </StripeProvider>
+  ) : inner;
 }
