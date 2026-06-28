@@ -124,8 +124,9 @@ export function ScoreCardChip() {
 
 /** Course operator dashboard mockup. */
 export function DashboardMockup() {
-  const hours = ["6a", "8a", "10a", "12p", "2p", "4p"];
-  const fill = [80, 95, 70, 88, 60, 92];
+  const hours = ["6a", "7a", "8a", "9a", "10a", "11a", "12p", "1p"];
+  const fill = [52, 76, 96, 68, 88, 60, 90, 46];
+  const peak = 2;
   return (
     <div className="card overflow-hidden" style={{ boxShadow: "var(--shadow-lg)" }}>
       {/* top bar */}
@@ -135,27 +136,43 @@ export function DashboardMockup() {
           <span style={{ width: 9, height: 9, borderRadius: 99, background: "#f0c44e" }} />
           <span style={{ width: 9, height: 9, borderRadius: 99, background: "var(--brand-bright)" }} />
         </div>
-        <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Cypress Ridge · Tee Sheet</span>
+        <span className="text-xs font-semibold" style={{ color: "var(--text-2)" }}>Cypress Ridge · Tee Sheet</span>
         <IconCalendar size={15} className="opacity-50" />
       </div>
       <div className="p-5">
         {/* KPI row */}
         <div className="grid grid-cols-3 gap-3">
-          {[{ v: "94%", l: "Today filled" }, { v: "$4,820", l: "Revenue" }, { v: "+18%", l: "vs last wk" }].map((k) => (
-            <div key={k.l} className="rounded-xl p-3" style={{ background: "var(--surface-2)" }}>
-              <div className="text-lg font-bold grad-text" style={{ fontFamily: "var(--font-sora)" }}>{k.v}</div>
+          {[{ v: "94%", l: "Today filled" }, { v: "$4,820", l: "Revenue today" }, { v: "+18%", l: "vs last week" }].map((k) => (
+            <div key={k.l} className="rounded-xl p-3" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <div className="text-lg font-bold" style={{ fontFamily: "var(--font-sora)", color: "var(--brand)" }}>{k.v}</div>
               <div className="text-[11px] font-medium" style={{ color: "var(--muted)" }}>{k.l}</div>
             </div>
           ))}
         </div>
+        {/* chart header */}
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase" style={{ color: "var(--muted)", letterSpacing: "0.06em" }}>Bookings by hour</span>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Peak 8–9a</span>
+        </div>
         {/* Bar chart */}
-        <div className="mt-5 flex items-end justify-between gap-2" style={{ height: 110 }}>
+        <div className="mt-3 flex items-end justify-between gap-1.5" style={{ height: 92 }}>
           {fill.map((h, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-              <div className="w-full rounded-t-md" style={{ height: `${h}%`, background: i === 1 ? "var(--grad-brand)" : "var(--surface-3)" }} />
-              <span className="text-[10px] font-medium" style={{ color: "var(--muted)" }}>{hours[i]}</span>
+              <div className="w-full rounded-t" style={{ height: `${h}%`, background: i === peak ? "var(--grad-brand)" : "rgba(26,122,69,0.22)" }} />
+              <span className="text-[9px] font-medium" style={{ color: "var(--muted)" }}>{hours[i]}</span>
             </div>
           ))}
+        </div>
+        {/* next booking */}
+        <div className="mt-4 pt-4 flex items-center justify-between" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ background: "var(--grad-brand)" }}>8:20</span>
+            <div className="leading-tight">
+              <div className="text-xs font-semibold" style={{ color: "var(--text)" }}>Next group · 4 players</div>
+              <div className="text-[10px]" style={{ color: "var(--muted)" }}>Paid $248 · via Match Play</div>
+            </div>
+          </div>
+          <span className="text-[10px] font-semibold px-2 py-1 rounded-md" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Confirmed</span>
         </div>
       </div>
     </div>

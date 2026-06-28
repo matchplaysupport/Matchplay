@@ -286,11 +286,11 @@ export default function Home() {
 
           <Reveal delay={120} className="mt-12 mx-auto max-w-3xl grid grid-cols-[1.4fr_1fr_1fr] overflow-hidden card">
             {/* header row */}
-            <div className="p-4 sm:p-5" />
-            <div className="p-4 sm:p-5 text-center" style={{ background: "var(--surface-2)" }}>
+            <div className="p-5 sm:p-6" />
+            <div className="p-5 sm:p-6 text-center" style={{ background: "var(--surface-2)" }}>
               <span className="text-sm font-semibold" style={{ color: "var(--muted)" }}>Legacy sites</span>
             </div>
-            <div className="p-4 sm:p-5 text-center" style={{ background: "var(--grad-brand)" }}>
+            <div className="p-5 sm:p-6 text-center" style={{ background: "var(--grad-brand)" }}>
               <span className="text-sm font-bold text-white">Match Play</span>
             </div>
 
@@ -448,7 +448,7 @@ export default function Home() {
       {/* ── Waitlist CTA ─────────────────────────────────────── */}
       <section id="waitlist" className="section">
         <div className="container">
-          <div className="relative overflow-hidden rounded-3xl mesh-deep noise" style={{ boxShadow: "var(--shadow-lg)" }}>
+          <div className="relative overflow-hidden rounded-3xl mesh-deep noise" style={{ boxShadow: "var(--shadow-lg)", border: "1px solid var(--border-strong)" }}>
             <div className="relative grid lg:grid-cols-2 gap-10 p-8 sm:p-12 lg:p-16 items-center">
               <div>
                 <h2 className="text-3xl sm:text-5xl font-bold text-white">Be first on the tee</h2>
@@ -523,9 +523,9 @@ function Row({ label, legacy, mp, last }: { label: string; legacy: string | bool
   const border = last ? {} : { borderBottom: "1px solid var(--border)" };
   return (
     <>
-      <div className="p-4 sm:p-5 flex items-center text-sm font-medium" style={{ ...border, color: "var(--text)" }}>{label}</div>
-      <div className="p-4 sm:p-5 flex items-center justify-center text-center" style={{ ...border, background: "var(--surface-2)" }}><Cell value={legacy} /></div>
-      <div className="p-4 sm:p-5 flex items-center justify-center text-center" style={{ ...border, background: "var(--grad-brand)" }}><Cell value={mp} accent /></div>
+      <div className="p-5 sm:p-6 flex items-center text-sm font-medium" style={{ ...border, color: "var(--text)" }}>{label}</div>
+      <div className="p-5 sm:p-6 flex items-center justify-center text-center" style={{ ...border, background: "var(--surface-2)" }}><Cell value={legacy} /></div>
+      <div className="p-5 sm:p-6 flex items-center justify-center text-center" style={{ ...border, background: "var(--grad-brand)" }}><Cell value={mp} accent /></div>
     </>
   );
 }
