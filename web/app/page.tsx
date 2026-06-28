@@ -3,7 +3,7 @@ import { Nav } from "./components/Nav";
 import { Reveal, Counter } from "./components/motion";
 import { WaitlistForm, WaitlistCount } from "./components/WaitlistForm";
 import { Faq } from "./components/Faq";
-import { PhoneMockup, ScoreCardChip, DashboardMockup } from "./components/Mockups";
+import { PhoneMockup, DashboardMockup } from "./components/Mockups";
 import { SavingsCalculator } from "./components/SavingsCalculator";
 import { Logo } from "./components/Logo";
 import {
@@ -89,8 +89,8 @@ export default function Home() {
               </span>
             </Reveal>
             <Reveal delay={80}>
-              <h1 className="mt-5 text-[2.6rem] sm:text-6xl font-extrabold leading-[1.02]" style={{ color: "var(--text)" }}>
-                Book the tee time.<br />
+              <h1 className="mt-5 text-[2.3rem] sm:text-5xl lg:text-[3.3rem] font-extrabold leading-[1.05]" style={{ color: "var(--text)" }}>
+                Book the tee&nbsp;time.<br />
                 <span className="grad-text">Keep the score.</span>
               </h1>
             </Reveal>
@@ -138,13 +138,8 @@ export default function Home() {
                 <div className="float"><PhoneMockup /></div>
               </div>
 
-              {/* floating score chip */}
-              <div className="hidden sm:block absolute z-30 float" style={{ left: -28, top: 26 }}>
-                <ScoreCardChip />
-              </div>
-
               {/* last-minute alert chip */}
-              <div className="hidden sm:flex absolute z-30 card items-center gap-2.5 px-4 py-3" style={{ left: 6, bottom: 36, background: "var(--surface)" }}>
+              <div className="hidden sm:flex absolute z-30 card items-center gap-2.5 px-4 py-3" style={{ left: -20, bottom: 44, background: "var(--surface)" }}>
                 <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white" style={{ background: "var(--grad-gold)" }}>
                   <IconBell size={17} />
                 </span>
@@ -159,17 +154,17 @@ export default function Home() {
       </header>
 
       {/* ── Category marquee ─────────────────────────────────── */}
-      <section className="py-8 border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-        <p className="text-center text-xs font-semibold tracking-widest uppercase mb-5" style={{ color: "var(--muted)" }}>
+      <section className="py-12 border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <p className="text-center text-[0.7rem] font-semibold tracking-[0.2em] uppercase mb-8" style={{ color: "var(--muted)" }}>
           Built for every kind of course
         </p>
         <div className="marquee-mask overflow-hidden">
           <div className="marquee-track">
             {[...Array(2)].map((_, dup) => (
-              <div key={dup} className="flex gap-14 items-center" aria-hidden={dup === 1}>
+              <div key={dup} className="flex gap-12 items-center" aria-hidden={dup === 1}>
                 {["Independent courses", "Municipals", "Resort & destination", "Private clubs", "9-hole tracks", "Driving ranges", "University courses", "Links & heathland"].map((t) => (
-                  <span key={t} className="inline-flex items-center gap-2 text-lg font-semibold whitespace-nowrap" style={{ color: "var(--text-2)" }}>
-                    <IconFlag size={18} className="text-[var(--brand)]" /> {t}
+                  <span key={t} className="inline-flex items-center gap-2 text-[0.95rem] font-medium whitespace-nowrap" style={{ color: "var(--muted)" }}>
+                    <IconFlag size={15} /> {t}
                   </span>
                 ))}
               </div>
