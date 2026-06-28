@@ -92,7 +92,18 @@ export class SupabaseTeeTimeProvider implements TeeTimeProvider {
       .single();
 
     if (fetchErr || !teeTime) throw new Error("Tee time not found.");
-    if (teeTime.available_spots < input.players) throw new Error("Not enough spots available.");
+
+    // Atomic decrement — returns nothing if spots are insufficient
+    const { data: reserved, error: rpcErr } = await supabase
+      .rpc("reserve_tee_time_spots", {
+        p_tee_time_id: input.teeTimeId,
+        p_players: input.players,
+      });
+
+    if (rpcErr) throw rpcErr;
+    if (!reserved || (Array.isArray(reserved) && reserved.length === 0)) {
+      throw new Error("This tee time is no longer available.");
+    }
 
     const confirmationCode = `MP-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
@@ -110,12 +121,6 @@ export class SupabaseTeeTimeProvider implements TeeTimeProvider {
       .single();
 
     if (bookErr || !booking) throw bookErr ?? new Error("Booking failed.");
-
-    // Decrement spots
-    await supabase
-      .from("tee_times")
-      .update({ available_spots: teeTime.available_spots - input.players })
-      .eq("id", input.teeTimeId);
 
     return {
       id: booking.id,

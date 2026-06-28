@@ -7,6 +7,7 @@ import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
 import { createProfile, fetchProfile } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { useAppStore } from "@/stores/appStore";
 import type { Profile, SkillLevel } from "@/types/domain";
 
@@ -69,8 +70,16 @@ export default function OnboardingScreen() {
     }
 
     // Real path — write to Supabase
+    // Resolve authUserId directly from session in case the store hasn't been updated yet
+    const { data: sessionData } = await supabase.auth.getSession();
+    const resolvedAuthUserId = authUserId ?? sessionData.session?.user?.id;
+    if (!resolvedAuthUserId) {
+      Alert.alert("Error", "Session expired. Please sign in again.");
+      return;
+    }
+
     try {
-      await createProfile(authUserId, {
+      await createProfile(resolvedAuthUserId, {
         displayName: displayName || "Golfer",
         username: username || `golfer_${Date.now()}`,
         city: city || "Nashville",
@@ -83,7 +92,7 @@ export default function OnboardingScreen() {
         preferredGameStyle: preferredStyle,
       });
 
-      const saved = await fetchProfile(authUserId);
+      const saved = await fetchProfile(resolvedAuthUserId);
       if (saved) {
         completeOnboarding(saved);
         analytics.track("onboarding_completed", { city, skillLevel });

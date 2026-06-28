@@ -20,6 +20,8 @@ import {
   useTheme,
 } from "@/design-system/components";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { env } from "@/lib/env";
+import { signOut } from "@/lib/auth";
 import { useAppStore } from "@/stores/appStore";
 
 export default function ProfileScreen() {
@@ -205,8 +207,14 @@ export default function ProfileScreen() {
                   text: "Sign out",
                   style: "destructive",
                   onPress: () => {
-                    logout();
-                    router.replace("/(auth)/login");
+                    if (env.EXPO_PUBLIC_USE_MOCK_AUTH) {
+                      logout();
+                      router.replace("/(auth)/login");
+                    } else {
+                      // signOut triggers onAuthStateChange → AuthListener calls logout()
+                      void signOut();
+                      router.replace("/(auth)/login");
+                    }
                   },
                 },
               ]);

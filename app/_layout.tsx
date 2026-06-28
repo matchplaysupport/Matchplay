@@ -29,15 +29,17 @@ function AuthListener() {
       }
     });
 
-    // Listen to future auth changes
+    // Listen to future auth changes (skip token refreshes — profile hasn't changed)
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT" || !session) {
         logout();
         return;
       }
-      const user = session.user;
-      const profile = await fetchProfile(user.id);
-      setAuthSession(user.id, profile);
+      if (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION") {
+        const user = session.user;
+        const profile = await fetchProfile(user.id);
+        setAuthSession(user.id, profile);
+      }
     });
 
     return () => listener.subscription.unsubscribe();

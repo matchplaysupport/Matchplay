@@ -35,6 +35,8 @@ interface AppState {
   isOnboarded: boolean;
   /** Supabase auth user id — null when using mock auth */
   authUserId: string | null;
+  /** True once zustand has finished rehydrating from AsyncStorage */
+  _hasHydrated: boolean;
 
   // Data
   bookings: Booking[];
@@ -84,6 +86,7 @@ export const useAppStore = create<AppState>()(
       profile: null,
       isOnboarded: false,
       authUserId: null,
+      _hasHydrated: false,
       bookings: [],
       rounds: [],
       openGames: seededOpenGames,
@@ -212,6 +215,9 @@ export const useAppStore = create<AppState>()(
     {
       name: "match-play-app-v2",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) state._hasHydrated = true;
+      },
     },
   ),
 );
