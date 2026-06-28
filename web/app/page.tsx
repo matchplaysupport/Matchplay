@@ -1,318 +1,479 @@
-"use client";
+import { Nav } from "./components/Nav";
+import { Reveal, Counter } from "./components/motion";
+import { WaitlistForm, WaitlistCount } from "./components/WaitlistForm";
+import { Faq } from "./components/Faq";
+import { PhoneMockup, ScoreCardChip, DashboardMockup } from "./components/Mockups";
+import { Logo } from "./components/Logo";
+import {
+  IconCalendar, IconDollar, IconChart, IconSearch, IconTrophy,
+  IconCheck, IconBell, IconMapPin, IconShield, IconCard, IconFlag, IconZap,
+  IconArrow, IconStar, IconX, IconUsers,
+} from "./components/icons";
+import type { ReactNode } from "react";
 
-import { useState } from "react";
+// ── Small presentational helpers ─────────────────────────────────────────────
 
-// ─── Inline SVG icons ────────────────────────────────────────────────────────
-
-function IconCalendar() {
+function FeatureCard({ icon, title, description, delay = 0 }: {
+  icon: ReactNode; title: string; description: string; delay?: number;
+}) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  );
-}
-function IconDollar() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
-  );
-}
-function IconChart() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /><line x1="2" y1="20" x2="22" y2="20" />
-    </svg>
-  );
-}
-function IconSearch() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-function IconPhone() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12" y2="18.01" />
-    </svg>
-  );
-}
-function IconTrophy() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 9H4a2 2 0 0 1-2-2V5h4" /><path d="M18 9h2a2 2 0 0 0 2-2V5h-4" /><path d="M12 17v4" /><path d="M8 21h8" /><path d="M6 5v4a6 6 0 0 0 12 0V5H6z" />
-    </svg>
-  );
-}
-function IconCheck() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-// ─── Waitlist form ────────────────────────────────────────────────────────────
-
-type Audience = "golfer" | "course";
-
-function WaitlistForm({ audience }: { audience: Audience }) {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, audience }),
-      });
-      if (!res.ok) throw new Error("Something went wrong.");
-      setSubmitted(true);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (submitted) {
-    return (
-      <div className="rounded-2xl p-6 text-center" style={{ background: "var(--bg-alt)", border: "1px solid var(--border)" }}>
-        <div className="text-3xl mb-2">⛳️</div>
-        <p className="font-semibold text-lg" style={{ color: "var(--primary)" }}>You're on the list!</p>
-        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>We'll reach out soon with early access details.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <input
-        type="text"
-        placeholder={audience === "course" ? "Course name" : "Your name"}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-        className="w-full rounded-xl px-4 py-3 text-sm outline-none border focus:border-[var(--primary)]"
-        style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
-      />
-      <input
-        type="email"
-        placeholder="Email address"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        className="w-full rounded-xl px-4 py-3 text-sm outline-none border focus:border-[var(--primary)]"
-        style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
-      />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-xl py-3 text-sm font-semibold transition-opacity disabled:opacity-60"
-        style={{ background: "var(--primary)", color: "#fff" }}
-      >
-        {loading ? "Joining…" : audience === "course" ? "Request Early Access" : "Join the Waitlist"}
-      </button>
-    </form>
-  );
-}
-
-// ─── Feature card ─────────────────────────────────────────────────────────────
-
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <div className="flex flex-col gap-3 p-6 rounded-2xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--bg-alt)", color: "var(--primary)" }}>
+    <Reveal delay={delay} className="card card-hover p-6 flex flex-col gap-3.5">
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>
         {icon}
       </div>
-      <h3 className="font-semibold text-base" style={{ color: "var(--text)" }}>{title}</h3>
+      <h3 className="font-semibold text-lg" style={{ color: "var(--text)" }}>{title}</h3>
       <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{description}</p>
-    </div>
+    </Reveal>
   );
 }
 
-// ─── Stat card ────────────────────────────────────────────────────────────────
-
-function Stat({ value, label }: { value: string; label: string }) {
+function Step({ n, title, body, icon }: { n: string; title: string; body: string; icon: ReactNode }) {
   return (
-    <div className="text-center">
-      <p className="text-4xl font-bold" style={{ color: "var(--primary)" }}>{value}</p>
-      <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>{label}</p>
+    <div className="relative flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <span className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: "var(--grad-brand)" }}>
+          {icon}
+        </span>
+        <span className="text-xs font-bold tracking-widest" style={{ color: "var(--muted)" }}>STEP {n}</span>
+      </div>
+      <h4 className="font-semibold text-lg" style={{ color: "var(--text)" }}>{title}</h4>
+      <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{body}</p>
     </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function AppBadges() {
+  const Pill = ({ glyph, top, bottom }: { glyph: ReactNode; top: string; bottom: string }) => (
+    <span className="inline-flex items-center gap-2.5 rounded-xl px-4 py-2.5" style={{ background: "var(--text)", color: "#fff" }}>
+      {glyph}
+      <span className="flex flex-col leading-tight text-left">
+        <span className="text-[10px] opacity-80">{top}</span>
+        <span className="text-sm font-semibold -mt-0.5">{bottom}</span>
+      </span>
+    </span>
+  );
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <Pill
+        top="Coming soon to the"
+        bottom="App Store"
+        glyph={<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.36 1.43c.07 1-.32 1.96-.94 2.66-.65.74-1.7 1.31-2.71 1.23-.09-.97.37-1.98.96-2.62.66-.72 1.79-1.26 2.69-1.27zM19.9 17.2c-.52 1.2-.77 1.73-1.44 2.79-.94 1.48-2.26 3.32-3.9 3.33-1.45.01-1.83-.95-3.8-.94-1.97.01-2.38.96-3.84.95-1.64-.02-2.89-1.68-3.83-3.16-2.62-4.13-2.9-8.98-1.28-11.56 1.15-1.83 2.97-2.9 4.68-2.9 1.74 0 2.84.96 4.28.96 1.4 0 2.25-.96 4.27-.96 1.52 0 3.13.83 4.28 2.26-3.76 2.06-3.15 7.43.6 9.18z" /></svg>}
+      />
+      <Pill
+        top="Coming soon to"
+        bottom="Google Play"
+        glyph={<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.2c-.3.3-.5.7-.5 1.3v17c0 .6.2 1 .5 1.3l9.2-9.8L3.6 2.2zm12.3 6.2L5.3 2.3 14.9 8l1 0.4zm3.4 2.3-2.6-1.5-2.4 2.5 2.4 2.5 2.7-1.5c.8-.5.8-1.9-.1-2.5zM5.3 21.7l10.6-6.1-1.9-2-8.7 8.1z" /></svg>}
+      />
+    </div>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const [tab, setTab] = useState<Audience>("golfer");
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div id="top" className="flex flex-col min-h-screen">
+      <Nav />
 
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b" style={{ background: "rgba(244,246,241,0.92)", backdropFilter: "blur(12px)", borderColor: "var(--border)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">⛳</span>
-            <span className="font-bold text-lg tracking-tight" style={{ color: "var(--primary)" }}>Match Play</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="#courses" className="hidden sm:block text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: "var(--text-secondary)" }}>For Courses</a>
-            <a href="#golfers" className="hidden sm:block text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: "var(--text-secondary)" }}>For Golfers</a>
-            <a href="#waitlist" className="text-sm font-semibold px-4 py-2 rounded-full transition-opacity hover:opacity-80" style={{ background: "var(--primary)", color: "#fff" }}>
-              Join Waitlist
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: "var(--primary-dark)" }}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #27904F 0%, transparent 60%), radial-gradient(circle at 80% 20%, #C8981E 0%, transparent 50%)" }} />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-36 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold mb-6" style={{ background: "rgba(200,152,30,0.2)", color: "var(--accent-light)", border: "1px solid rgba(200,152,30,0.3)" }}>
-            ⚡ Now accepting early access applications
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-bold leading-tight tracking-tight text-white max-w-3xl mx-auto">
-            Golf booking,<br />
-            <span style={{ color: "var(--accent-light)" }}>built for modern clubs</span>
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.7)" }}>
-            Match Play connects golfers to tee times at their favourite courses — and gives course operators a simple, powerful tool to manage availability, pricing, and bookings.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#waitlist" className="px-8 py-4 rounded-full font-semibold text-base transition-opacity hover:opacity-90" style={{ background: "var(--accent)", color: "#fff" }}>
-              Get Early Access
-            </a>
-            <a href="#courses" className="px-8 py-4 rounded-full font-semibold text-base transition-opacity hover:opacity-80" style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}>
-              Learn More
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats strip */}
-      <section className="border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 sm:grid-cols-4 gap-8">
-          <Stat value="0 fees" label="No booking commissions" />
-          <Stat value="< 5 min" label="Setup for courses" />
-          <Stat value="Stripe" label="Secure payouts" />
-          <Stat value="iOS + Android" label="Golfer app" />
-        </div>
-      </section>
-
-      {/* For Courses */}
-      <section id="courses" className="py-20 sm:py-28" style={{ background: "var(--bg)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <header className="relative overflow-hidden mesh noise">
+        <div className="container relative pt-12 pb-20 sm:pt-16 sm:pb-28 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          {/* copy */}
           <div className="max-w-xl">
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--accent)" }}>For Course Operators</span>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
-              Stop leaving tee times empty
-            </h2>
-            <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-              Match Play gives your course a direct booking channel with zero commission. Set your own pricing, control availability, and get paid instantly through Stripe.
-            </p>
+            <Reveal>
+              <span className="chip pulse-dot" style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--brand)" }}>
+                <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--brand-bright)" }} />
+                Now accepting early access
+              </span>
+            </Reveal>
+            <Reveal delay={80}>
+              <h1 className="mt-5 text-[2.6rem] sm:text-6xl font-extrabold leading-[1.02]" style={{ color: "var(--text)" }}>
+                Book the tee time.<br />
+                <span className="grad-text">Keep the score.</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={160}>
+              <p className="mt-5 text-lg leading-relaxed" style={{ color: "var(--text-2)" }}>
+                Match Play connects golfers to tee times at the courses they love — with match-play scoring,
+                handicaps, and leaderboards built in. And it gives operators a booking platform that charges
+                <strong style={{ color: "var(--brand)" }}> zero commission</strong>.
+              </p>
+            </Reveal>
+            <Reveal delay={240}>
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <a href="#waitlist" className="btn btn-primary">Get early access <IconArrow size={18} /></a>
+                <a href="#how" className="btn btn-ghost">See how it works</a>
+              </div>
+            </Reveal>
+            <Reveal delay={320}>
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm" style={{ color: "var(--muted)" }}>
+                <span className="inline-flex items-center gap-1.5" style={{ color: "var(--gold)" }}>
+                  {[0, 1, 2, 3, 4].map((i) => <IconStar key={i} size={15} />)}
+                </span>
+                <WaitlistCount />
+              </div>
+            </Reveal>
           </div>
-          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureCard icon={<IconCalendar />} title="Tee sheet management" description="Set available times, block hours, and manage walk-ins — all from one simple dashboard. No training required." />
-            <FeatureCard icon={<IconDollar />} title="Zero commission" description="Keep 100% of your green fees. Match Play charges courses a flat monthly subscription — not a cut of every booking." />
-            <FeatureCard icon={<IconChart />} title="Booking analytics" description="See which times fill fastest, track revenue trends, and understand your golfer mix without spreadsheets." />
+
+          {/* visual */}
+          <div className="relative flex justify-center lg:justify-end">
+            <div className="relative float">
+              <PhoneMockup />
+              <div className="hidden sm:block absolute -left-10 top-16 z-20">
+                <ScoreCardChip />
+              </div>
+              <div className="hidden sm:flex absolute -right-4 bottom-24 z-20 card items-center gap-2.5 px-4 py-3" style={{ background: "var(--surface)" }}>
+                <span className="w-9 h-9 rounded-lg flex items-center justify-center text-white" style={{ background: "var(--grad-gold)" }}>
+                  <IconBell size={17} />
+                </span>
+                <div className="leading-tight">
+                  <div className="text-xs font-bold">Last-minute slot!</div>
+                  <div className="text-[11px]" style={{ color: "var(--muted)" }}>7:20 AM · $48 · 3 left</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <ul className="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-8">
-            {["Works alongside your existing POS", "Stripe Connect payouts in 2 days", "Waitlist & last-minute fills", "Group and tournament bookings (coming soon)"].map((item) => (
-              <li key={item} className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-                <span style={{ color: "var(--primary)" }}><IconCheck /></span>
-                {item}
-              </li>
+        </div>
+      </header>
+
+      {/* ── Category marquee ─────────────────────────────────── */}
+      <section className="py-8 border-y" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <p className="text-center text-xs font-semibold tracking-widest uppercase mb-5" style={{ color: "var(--muted)" }}>
+          Built for every kind of course
+        </p>
+        <div className="marquee-mask overflow-hidden">
+          <div className="marquee-track">
+            {[...Array(2)].map((_, dup) => (
+              <div key={dup} className="flex gap-14 items-center" aria-hidden={dup === 1}>
+                {["Independent courses", "Municipals", "Resort & destination", "Private clubs", "9-hole tracks", "Driving ranges", "University courses", "Links & heathland"].map((t) => (
+                  <span key={t} className="inline-flex items-center gap-2 text-lg font-semibold whitespace-nowrap" style={{ color: "var(--text-2)" }}>
+                    <IconFlag size={18} className="text-[var(--brand)]" /> {t}
+                  </span>
+                ))}
+              </div>
             ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* For Golfers */}
-      <section id="golfers" className="py-20 sm:py-28" style={{ background: "var(--bg-alt)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="max-w-xl ml-auto text-right">
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--accent)" }}>For Golfers</span>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
-              Find a tee time in seconds
-            </h2>
-            <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-              Search nearby courses, compare availability, and book your round in the Match Play app. Track your handicap, compete with friends, and never miss a last-minute deal.
-            </p>
-          </div>
-          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureCard icon={<IconSearch />} title="Smart tee time search" description="Filter by date, time, players, and price. Sort by distance or availability. Book in two taps." />
-            <FeatureCard icon={<IconPhone />} title="Mobile-first app" description="Native iOS and Android app built for golfers. Your bookings, rounds, and scores — all in one place." />
-            <FeatureCard icon={<IconTrophy />} title="Match play scoring" description="Built-in match play and stroke play scoring, handicap tracking, and leaderboards with your regular group." />
           </div>
         </div>
       </section>
 
-      {/* Waitlist CTA */}
-      <section id="waitlist" className="py-20 sm:py-28" style={{ background: "var(--bg)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="max-w-lg mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
-              Be first on the tee
+      {/* ── Stats ────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingBlock: "4rem" }}>
+        <div className="container grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+          {[
+            { v: <Counter to={0} suffix="%" />, l: "Commission on bookings" },
+            { v: <Counter to={5} prefix="<" suffix=" min" />, l: "To set up a course" },
+            { v: <Counter to={2} suffix="-day" />, l: "Stripe payouts" },
+            { v: <span>iOS + Android</span>, l: "Native golfer app" },
+          ].map((s, i) => (
+            <Reveal key={i} delay={i * 80}>
+              <p className="text-4xl sm:text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>{s.v}</p>
+              <p className="text-sm mt-2 font-medium" style={{ color: "var(--muted)" }}>{s.l}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── How it works ─────────────────────────────────────── */}
+      <section id="how" className="section" style={{ background: "var(--surface)" }}>
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto">
+            <span className="eyebrow">How it works</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
+              Two sides. One seamless round.
             </h2>
             <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
-              Join the waitlist and we'll reach out when we're ready to onboard in your area.
+              Golfers find and play in a few taps. Courses fill tee sheets and get paid — without lifting a finger or losing a cut.
             </p>
+          </Reveal>
 
-            {/* Audience toggle */}
-            <div className="mt-8 inline-flex rounded-xl p-1 gap-1" style={{ background: "var(--bg-alt)", border: "1px solid var(--border)" }}>
-              {(["golfer", "course"] as const).map((a) => (
-                <button
-                  key={a}
-                  onClick={() => setTab(a)}
-                  className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={
-                    tab === a
-                      ? { background: "var(--primary)", color: "#fff" }
-                      : { color: "var(--muted)" }
-                  }
-                >
-                  {a === "golfer" ? "I'm a Golfer" : "I Run a Course"}
-                </button>
-              ))}
-            </div>
+          <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16">
+            <Reveal className="rounded-3xl p-7 sm:p-9" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <span className="chip mb-7" style={{ background: "var(--surface)", color: "var(--brand)", border: "1px solid var(--border)" }}>For golfers</span>
+              <div className="flex flex-col gap-8">
+                <Step n="1" icon={<IconSearch size={18} />} title="Search nearby courses" body="Filter by date, time, players, and price. Compare live availability and sort by distance — all in one feed." />
+                <Step n="2" icon={<IconCard size={18} />} title="Book & pay in two taps" body="Reserve your slot and pay securely in-app. No phone calls, no booking fees, no surprises at the counter." />
+                <Step n="3" icon={<IconFlag size={18} />} title="Play & track the match" body="Keep score in match or stroke play, update your handicap automatically, and settle it on the leaderboard." />
+              </div>
+            </Reveal>
 
-            <div className="mt-6">
-              <WaitlistForm audience={tab} />
-            </div>
-
-            <p className="mt-4 text-xs" style={{ color: "var(--muted)" }}>
-              No spam. Unsubscribe any time.
-            </p>
+            <Reveal delay={120} className="rounded-3xl p-7 sm:p-9" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <span className="chip mb-7" style={{ background: "var(--surface)", color: "var(--gold)", border: "1px solid var(--border)" }}>For courses</span>
+              <div className="flex flex-col gap-8">
+                <Step n="1" icon={<IconCalendar size={18} />} title="Set your tee sheet" body="Add availability, pricing rules, and blocks from one simple dashboard. Live in minutes, no training required." />
+                <Step n="2" icon={<IconUsers size={18} />} title="Fill every slot" body="Reach golfers actively searching your area, push last-minute deals, and clear waitlists automatically." />
+                <Step n="3" icon={<IconDollar size={18} />} title="Get paid — keep it all" body="Stripe Connect deposits land in ~2 days. Flat monthly subscription means you keep 100% of every green fee." />
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t mt-auto py-8" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">⛳</span>
-            <span className="font-bold" style={{ color: "var(--primary)" }}>Match Play</span>
+      {/* ── For Golfers ──────────────────────────────────────── */}
+      <section id="golfers" className="section">
+        <div className="container grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="order-2 lg:order-1">
+            <Reveal>
+              <span className="eyebrow">For golfers</span>
+              <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
+                Your next round, <span className="grad-text">three taps away</span>
+              </h2>
+              <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--muted)" }}>
+                One app for the whole round — discover courses, lock in the time, and settle the match. It stays on your home screen because it does more than book.
+              </p>
+            </Reveal>
+            <div className="mt-8 grid sm:grid-cols-2 gap-4">
+              <FeatureCard icon={<IconSearch size={20} />} title="Smart tee-time search" description="Filter by date, time, players, and price. Sort by distance or availability and book in seconds." />
+              <FeatureCard icon={<IconTrophy size={20} />} title="Match-play scoring" description="Match and stroke play, automatic handicap tracking, and live leaderboards with your regular group." delay={80} />
+              <FeatureCard icon={<IconBell size={20} />} title="Last-minute alerts" description="Get pinged when a slot opens at a course you love — and grab the deal before anyone else." delay={160} />
+              <FeatureCard icon={<IconMapPin size={20} />} title="Courses near you" description="Discover new tracks while you travel, with real availability and transparent green-fee pricing." delay={240} />
+            </div>
           </div>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>
-            © {new Date().getFullYear()} Match Play. All rights reserved.
-          </p>
+          <Reveal delay={120} className="order-1 lg:order-2 flex justify-center">
+            <PhoneMockup />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── For Courses ──────────────────────────────────────── */}
+      <section id="courses" className="section" style={{ background: "var(--surface)" }}>
+        <div className="container grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <Reveal className="flex justify-center">
+            <div className="w-full max-w-md">
+              <DashboardMockup />
+            </div>
+          </Reveal>
+          <div>
+            <Reveal>
+              <span className="eyebrow" style={{ color: "var(--gold)" }}>For course operators</span>
+              <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
+                Stop leaving tee&nbsp;times empty
+              </h2>
+              <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--muted)" }}>
+                A direct booking channel with zero commission. Set your own pricing, control availability, and get paid instantly through Stripe — while keeping every golfer relationship.
+              </p>
+            </Reveal>
+            <div className="mt-8 grid sm:grid-cols-2 gap-4">
+              <FeatureCard icon={<IconCalendar size={20} />} title="Tee-sheet management" description="Set times, block hours, and manage walk-ins from one dashboard. No training required." />
+              <FeatureCard icon={<IconDollar size={20} />} title="Zero commission" description="A flat monthly subscription — never a cut of every booking. Keep 100% of your green fees." delay={80} />
+              <FeatureCard icon={<IconChart size={20} />} title="Booking analytics" description="See which times fill fastest, track revenue trends, and understand your golfer mix at a glance." delay={160} />
+              <FeatureCard icon={<IconShield size={20} />} title="Works with your POS" description="Run Match Play alongside your existing system. PMS integrations are on the roadmap." delay={240} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Why Match Play (comparison) ──────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto">
+            <span className="eyebrow">Why Match Play</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
+              The math the legacy sites don&apos;t want you to do
+            </h2>
+            <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
+              Tee-time middlemen take a cut of every booking and own your golfers. We flipped the model.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120} className="mt-12 mx-auto max-w-3xl grid grid-cols-[1.4fr_1fr_1fr] overflow-hidden card">
+            {/* header row */}
+            <div className="p-4 sm:p-5" />
+            <div className="p-4 sm:p-5 text-center" style={{ background: "var(--surface-2)" }}>
+              <span className="text-sm font-semibold" style={{ color: "var(--muted)" }}>Legacy sites</span>
+            </div>
+            <div className="p-4 sm:p-5 text-center" style={{ background: "var(--grad-brand)" }}>
+              <span className="text-sm font-bold text-white">Match Play</span>
+            </div>
+
+            {[
+              ["Per-booking commission", "3–5% + fees", "$0"],
+              ["Who owns the golfer", "The platform", "You do"],
+              ["Set your own pricing", false, true],
+              ["Payouts", "Net terms", "~2 days"],
+              ["Last-minute fills", true, true],
+              ["Scoring & handicaps", false, true],
+            ].map(([label, legacy, mp], i) => (
+              <Row key={i} label={label as string} legacy={legacy} mp={mp} last={i === 5} />
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── Pricing ──────────────────────────────────────────── */}
+      <section id="pricing" className="section" style={{ background: "var(--surface)" }}>
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto">
+            <span className="eyebrow">Pricing</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>Simple, honest pricing</h2>
+            <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
+              Free for golfers, forever. A flat subscription for courses — no commission, no per-booking fees.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <Reveal className="card p-8 flex flex-col">
+              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Golfers</span>
+              <div className="mt-5 flex items-end gap-1">
+                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)" }}>Free</span>
+                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>forever</span>
+              </div>
+              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>Download, search, book, and score. You only ever pay the course&apos;s green fee.</p>
+              <ul className="mt-6 flex flex-col gap-3 flex-1">
+                {["Unlimited tee-time search", "Zero booking fees", "Match-play & stroke-play scoring", "Handicap tracking & leaderboards", "Last-minute deal alerts"].map((f) => (
+                  <Check key={f}>{f}</Check>
+                ))}
+              </ul>
+              <a href="#waitlist" className="btn btn-ghost mt-8 w-full">Join the waitlist</a>
+            </Reveal>
+
+            <Reveal delay={120} className="card p-8 flex flex-col relative overflow-hidden" style={{ borderColor: "var(--brand)", boxShadow: "var(--shadow-lg)" }}>
+              <span className="absolute top-5 right-5 chip" style={{ background: "var(--grad-gold)", color: "#3a2c05" }}>Founding pricing</span>
+              <span className="chip self-start" style={{ background: "var(--grad-brand)", color: "#fff" }}>Courses</span>
+              <div className="mt-5 flex items-end gap-1">
+                <span className="text-5xl font-extrabold grad-text" style={{ fontFamily: "var(--font-sora)" }}>Flat rate</span>
+              </div>
+              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>One predictable monthly subscription. Keep 100% of every green fee — early partners lock in founding rates.</p>
+              <ul className="mt-6 flex flex-col gap-3 flex-1">
+                {["0% commission on bookings", "Full tee-sheet & pricing control", "Stripe Connect payouts (~2 days)", "Booking & revenue analytics", "Waitlist & last-minute fills", "Group & tournament bookings (soon)"].map((f) => (
+                  <Check key={f}>{f}</Check>
+                ))}
+              </ul>
+              <a href="#waitlist" className="btn btn-primary mt-8 w-full">Request early access</a>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Founding members band ────────────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto">
+            <span className="eyebrow">Founding members</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>Get in before the first tee</h2>
+            <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
+              We&apos;re onboarding region by region. Early members shape the product and lock in perks for good.
+            </p>
+          </Reveal>
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: <IconZap size={20} />, t: "Priority onboarding", d: "Skip the line when we launch in your area." },
+              { icon: <IconDollar size={20} />, t: "Founding pricing", d: "Lock in early-partner rates for life." },
+              { icon: <IconUsers size={20} />, t: "A direct line", d: "Talk to the team building it, not a ticket queue." },
+              { icon: <IconStar size={20} />, t: "Shape the roadmap", d: "Vote on features and integrations first." },
+            ].map((p, i) => (
+              <FeatureCard key={p.t} icon={p.icon} title={p.t} description={p.d} delay={i * 80} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────── */}
+      <section id="faq" className="section" style={{ background: "var(--surface)" }}>
+        <div className="container">
+          <Reveal className="text-center max-w-2xl mx-auto mb-12">
+            <span className="eyebrow">FAQ</span>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>Questions, answered</h2>
+          </Reveal>
+          <Reveal delay={80}><Faq /></Reveal>
+        </div>
+      </section>
+
+      {/* ── Waitlist CTA ─────────────────────────────────────── */}
+      <section id="waitlist" className="section">
+        <div className="container">
+          <div className="relative overflow-hidden rounded-3xl mesh-deep noise" style={{ boxShadow: "var(--shadow-lg)" }}>
+            <div className="relative grid lg:grid-cols-2 gap-10 p-8 sm:p-12 lg:p-16 items-center">
+              <div>
+                <h2 className="text-3xl sm:text-5xl font-bold text-white">Be first on the tee</h2>
+                <p className="mt-4 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+                  Join the waitlist and we&apos;ll reach out the moment we&apos;re live near you. Tell us whether you play or run a course.
+                </p>
+                <div className="mt-7 flex flex-col gap-3 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  {["Free for golfers — no booking fees, ever", "Zero commission for courses", "Founding members lock in perks"].map((t) => (
+                    <span key={t} className="inline-flex items-center gap-2.5">
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.18)" }}><IconCheck size={13} /></span>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-8">
+                  <AppBadges />
+                </div>
+              </div>
+              <div className="rounded-2xl p-6 sm:p-7" style={{ background: "var(--bg)" }}>
+                <WaitlistForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────── */}
+      <footer className="border-t mt-auto" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <div className="container py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Logo size={30} />
+            <p className="mt-4 text-sm max-w-xs" style={{ color: "var(--muted)" }}>
+              Zero-commission golf booking and match-play scoring, built for modern courses and the golfers who love them.
+            </p>
+          </div>
+          <FooterCol title="Product" links={[["For Golfers", "#golfers"], ["For Courses", "#courses"], ["Pricing", "#pricing"], ["How it works", "#how"]]} />
+          <FooterCol title="Company" links={[["FAQ", "#faq"], ["Join waitlist", "#waitlist"]]} />
+          <FooterCol title="Legal" links={[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]]} />
+        </div>
+        <div className="border-t" style={{ borderColor: "var(--border)" }}>
+          <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs" style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} Match Play. All rights reserved.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Made for golfers, by golfers.</p>
+          </div>
         </div>
       </footer>
+    </div>
+  );
+}
 
+// ── More helpers (kept below for readability) ────────────────────────────────
+
+function Check({ children }: { children: ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5 text-sm" style={{ color: "var(--text-2)" }}>
+      <span className="mt-0.5 shrink-0" style={{ color: "var(--brand)" }}><IconCheck size={16} /></span>
+      {children}
+    </li>
+  );
+}
+
+function Cell({ value, accent }: { value: string | boolean; accent?: boolean }) {
+  if (typeof value === "boolean") {
+    return value
+      ? <span className="inline-flex" style={{ color: accent ? "#fff" : "var(--brand)" }}><IconCheck size={18} /></span>
+      : <span className="inline-flex" style={{ color: "var(--muted)", opacity: 0.6 }}><IconX size={18} /></span>;
+  }
+  return <span className={`text-sm font-semibold ${accent ? "text-white" : ""}`} style={accent ? {} : { color: "var(--text-2)" }}>{value}</span>;
+}
+
+function Row({ label, legacy, mp, last }: { label: string; legacy: string | boolean; mp: string | boolean; last?: boolean }) {
+  const border = last ? {} : { borderBottom: "1px solid var(--border)" };
+  return (
+    <>
+      <div className="p-4 sm:p-5 flex items-center text-sm font-medium" style={{ ...border, color: "var(--text)" }}>{label}</div>
+      <div className="p-4 sm:p-5 flex items-center justify-center text-center" style={{ ...border, background: "var(--surface-2)" }}><Cell value={legacy} /></div>
+      <div className="p-4 sm:p-5 flex items-center justify-center text-center" style={{ ...border, background: "var(--grad-brand)" }}><Cell value={mp} accent /></div>
+    </>
+  );
+}
+
+function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div>
+      <h4 className="text-sm font-bold mb-4" style={{ color: "var(--text)" }}>{title}</h4>
+      <ul className="flex flex-col gap-2.5">
+        {links.map(([label, href]) => (
+          <li key={label}>
+            <a href={href} className="text-sm transition-colors hover:text-[var(--brand)]" style={{ color: "var(--muted)" }}>{label}</a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
