@@ -8,11 +8,11 @@ export default function manifest(): MetadataRoute.Manifest {
       "Book tee times, track match-play scoring and handicaps, and compete on leaderboards — with zero-commission booking for courses.",
     start_url: "/",
     display: "standalone",
-    background_color: "#FAFCF9",
-    theme_color: "#15803D",
+    background_color: "#0C3A22",
+    theme_color: "#0C3A22",
     icons: [
-      { src: "/icon", sizes: "32x32", type: "image/png" },
-      { src: "/apple-icon", sizes: "180x180", type: "image/png" },
+      { src: "/icon.png", sizes: "512x512", type: "image/png" },
+      { src: "/apple-icon.png", sizes: "180x180", type: "image/png" },
     ],
     categories: ["sports", "lifestyle"],
   };
