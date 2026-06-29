@@ -7,7 +7,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpengraphImage() {
-  const logo = readFileSync(join(process.cwd(), "public", "mark-dark.png"));
+  const logo = readFileSync(join(process.cwd(), "public", "logo-dark.png"));
   const logoUri = `data:image/png;base64,${logo.toString("base64")}`;
   return new ImageResponse(
     (
@@ -20,10 +20,9 @@ export default function OpengraphImage() {
         }}
       >
         {/* top: logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logoUri} width={64} height={64} style={{ borderRadius: 16 }} alt="" />
-          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>The Clubhouse</div>
+          <img src={logoUri} width={104} height={104} style={{ borderRadius: 18 }} alt="The Clubhouse" />
         </div>
 
         {/* middle: headline */}
