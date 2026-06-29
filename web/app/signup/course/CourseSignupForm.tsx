@@ -31,6 +31,7 @@ export default function CourseSignupForm() {
     courseName: "", facilityName: "", city: "", state: "", zip: "", phone: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const hp = useRef<HTMLInputElement>(null);
@@ -51,6 +52,7 @@ export default function CourseSignupForm() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again.");
       track("signup_submit", { audience: "course" });
+      setNeedsConfirm(data.needsConfirmation !== false);
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -62,14 +64,23 @@ export default function CourseSignupForm() {
   if (submitted) {
     return (
       <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-        <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>📩</div>
+        <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{needsConfirm ? "📩" : "✅"}</div>
         <p style={{ fontWeight: 700, fontSize: "1.1rem", color: "var(--text)", marginBottom: "0.5rem" }}>
-          Check your email to confirm
+          {needsConfirm ? "Check your email to confirm" : "Application received"}
         </p>
         <p style={{ fontSize: "0.875rem", color: "var(--muted)", lineHeight: 1.5 }}>
-          We sent a confirmation link to <strong>{form.email}</strong>. Confirm it, then sign in — your
-          application for <strong>{form.courseName}</strong> is in review and we&apos;ll unlock your portal
-          once it&apos;s approved.
+          {needsConfirm ? (
+            <>
+              We sent a confirmation link to <strong>{form.email}</strong>. Confirm it, then sign in — your
+              application for <strong>{form.courseName}</strong> is in review and we&apos;ll unlock your portal
+              once it&apos;s approved.
+            </>
+          ) : (
+            <>
+              Your application for <strong>{form.courseName}</strong> is in review. We&apos;ll email{" "}
+              <strong>{form.email}</strong> and unlock your portal once it&apos;s approved.
+            </>
+          )}
         </p>
       </div>
     );
