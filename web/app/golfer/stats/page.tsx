@@ -1,66 +1,16 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase-server";
+import { PortalShell, Notice, ProfileSetupNotice } from "../_components/PortalShell";
+import { loadGolfer, hasPlus } from "@/lib/golfer-session";
 import { calculateCareerStats, type StatRound } from "@/lib/careerStats";
-import SignOutButton from "./SignOutButton";
 
-export const metadata = {
-  title: "Stats & Handicap · The Clubhouse",
-};
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ minHeight: "100vh", background: "var(--surface)" }}>
-      <header
-        style={{
-          borderBottom: "1px solid var(--border)",
-          padding: "1rem 2rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link href="/golfer" style={{ fontWeight: 800, color: "var(--text)", fontSize: "1.05rem" }}>
-          The Clubhouse
-        </Link>
-        <SignOutButton />
-      </header>
-      <main style={{ padding: "2rem", maxWidth: 900, margin: "0 auto" }}>{children}</main>
-    </div>
-  );
-}
-
-function Notice({ title, body, cta }: { title: string; body: string; cta?: { href: string; label: string } }) {
-  return (
-    <div className="card" style={{ padding: "2.5rem", textAlign: "center", maxWidth: 520, margin: "3rem auto" }}>
-      <h1 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", marginBottom: "0.75rem" }}>{title}</h1>
-      <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: cta ? "1.5rem" : 0 }}>{body}</p>
-      {cta && (
-        <Link href={cta.href} className="btn btn-primary">
-          {cta.label}
-        </Link>
-      )}
-    </div>
-  );
-}
+export const metadata = { title: "Games & Handicap · The Clubhouse" };
 
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="card" style={{ padding: "1.25rem 1.5rem" }}>
-      <p
-        style={{
-          fontSize: "0.72rem",
-          fontWeight: 600,
-          color: "var(--muted)",
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          marginBottom: "0.4rem",
-        }}
-      >
+      <p style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.4rem" }}>
         {label}
       </p>
-      <p style={{ fontSize: "1.9rem", fontWeight: 800, color: accent ? "var(--brand)" : "var(--text)", lineHeight: 1 }}>
-        {value}
-      </p>
+      <p style={{ fontSize: "1.9rem", fontWeight: 800, color: accent ? "var(--brand)" : "var(--text)", lineHeight: 1 }}>{value}</p>
     </div>
   );
 }
@@ -79,7 +29,6 @@ function TrendChart({ points }: { points: { roundId: string; differential: numbe
   return (
     <div style={{ display: "flex", alignItems: "stretch", gap: 6, height: 120 }}>
       {points.map((pt) => {
-        // Lower differential is better, so invert so best rounds rise tallest.
         const heightPct = 25 + 75 * (1 - (pt.differential - min) / span);
         return (
           <div key={pt.roundId} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center", gap: 4 }}>
@@ -93,118 +42,79 @@ function TrendChart({ points }: { points: { roundId: string; differential: numbe
 }
 
 export default async function GolferStatsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return (
-      <Shell>
-        <Notice
-          title="Sign in to view your stats"
-          body="Sign in to see your Clubhouse Estimate, scoring trends, and round-by-round stats."
-          cta={{ href: "/golfer/login", label: "Sign in" }}
-        />
-      </Shell>
-    );
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, display_name")
-    .eq("auth_user_id", user.id)
-    .single();
+  const { supabase, profile, tier } = await loadGolfer();
 
   if (!profile) {
-    return (
-      <Shell>
-        <Notice
-          title="Finish setting up your profile"
-          body="Complete onboarding in the app to start tracking your handicap and stats."
-        />
-      </Shell>
-    );
+    return <PortalShell active="/golfer/stats"><ProfileSetupNotice /></PortalShell>;
   }
 
-  const { data: ent } = await supabase
-    .from("subscription_entitlements")
-    .select("entitlement")
-    .eq("profile_id", profile.id)
-    .single();
-
-  const tier = ent?.entitlement ?? "free";
-  if (tier !== "plus" && tier !== "pro") {
+  if (!hasPlus(tier)) {
     return (
-      <Shell>
+      <PortalShell active="/golfer/stats">
         <Notice
-          title="Stats & Handicap is a Match Play+ feature"
-          body="Upgrade to Match Play+ to track your Clubhouse Estimate, scoring trends, and round-by-round stats."
+          title="Games & Handicap is a Clubhouse+ feature"
+          body="Upgrade to Clubhouse+ to track your Clubhouse Estimate, scoring trends, and round-by-round history."
           cta={{ href: "/golfer#pricing", label: "See plans" }}
         />
-      </Shell>
+      </PortalShell>
     );
   }
 
   const { data: rounds } = await supabase
     .from("rounds")
-    .select(
-      "id, holes, verification_state, submitted_at, created_at, round_holes(hole_number, gross_score, putts, fairway, green_in_regulation, penalty_strokes)",
-    )
+    .select("id, holes, verification_state, submitted_at, created_at, round_holes(hole_number, gross_score, putts, fairway, green_in_regulation, penalty_strokes)")
     .eq("profile_id", profile.id);
 
-  const stats = calculateCareerStats((rounds as StatRound[] | null) ?? []);
+  const statRounds = (rounds as StatRound[] | null) ?? [];
+  const stats = calculateCareerStats(statRounds);
 
   if (stats.eligibleRounds === 0) {
     return (
-      <Shell>
-        <Notice
-          title="No stats yet"
-          body="Play and submit a round in the app to start building your Clubhouse Estimate and stats."
-        />
-      </Shell>
+      <PortalShell active="/golfer/stats">
+        <Notice title="No games yet" body="Play and submit a round in the app to start building your Clubhouse Estimate and history." />
+      </PortalShell>
     );
   }
 
   const { handicap } = stats;
+  const diffByRound = new Map(stats.trend.map((t) => [t.roundId, t.differential]));
+  const games = statRounds
+    .filter((r) => r.round_holes.length >= 9)
+    .map((r) => ({
+      id: r.id,
+      when: r.submitted_at ?? r.created_at,
+      holes: r.holes,
+      gross: r.round_holes.reduce((s, h) => s + h.gross_score, 0),
+      differential: diffByRound.get(r.id) ?? null,
+    }))
+    .sort((a, b) => (a.when < b.when ? 1 : -1))
+    .slice(0, 15);
 
   return (
-    <Shell>
+    <PortalShell active="/golfer/stats">
       <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text)", marginBottom: "1.5rem" }}>
-        {profile.display_name}&apos;s stats
+        {profile.display_name}&apos;s games &amp; handicap
       </h1>
 
-      {/* Handicap hero */}
-      <div
-        className="card"
-        style={{ padding: "1.75rem 2rem", background: "var(--grad-brand, var(--brand))", color: "#fff", marginBottom: "1.5rem" }}
-      >
-        <span style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", opacity: 0.85 }}>
-          Clubhouse Estimate
-        </span>
+      <div className="card" style={{ padding: "1.75rem 2rem", background: "var(--grad-brand, var(--brand))", color: "#fff", marginBottom: "1.5rem" }}>
+        <span style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", opacity: 0.85 }}>Clubhouse Estimate</span>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: "0.5rem" }}>
           <span style={{ fontSize: "3.4rem", fontWeight: 800, lineHeight: 1 }}>{handicap.value?.toFixed(1) ?? "—"}</span>
           <span style={{ fontSize: "0.8rem", opacity: 0.85, textAlign: "right" }}>
-            {handicap.roundsUsed} of {stats.eligibleRounds} rounds
-            <br />
-            used in estimate
+            {handicap.roundsUsed} of {stats.eligibleRounds} rounds<br />used in estimate
           </span>
         </div>
         <p style={{ fontSize: "0.82rem", opacity: 0.85, marginTop: "1rem", lineHeight: 1.5 }}>{handicap.explanation}</p>
       </div>
 
-      {/* Trend */}
       {stats.trend.length >= 2 && (
         <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
           <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)", marginBottom: "1rem" }}>Handicap trend</h2>
           <TrendChart points={stats.trend.slice(-12)} />
-          <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "0.75rem" }}>
-            Differential per round (taller is better). Newest on the right.
-          </p>
+          <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "0.75rem" }}>Differential per round (taller is better). Newest on the right.</p>
         </div>
       )}
 
-      {/* Stat grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem" }}>
         <StatCard label="Scoring avg" value={formatRelative(stats.scoringAverage)} />
         <StatCard label="Putts / hole" value={stats.averagePutts?.toFixed(1) ?? "—"} />
@@ -214,10 +124,25 @@ export default async function GolferStatsPage() {
         <StatCard label="Rounds" value={String(stats.roundsPlayed)} />
       </div>
 
+      <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text)", margin: "2rem 0 1rem" }}>Previous games</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        {games.map((g) => (
+          <div key={g.id} className="card" style={{ padding: "0.8rem 1.1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text)" }}>
+                {new Date(g.when).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+              </p>
+              <p style={{ fontSize: "0.74rem", color: "var(--muted)" }}>{g.holes} holes{g.differential != null ? ` · diff ${g.differential.toFixed(1)}` : ""}</p>
+            </div>
+            <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "var(--text)" }}>{g.gross}</span>
+          </div>
+        ))}
+      </div>
+
       <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "1.5rem", lineHeight: 1.6 }}>
         The Clubhouse Estimate is calculated from your submitted rounds and is not an official USGA Handicap Index.
         Verify rounds with partners to qualify for leaderboards.
       </p>
-    </Shell>
+    </PortalShell>
   );
 }
