@@ -37,6 +37,8 @@ interface AppState {
   authUserId: string | null;
   /** True once zustand has finished rehydrating from AsyncStorage */
   _hasHydrated: boolean;
+  /** Dev toggle: layer demo golfers + open games on top of live data */
+  demoMode: boolean;
 
   // Data
   bookings: Booking[];
@@ -73,6 +75,7 @@ interface AppState {
   updateScramble(scramble: Scramble): void;
   recordMetric(metric: keyof TractionMetrics): void;
   updateProfile(profile: Profile): void;
+  setDemoMode(value: boolean): void;
 
   // Scoring actions
   startRound(state: ActiveRoundState, course: Course): void;
@@ -88,6 +91,7 @@ export const useAppStore = create<AppState>()(
       isOnboarded: false,
       authUserId: null,
       _hasHydrated: false,
+      demoMode: false,
       bookings: [],
       rounds: [],
       openGames: [],
@@ -189,6 +193,8 @@ export const useAppStore = create<AppState>()(
         })),
 
       updateProfile: (profile) => set({ profile }),
+
+      setDemoMode: (value) => set({ demoMode: value }),
 
       // ── Scoring ──────────────────────────────────────────────────────────────
       startRound: (state, course) => set({ activeRound: state, activeCourse: course }),

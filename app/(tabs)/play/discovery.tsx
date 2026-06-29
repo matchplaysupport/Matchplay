@@ -11,6 +11,7 @@ import {
   Title,
   useTheme,
 } from "@/design-system/components";
+import { discoveryProfiles } from "@/features/courses/demoData";
 import { listDiscoveryProfiles } from "@/services/discovery";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
@@ -34,6 +35,7 @@ export default function DiscoveryScreen() {
   const [passedIds, setPassedIds] = useState<string[]>([]);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const recordMetric = useAppStore((state) => state.recordMetric);
+  const demoMode = useAppStore((state) => state.demoMode);
   const p = useTheme();
   const [profiles, setProfiles] = useState<DiscoveryProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +49,12 @@ export default function DiscoveryScreen() {
     return () => { active = false; };
   }, []);
 
-  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("discovery")) {
+  if (!demoMode && !env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("discovery")) {
     return <PaywallScreen requiredTier="plus" title="Player discovery is a Clubhouse+ feature" description="Find golfers nearby, match up, and build your playing group." />;
   }
 
-  const available = profiles.filter((dp) => !passedIds.includes(dp.id) && !matchedIds.includes(dp.id));
+  const source = demoMode ? [...profiles, ...discoveryProfiles] : profiles;
+  const available = source.filter((dp) => !passedIds.includes(dp.id) && !matchedIds.includes(dp.id));
   const current = available[index % (available.length || 1)];
 
   const handlePass = (profile: DiscoveryProfile) => {
@@ -193,7 +196,7 @@ export default function DiscoveryScreen() {
                 Your matches
               </Text>
               {matchedIds.map((id) => {
-                const matched = profiles.find((dp) => dp.id === id);
+                const matched = source.find((dp) => dp.id === id);
                 if (!matched) return null;
                 return (
                   <Pressable

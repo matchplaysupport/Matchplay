@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,7 +14,6 @@ import {
   ListItem,
   Muted,
   Row,
-  SectionHeader,
   StatItem,
   Subheading,
   Title,
@@ -31,11 +30,13 @@ export default function ProfileScreen() {
   const rounds = useAppStore((state) => state.rounds);
   const bookings = useAppStore((state) => state.bookings);
   const metrics = useAppStore((state) => state.metrics);
+  const demoMode = useAppStore((state) => state.demoMode);
+  const setDemoMode = useAppStore((state) => state.setDemoMode);
   const p = useTheme();
 
   if (!profile) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.emptyProfile}>
           <View style={[styles.emptyProfileIcon, { backgroundColor: p.successLight }]}>
             <Ionicons name="person-circle-outline" size={52} color={p.primary} />
@@ -54,12 +55,11 @@ export default function ProfileScreen() {
   const partnerVerified = rounds.filter((r) => r.verificationState === "partner_verified").length;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={[styles.header, { backgroundColor: p.header }]}>
+        <View style={styles.header}>
           <Row align="space-between">
             <View style={{ flex: 1, gap: spacing.xs }}>
-              <Text style={styles.kicker}>Member profile</Text>
               <Title style={styles.headerTitle}>{profile.displayName}</Title>
               <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body }}>
                 @{profile.username}
@@ -75,7 +75,7 @@ export default function ProfileScreen() {
 
         {/* Stats row */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: -18 }}>
-          <Card elevated style={{ paddingVertical: spacing.lg }}>
+          <Card elevated style={styles.memberStatsCard}>
             <Row align="space-between">
               <StatItem value={String(submittedRounds)} label="Rounds" />
               <Divider style={{ width: 1, height: 48 }} />
@@ -90,8 +90,8 @@ export default function ProfileScreen() {
 
         {/* Handicap */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <SectionHeader title="Handicap" />
-          <Card elevated>
+          <Text style={styles.sectionLabel}>Handicap</Text>
+          <Card elevated style={styles.profileCard}>
             <Row align="space-between">
               <HandicapLabel value={profile.handicapValue} source={profile.handicapSource} />
               <View style={{ alignItems: "flex-end", gap: spacing.sm }}>
@@ -104,6 +104,22 @@ export default function ProfileScreen() {
                 <Muted>GHIN integration coming soon</Muted>
               </View>
             </Row>
+            <Divider style={{ marginVertical: spacing.md }} />
+            <ListItem
+              title="Stats & Handicap"
+              subtitle="Trends, scoring average, putts, and more"
+              leading={<Ionicons name="stats-chart-outline" size={20} color={p.muted} />}
+              trailing={<Ionicons name="chevron-forward" size={16} color={p.mutedLight} />}
+              onPress={() => router.push("/(tabs)/stats")}
+            />
+            <Divider />
+            <ListItem
+              title="Leaderboards"
+              subtitle="Local rankings, bonus points, and competitive standings"
+              leading={<Ionicons name="podium-outline" size={20} color={p.muted} />}
+              trailing={<Ionicons name="chevron-forward" size={16} color={p.mutedLight} />}
+              onPress={() => router.push("/(tabs)/leaderboards")}
+            />
             <View style={[styles.notice, { backgroundColor: p.accentBg }]}>
               <Ionicons name="information-circle-outline" size={14} color={p.accentText} />
               <Text style={{ flex: 1, fontSize: fontSizes.tiny, color: p.accentText, lineHeight: 17 }}>
@@ -115,8 +131,8 @@ export default function ProfileScreen() {
 
         {/* Player info */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <SectionHeader title="Your profile" />
-          <Card elevated>
+          <Text style={styles.sectionLabel}>Your profile</Text>
+          <Card elevated style={styles.profileCard}>
             <ListItem
               title="Location"
               subtitle={`${profile.city}, ${profile.state} ${profile.zipCode}`}
@@ -139,8 +155,8 @@ export default function ProfileScreen() {
 
         {/* Privacy */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <SectionHeader title="Privacy controls" />
-          <Card elevated>
+          <Text style={styles.sectionLabel}>Privacy controls</Text>
+          <Card elevated style={styles.profileCard}>
             {[
               { label: "Hide exact age", value: profile.privacy.hideExactAge, key: "hideExactAge" as const },
               { label: "Hide handicap", value: profile.privacy.hideHandicap, key: "hideHandicap" as const },
@@ -169,10 +185,24 @@ export default function ProfileScreen() {
           <SubscriptionCard />
         </View>
 
+        {/* Developer / demo data */}
+        <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
+          <Text style={styles.sectionLabel}>Developer</Text>
+          <Card elevated style={styles.profileCard}>
+            <Row align="space-between">
+              <View style={{ flex: 1, paddingRight: spacing.md }}>
+                <Subheading style={{ color: p.text, fontSize: fontSizes.body }}>Show example data</Subheading>
+                <Muted>Layer demo golfers and open games on top of live data so you can preview a populated app.</Muted>
+              </View>
+              <Switch value={demoMode} onValueChange={setDemoMode} />
+            </Row>
+          </Card>
+        </View>
+
         {/* Settings */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <SectionHeader title="Settings & account" />
-          <Card elevated>
+          <Text style={styles.sectionLabel}>Settings & account</Text>
+          <Card elevated style={styles.profileCard}>
             {[
               { icon: "notifications-outline" as const, label: "Notifications", onPress: () => Alert.alert("Notifications", "Notification preferences coming soon.") },
               { icon: "lock-closed-outline" as const, label: "Security", onPress: () => Alert.alert("Security", "Password change and 2FA coming soon.") },
@@ -252,7 +282,7 @@ function SubscriptionCard() {
         <Row gap={spacing.sm}>
           <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
           <View style={{ flex: 1 }}>
-            <Chip label="Match Play Pro" variant="accent" />
+            <Chip label="Clubhouse Pro" variant="accent" />
             <Body style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small, marginTop: spacing.xs }}>
               You have full access to every feature.
             </Body>
@@ -291,26 +321,32 @@ function SubscriptionCard() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#062B24",
+  },
   header: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxxl,
     gap: spacing.xs,
-    borderBottomLeftRadius: radii.xxl,
-    borderBottomRightRadius: radii.xxl,
-  },
-  kicker: {
-    color: "rgba(255,255,255,0.58)",
-    fontSize: fontSizes.micro,
-    fontWeight: fontWeights.heavy,
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
   headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 30,
-    lineHeight: 35,
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 32,
+    lineHeight: 38,
   },
+  sectionLabel: {
+    color: "#C7D8CA",
+    fontSize: fontSizes.tiny,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1.3,
+    textTransform: "uppercase",
+    marginBottom: spacing.sm,
+  },
+  memberStatsCard: { paddingVertical: spacing.lg, backgroundColor: "#FFFDF7", borderColor: "#E2DCCF" },
+  profileCard: { backgroundColor: "#FFFDF7", borderColor: "#E2DCCF" },
   notice: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, marginTop: spacing.xs },
   toggleBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
   emptyProfile: {

@@ -14,7 +14,7 @@ import {
   Subheading,
   useTheme,
 } from "@/design-system/components";
-import { demoCourses } from "@/features/courses/demoData";
+import { demoCourses, demoProfiles, seededOpenGames } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
 import { joinOpenGame, listOpenGames, requestJoinOpenGame } from "@/services/openGames";
@@ -27,6 +27,7 @@ export default function PlayScreen() {
   const activeRound = useAppStore((state) => state.activeRound);
   const activeCourse = useAppStore((state) => state.activeCourse);
   const openGames = useAppStore((state) => state.openGames);
+  const demoMode = useAppStore((state) => state.demoMode);
   const rounds = useAppStore((state) => state.rounds);
   const updateOpenGame = useAppStore((state) => state.updateOpenGame);
   const setOpenGames = useAppStore((state) => state.setOpenGames);
@@ -50,7 +51,8 @@ export default function PlayScreen() {
     };
   }, [setOpenGames]);
 
-  const nearbyGames = openGames.slice(0, 3);
+  const baseGames = demoMode ? [...openGames, ...seededOpenGames] : openGames;
+  const nearbyGames = baseGames.slice(0, 3);
 
   // Resolve course name for active round display
   const activeCourseName =
@@ -152,7 +154,11 @@ export default function PlayScreen() {
           {nearbyGames.map((game) => {
             const course = game.course ?? demoCourses.find((c) => c.id === game.courseId);
             const creatorName =
-              game.creatorName ?? (game.creatorId === profile?.id ? profile?.displayName : "Golfer");
+              game.creatorName ??
+              (game.creatorId === profile?.id
+                ? profile?.displayName
+                : demoProfiles.find((dp) => dp.id === game.creatorId)?.displayName) ??
+              "Golfer";
             const spotsLeft = game.availableSpots - game.acceptedPlayerIds.length;
             return (
               <Card key={game.id} elevated style={[styles.gameCard, { marginBottom: spacing.sm }]}>
