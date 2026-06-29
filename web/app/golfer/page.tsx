@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { Nav } from "../components/Nav";
 import { Reveal } from "../components/motion";
-import { WaitlistForm } from "../components/WaitlistForm";
 import { PhoneMockup } from "../components/Mockups";
 import { Logo } from "../components/Logo";
 import { ThemeProvider } from "../components/ThemeProvider";
@@ -127,7 +126,7 @@ const GOLFER_FAQ = [
   },
   {
     q: "When is the app available?",
-    a: "We're rolling out region by region right now. Join the waitlist and we'll reach out the moment we're live in your area. Early members get priority access.",
+    a: "We're rolling out region by region right now. Create a free account to see what's available near you — and if we're not live in your area yet, you'll be first to know the moment we arrive.",
   },
   {
     q: "Does it track my GHIN handicap?",
@@ -183,6 +182,7 @@ function GolferPage() {
         links={GOLFER_LINKS}
         ctaLabel="Create account"
         ctaHref="/signup/golfer"
+        loginHref="/golfer/login"
         logoHref="/golfer"
       />
 
@@ -340,7 +340,7 @@ function GolferPage() {
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-ghost mt-7 w-full">Join free</a>
+              <a href="/signup/golfer" className="btn btn-ghost mt-7 w-full">Get started free</a>
             </Reveal>
 
             {/* Clubhouse+ */}
@@ -361,7 +361,7 @@ function GolferPage() {
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-gold mt-7 w-full">Get early access</a>
+              <a href="/signup/golfer" className="btn btn-gold mt-7 w-full">Start Clubhouse+</a>
             </Reveal>
 
             {/* Clubhouse Pro */}
@@ -384,7 +384,7 @@ function GolferPage() {
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
-              <a href="#waitlist" className="btn btn-ghost mt-7 w-full">Go Pro</a>
+              <a href="/signup/golfer" className="btn btn-ghost mt-7 w-full">Go Pro</a>
             </Reveal>
           </div>
         </div>
@@ -439,9 +439,9 @@ function GolferPage() {
           >
             <div className="relative grid lg:grid-cols-2 gap-10 p-8 sm:p-12 lg:p-16 items-center">
               <div>
-                <h2 className="text-3xl sm:text-5xl font-bold text-white">Be first on the tee</h2>
+                <h2 className="text-3xl sm:text-5xl font-bold text-white">Ready to play your best golf?</h2>
                 <p className="mt-4 text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
-                  Join the waitlist and we&apos;ll reach out the moment we&apos;re live near you.
+                  Create your free account and start browsing tee times in seconds.
                 </p>
                 <div className="mt-7 flex flex-col gap-3 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
                   {["Browse tee times free — subscribe to play", "No per-booking fees, ever", "Founding members lock in the lowest rate"].map((t) => (
@@ -461,10 +461,18 @@ function GolferPage() {
                 </div>
               </div>
               <div
-                className="theme-light rounded-2xl p-6 sm:p-7"
+                className="theme-light rounded-2xl p-6 sm:p-7 flex flex-col gap-4"
                 style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)", color: "var(--text)" }}
               >
-                <WaitlistForm defaultAudience="golfer" />
+                <h3 className="text-xl font-bold" style={{ color: "var(--text)" }}>Get started free</h3>
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  Free to browse — upgrade to Clubhouse+ whenever you&apos;re ready to book and score.
+                </p>
+                <a href="/signup/golfer" className="btn btn-gold w-full">Create your account</a>
+                <p className="text-sm text-center" style={{ color: "var(--muted)" }}>
+                  Already have an account?{" "}
+                  <a href="/golfer/login" style={{ color: "var(--brand)", fontWeight: 600 }}>Log in</a>
+                </p>
               </div>
             </div>
           </div>
@@ -482,7 +490,7 @@ function GolferPage() {
             </p>
           </div>
           <FooterCol title="Golfer" links={[["How it works", "#how"], ["Features", "#features"], ["Pricing", "#pricing"], ["FAQ", "#faq"]]} />
-          <FooterCol title="Platform" links={[["For Courses", "/course"], ["Sign in", "/golfer/login"], ["Join waitlist", "#waitlist"]]} />
+          <FooterCol title="Platform" links={[["For Courses", "/course"], ["Log in", "/golfer/login"], ["Create account", "/signup/golfer"]]} />
           <FooterCol title="Legal" links={[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]]} />
         </div>
         <div className="border-t" style={{ borderColor: "var(--border)" }}>
