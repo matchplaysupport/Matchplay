@@ -27,6 +27,9 @@ import {
 } from "@/design-system/components";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { PaywallScreen } from "@/components/PaywallScreen";
+import { env } from "@/lib/env";
 import {
   createScramble,
   defaultAddOns,
@@ -174,6 +177,11 @@ const FORMATS: { value: ScrambleFormat; label: string; desc: string }[] = [
 const TOTAL_STEPS = 6;
 
 export default function CreateScrambleScreen() {
+  const { can } = useEntitlement();
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scramble_organizer")) {
+    return <PaywallScreen requiredTier="pro" title="Scramble organizer is a Match Play Pro feature" description="Run charity scrambles, corporate outings, and club events with full registration and sponsor tools." />;
+  }
+
   const p = useTheme();
   const profile = useAppStore((s) => s.profile);
   const addScramble = useAppStore((s) => s.addScramble);

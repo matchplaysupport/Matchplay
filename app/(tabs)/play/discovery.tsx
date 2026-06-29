@@ -15,6 +15,9 @@ import { discoveryProfiles } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { PaywallScreen } from "@/components/PaywallScreen";
+import { env } from "@/lib/env";
 import type { DiscoveryProfile } from "@/types/domain";
 
 const SKILL_COLORS: Record<string, string> = {
@@ -26,6 +29,11 @@ const SKILL_COLORS: Record<string, string> = {
 };
 
 export default function DiscoveryScreen() {
+  const { can } = useEntitlement();
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("discovery")) {
+    return <PaywallScreen requiredTier="plus" title="Player discovery is a Match Play+ feature" description="Find golfers nearby, match up, and build your playing group." />;
+  }
+
   const [index, setIndex] = useState(0);
   const [passedIds, setPassedIds] = useState<string[]>([]);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);

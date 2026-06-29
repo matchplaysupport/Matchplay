@@ -16,6 +16,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
+import { router } from "expo-router";
 import { getLeaderboardProvider } from "@/integrations/leaderboard/LeaderboardProvider";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
@@ -70,10 +71,11 @@ export default function LeaderboardsScreen() {
   const submittedRounds = rounds.filter((r) => r.verificationState !== "draft").length;
   const bonusPoints = submittedRounds * 30;
 
-  // State & national standings are a Pro feature.
   const { can } = useEntitlement();
+  const localLocked = !env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("local_leaderboards");
   const scopeLocked =
-    (scope === "state" || scope === "national") && !can("state_national_leaderboards");
+    localLocked ||
+    ((scope === "state" || scope === "national") && !can("state_national_leaderboards"));
 
   const { data: liveEntries = [], isLoading } = useQuery({
     queryKey: ["leaderboard", scope, period],
@@ -153,8 +155,15 @@ export default function LeaderboardsScreen() {
               <View style={{ alignItems: "center", gap: spacing.sm, paddingVertical: spacing.lg }}>
                 <Ionicons name="lock-closed-outline" size={34} color={p.mutedLight} />
                 <Body color={p.muted} style={{ textAlign: "center" }}>
-                  State and national leaderboards are included with Clubhouse Pro.
+                  {localLocked
+                    ? "Leaderboards are included with Match Play+."
+                    : "State and national leaderboards are included with Match Play Pro."}
                 </Body>
+                <Button
+                  label={localLocked ? "Upgrade to Match Play+" : "Upgrade to Pro"}
+                  size="sm"
+                  onPress={() => router.push("/(tabs)/upgrade")}
+                />
               </View>
             </Card>
           </View>

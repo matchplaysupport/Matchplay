@@ -6,6 +6,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { Row, useTheme } from "@/design-system/components";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { PaywallScreen } from "@/components/PaywallScreen";
+import { env } from "@/lib/env";
 
 const COL = 40;
 const LABEL_COL = 68;
@@ -100,6 +103,11 @@ function ScoreCell({ score, par }: { score: number | null; par: number }) {
 }
 
 export default function ScorecardScreen() {
+  const { can } = useEntitlement();
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
+    return <PaywallScreen requiredTier="plus" title="Scorecard is a Match Play+ feature" description="View your full scorecard with hole-by-hole stats and shot tracking." />;
+  }
+
   const p = useTheme();
   const activeCourse = useAppStore((s) => s.activeCourse);
   const activeRound = useAppStore((s) => s.activeRound);

@@ -15,6 +15,9 @@ import {
 } from "@/design-system/components";
 import { colors, fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { PaywallScreen } from "@/components/PaywallScreen";
+import { env } from "@/lib/env";
 import { createTournament, formatFormatLabel, formatPrizeDistributionLabel } from "@/services/tournaments";
 import type { PrizeDistribution, TournamentFormat } from "@/types/domain";
 
@@ -53,6 +56,11 @@ function FieldLabel({ label }: { label: string }) {
 }
 
 export default function CreateTournamentScreen() {
+  const { can } = useEntitlement();
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("create_tournaments")) {
+    return <PaywallScreen requiredTier="pro" title="Create tournaments with Match Play Pro" description="Host stroke play, match play, and stableford events for your group." />;
+  }
+
   const p = useTheme();
   const profile = useAppStore((state) => state.profile);
   const addTournament = useAppStore((state) => state.addTournament);

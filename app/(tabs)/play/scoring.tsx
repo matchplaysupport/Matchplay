@@ -8,6 +8,9 @@ import { demoCourses } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { PaywallScreen } from "@/components/PaywallScreen";
+import { env } from "@/lib/env";
 import type { HoleScore, Round } from "@/types/domain";
 
 type FairwayResult = HoleScore["fairway"];
@@ -22,6 +25,11 @@ const FAIRWAY_OPTIONS: { value: FairwayResult; label: string; icon: string }[] =
 ];
 
 export default function ScoringScreen() {
+  const { can } = useEntitlement();
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
+    return <PaywallScreen requiredTier="plus" title="Scoring is a Match Play+ feature" description="Track every hole, record stats, and build your round history with Match Play+." />;
+  }
+
   const activeRound = useAppStore((state) => state.activeRound);
   const activeCourse = useAppStore((state) => state.activeCourse);
   const scoreHole = useAppStore((state) => state.scoreHole);
