@@ -71,35 +71,53 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2. Create the profile (service role; user has no session until confirmed).
-  //    Retry on username collision (profiles.username is unique).
+  // 2. The handle_new_golfer trigger creates the profile row from the signup
+  //    metadata in the same transaction as the auth user, so it always exists.
+  //    Fill in the location fields the golfer entered.
   const svc = createServiceClient();
-  const base = usernameBase(name, email);
-  let lastError: { code?: string; message?: string } | null = null;
+  const { data: updated, error: updateError } = await svc
+    .from("profiles")
+    .update({ city, state, zip_code: zip })
+    .eq("auth_user_id", userId)
+    .select("id");
 
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const username = attempt === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
-    const { error: insertError } = await svc.from("profiles").insert({
-      auth_user_id: userId,
-      display_name: name,
-      username,
-      city,
-      state,
-      zip_code: zip,
-      skill_level: "casual",
-      handicap_source: "none",
-      preferred_game_style: "both",
-    });
-    if (!insertError) return NextResponse.json({ ok: true });
-    lastError = insertError;
-    // 23505 on username → retry with a suffix; on auth_user_id → already has a profile.
-    if (insertError.code === "23505") {
-      if (insertError.message?.includes("auth_user_id")) return NextResponse.json({ ok: true });
-      continue;
-    }
-    break;
+  if (updateError) {
+    console.error("Golfer profile update error:", updateError);
+    return NextResponse.json({ error: "Could not finish setting up your account." }, { status: 500 });
   }
 
-  console.error("Golfer profile insert error:", lastError);
-  return NextResponse.json({ error: "Could not create your account." }, { status: 500 });
+  // Fallback: if the trigger isn't installed yet, create the profile directly.
+  //    Retry on username collision (profiles.username is unique).
+  if (!updated || updated.length === 0) {
+    const base = usernameBase(name, email);
+    let lastError: { code?: string; message?: string } | null = null;
+
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const username = attempt === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+      const { error: insertError } = await svc.from("profiles").insert({
+        auth_user_id: userId,
+        display_name: name,
+        username,
+        city,
+        state,
+        zip_code: zip,
+        skill_level: "casual",
+        handicap_source: "none",
+        preferred_game_style: "both",
+      });
+      if (!insertError) return NextResponse.json({ ok: true });
+      lastError = insertError;
+      // 23505 on username → retry with a suffix; on auth_user_id → already has a profile.
+      if (insertError.code === "23505") {
+        if (insertError.message?.includes("auth_user_id")) return NextResponse.json({ ok: true });
+        continue;
+      }
+      break;
+    }
+
+    console.error("Golfer profile insert error:", lastError);
+    return NextResponse.json({ error: "Could not create your account." }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
 }
