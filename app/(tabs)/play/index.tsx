@@ -135,6 +135,29 @@ export default function PlayScreen() {
           </View>
         )}
 
+        {/* Live event scoring */}
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl, gap: spacing.sm }}>
+          <SectionHeader title="Live events" />
+          <Card elevated style={{ backgroundColor: p.primaryDark, borderColor: "transparent" }}>
+            <Row align="space-between">
+              <View style={{ gap: spacing.xs, flex: 1 }}>
+                <Chip label="Free for juniors & student athletes" variant="accent" size="xs" />
+                <Subheading style={{ color: "#FFFFFF", marginTop: spacing.xs }}>Score a live event</Subheading>
+                <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small }}>
+                  Enter your group&apos;s scores — standings go live instantly.
+                </Text>
+              </View>
+              <Ionicons name="trophy" size={28} color="rgba(255,255,255,0.3)" />
+            </Row>
+            <Button
+              label="Open group scoring"
+              variant="accent"
+              size="lg"
+              onPress={() => router.push("/(tabs)/play/group-scoring")}
+            />
+          </Card>
+        </View>
+
         {/* Discovery preview */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
           <SectionHeader title="Golfers near you" action="See all" onAction={() => router.push("/(tabs)/play/discovery")} />

@@ -1,7 +1,10 @@
 import type {
   Course,
   DiscoveryProfile,
+  EventParticipant,
   LeaderboardEntry,
+  LiveEvent,
+  LiveScore,
   Message,
   OpenGame,
   Profile,
@@ -473,3 +476,51 @@ export const seededMessages: Message[] = [
     deliveryState: "sent",
   },
 ];
+
+// ─── Live-scoring event (Phase A demo) ──────────────────────────────────────────
+// Powers the SimulatedLiveScoringProvider so the group-scorer screen and the
+// web scoreboard render without a backend (EXPO_PUBLIC_USE_MOCK_AUTH=true).
+
+export const demoLiveEvent: LiveEvent = {
+  id: "event-riverbend-junior",
+  name: "Riverbend Junior Open",
+  slug: "riverbend-junior-open",
+  eventType: "junior",
+  organizerId: "user-demo-maya",
+  courseId: "course-riverbend",
+  holes: 18,
+  scoringMode: "group_scorer",
+  status: "in_progress",
+  publicScoreboard: true,
+  freeForParticipants: true,
+  startsAt: "2026-07-04T13:00:00.000Z",
+};
+
+/** The group the mock-signed-in user is assigned to score. */
+export const demoScorerGroupNo = 1;
+
+export const demoEventParticipants: EventParticipant[] = [
+  { id: "ep-1", eventId: demoLiveEvent.id, displayName: "Avery Chen", groupNo: 1, startingHole: 1, status: "active" },
+  { id: "ep-2", eventId: demoLiveEvent.id, displayName: "Mason Park", groupNo: 1, startingHole: 1, status: "active" },
+  { id: "ep-3", eventId: demoLiveEvent.id, displayName: "Sofia Ruiz", groupNo: 1, startingHole: 1, status: "active" },
+  { id: "ep-4", eventId: demoLiveEvent.id, displayName: "Liam Brooks", groupNo: 1, startingHole: 1, status: "active" },
+  { id: "ep-5", eventId: demoLiveEvent.id, displayName: "Emma Davis", groupNo: 2, startingHole: 1, status: "active" },
+  { id: "ep-6", eventId: demoLiveEvent.id, displayName: "Noah Kim", groupNo: 2, startingHole: 1, status: "active" },
+  { id: "ep-7", eventId: demoLiveEvent.id, displayName: "Olivia Tran", groupNo: 2, startingHole: 1, status: "active" },
+  { id: "ep-8", eventId: demoLiveEvent.id, displayName: "Ethan Cole", groupNo: 2, startingHole: 1, status: "active" },
+];
+
+const demoScoreLines: [string, number[]][] = [
+  ["ep-1", [4, 4, 3, 4, 3]],
+  ["ep-2", [5, 5, 4, 4, 4]],
+  ["ep-3", [4, 6, 3, 5, 4]],
+  ["ep-4", [4, 5, 2, 4, 4]],
+  ["ep-5", [3, 5, 3]],
+  ["ep-6", [5, 6, 4]],
+  ["ep-7", [4, 4, 3]],
+  ["ep-8", [4, 5, 3]],
+];
+
+export const demoLiveScores: LiveScore[] = demoScoreLines.flatMap(([participantId, strokes]) =>
+  strokes.map((s, i) => ({ participantId, holeNumber: i + 1, strokes: s })),
+);

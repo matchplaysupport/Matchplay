@@ -20,6 +20,10 @@ export default function PlayLayout() {
         options={{ title: "Scoring", headerShown: false, presentation: "fullScreenModal" }}
       />
       <Stack.Screen
+        name="group-scoring"
+        options={{ title: "Live Event", headerShown: false, presentation: "fullScreenModal" }}
+      />
+      <Stack.Screen
         name="discovery"
         options={{ title: "Find Golfers", headerShown: true, presentation: "card" }}
       />
