@@ -19,11 +19,8 @@ import { flushQueue, getPendingCount, startQueueFlusher, submitScores } from "@/
 import { useAppStore } from "@/stores/appStore";
 import type { EventParticipant, LiveEvent, LiveScore } from "@/types/domain";
 
-const DEFAULT_SLUG = "riverbend-junior-open";
-
 export default function GroupScoringScreen() {
   const { slug } = useLocalSearchParams<{ slug?: string }>();
-  const eventSlug = slug ?? DEFAULT_SLUG;
   const profileId = useAppStore((s) => s.profile?.id ?? null);
   const p = useTheme();
 
@@ -37,6 +34,7 @@ export default function GroupScoringScreen() {
   const [draft, setDraft] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [accessError, setAccessError] = useState<string | null>(null);
+  const [myEvents, setMyEvents] = useState<LiveEvent[]>([]);
   const [pending, setPending] = useState(0);
   const [showBoard, setShowBoard] = useState(true);
 
@@ -65,7 +63,25 @@ export default function GroupScoringScreen() {
     let active = true;
     void (async () => {
       setLoading(true);
-      const evt = await provider.getEventBySlug(eventSlug);
+      // Resolve the event: an explicit ?slug=, otherwise the events this user scores.
+      let evt: LiveEvent | null = null;
+      if (slug) {
+        evt = await provider.getEventBySlug(slug);
+      } else {
+        const mine = profileId ? await provider.getMyScorerEvents(profileId) : [];
+        if (!active) return;
+        if (mine.length === 0) {
+          setAccessError("You're not assigned to score any live events yet.");
+          setLoading(false);
+          return;
+        }
+        if (mine.length > 1) {
+          setMyEvents(mine);
+          setLoading(false);
+          return;
+        }
+        evt = mine[0] ?? null;
+      }
       if (!active) return;
       if (!evt) {
         setAccessError("Event not found.");
@@ -96,7 +112,7 @@ export default function GroupScoringScreen() {
     return () => {
       active = false;
     };
-  }, [provider, eventSlug, profileId]);
+  }, [provider, slug, profileId]);
 
   // Live subscription + offline-queue flusher.
   useEffect(() => {
@@ -167,6 +183,30 @@ export default function GroupScoringScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: p.primaryDark, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color="#FFFFFF" />
+      </View>
+    );
+  }
+
+  if (!event && myEvents.length > 1) {
+    return (
+      <View style={{ flex: 1, backgroundColor: p.primaryDark }}>
+        <SafeAreaView style={{ flex: 1, padding: spacing.xl, gap: spacing.md }} edges={["top"]}>
+          <Text style={{ color: "#FFFFFF", fontSize: fontSizes.subheading, fontWeight: fontWeights.bold }}>
+            Choose an event
+          </Text>
+          {myEvents.map((e) => (
+            <Pressable
+              key={e.id}
+              onPress={() => router.setParams({ slug: e.slug })}
+              style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: radii.md, padding: spacing.lg }}
+            >
+              <Text style={{ color: "#FFFFFF", fontSize: fontSizes.body, fontWeight: fontWeights.semibold }}>{e.name}</Text>
+              <Text style={{ color: "rgba(255,255,255,0.6)", fontSize: fontSizes.tiny, marginTop: 2 }}>
+                {e.eventType} · {e.holes} holes
+              </Text>
+            </Pressable>
+          ))}
+        </SafeAreaView>
       </View>
     );
   }

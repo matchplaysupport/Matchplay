@@ -21,6 +21,8 @@ export interface LiveScoringProvider {
   listParticipants(eventId: string, groupNo?: number): Promise<EventParticipant[]>;
   /** Which group (if any) this profile may score. null group means whole-event. */
   getMyScorerGroup(eventId: string, profileId: string): Promise<{ groupNo: number | null } | null>;
+  /** Events this profile is assigned to score — drives the in-app event picker. */
+  getMyScorerEvents(profileId: string): Promise<LiveEvent[]>;
   getLiveScores(eventId: string): Promise<LiveScore[]>;
   upsertScores(eventId: string, enteredBy: string | null, scores: ScoreInput[]): Promise<void>;
   /** Push live changes to the caller; returns an unsubscribe fn. */
@@ -45,6 +47,10 @@ export class SimulatedLiveScoringProvider implements LiveScoringProvider {
 
   async getMyScorerGroup(): Promise<{ groupNo: number | null }> {
     return { groupNo: demoScorerGroupNo };
+  }
+
+  async getMyScorerEvents(): Promise<LiveEvent[]> {
+    return [demoLiveEvent];
   }
 
   async getLiveScores(): Promise<LiveScore[]> {
@@ -166,6 +172,18 @@ export class SupabaseLiveScoringProvider implements LiveScoringProvider {
       .maybeSingle();
     if (error || !data) return null;
     return { groupNo: (data as { group_no: number | null }).group_no };
+  }
+
+  async getMyScorerEvents(profileId: string): Promise<LiveEvent[]> {
+    const { data, error } = await supabase
+      .from("event_scorers")
+      .select("events(*)")
+      .eq("profile_id", profileId);
+    if (error || !data) return [];
+    return (data as unknown as { events: EventRow | null }[])
+      .map((r) => r.events)
+      .filter((e): e is EventRow => e != null)
+      .map(toEvent);
   }
 
   async getLiveScores(eventId: string): Promise<LiveScore[]> {
