@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { track } from "../../../lib/track";
+import { createClient } from "@/lib/supabase-browser";
 
 const fieldStyle: React.CSSProperties = {
   padding: "0.65rem 0.875rem",
@@ -31,6 +33,7 @@ export default function GolferSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const hp = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -48,7 +51,25 @@ export default function GolferSignupForm() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again.");
       track("signup_submit", { audience: "golfer" });
-      setSubmitted(true);
+
+      // Email confirmation on → tell them to check their inbox.
+      if (data.needsConfirmation) {
+        setSubmitted(true);
+        return;
+      }
+
+      // Confirmation off → sign them straight in and drop them on the dashboard.
+      const { error: signInError } = await createClient().auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
+      if (signInError) {
+        // Account exists; just send them to sign in manually.
+        router.push("/golfer/login");
+        return;
+      }
+      router.push("/golfer/dashboard");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

@@ -71,6 +71,10 @@ export async function POST(req: Request) {
     );
   }
 
+  // With email confirmation off, signUp returns a session and the client can
+  // sign straight in. With it on, there's no session yet — ask them to confirm.
+  const needsConfirmation = !signUp.session;
+
   // 2. The handle_new_golfer trigger creates the profile row from the signup
   //    metadata in the same transaction as the auth user, so it always exists.
   //    Fill in the location fields the golfer entered.
@@ -105,11 +109,11 @@ export async function POST(req: Request) {
         handicap_source: "none",
         preferred_game_style: "both",
       });
-      if (!insertError) return NextResponse.json({ ok: true });
+      if (!insertError) return NextResponse.json({ ok: true, needsConfirmation });
       lastError = insertError;
       // 23505 on username → retry with a suffix; on auth_user_id → already has a profile.
       if (insertError.code === "23505") {
-        if (insertError.message?.includes("auth_user_id")) return NextResponse.json({ ok: true });
+        if (insertError.message?.includes("auth_user_id")) return NextResponse.json({ ok: true, needsConfirmation });
         continue;
       }
       break;
@@ -119,5 +123,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Could not create your account." }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, needsConfirmation });
 }
