@@ -156,6 +156,9 @@ export interface OpenGame {
   cartIncluded?: boolean;
   handicapRangeMin?: number;
   handicapRangeMax?: number;
+  /** Populated by the live provider (joined). Absent on locally-created games. */
+  course?: CourseSummary;
+  creatorName?: string;
 }
 
 export interface DiscoveryProfile {
