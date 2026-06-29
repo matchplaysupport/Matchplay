@@ -17,7 +17,8 @@ import {
 } from "@/design-system/components";
 import { demoCourses, demoProfiles, discoveryProfiles, seededOpenGames } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
-import { joinOpenGame } from "@/services/openGames";
+import { env } from "@/lib/env";
+import { joinOpenGame, requestJoinOpenGame } from "@/services/openGames";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { OpenGame } from "@/types/domain";
@@ -208,20 +209,44 @@ export default function PlayScreen() {
                   variant={spotsLeft === 0 ? "secondary" : "primary"}
                   onPress={() => {
                     if (!profile) return;
-                    if (spotsLeft === 0) {
-                      Alert.alert("Game is full", "You've been added to the waitlist.");
+
+                    // Mock mode: optimistic local update.
+                    if (env.EXPO_PUBLIC_USE_MOCK_AUTH) {
+                      const result = joinOpenGame(game, profile.id);
+                      updateOpenGame(result.game);
+                      recordMetric("joinRequests");
+                      analytics.track("join_requested", { gameId: game.id, status: result.status });
+                      Alert.alert(
+                        result.status === "joined" ? "You're in!" : "Request sent",
+                        result.status === "joined"
+                          ? "Check Messages to chat with the group."
+                          : "The host will review your request.",
+                      );
                       return;
                     }
-                    const result = joinOpenGame(game, profile.id);
-                    updateOpenGame(result.game);
-                    recordMetric("joinRequests");
-                    analytics.track("join_requested", { gameId: game.id, status: result.status });
-                    Alert.alert(
-                      result.status === "joined" ? "You're in!" : "Request sent",
-                      result.status === "joined"
-                        ? "Check Messages to chat with the group."
-                        : "The host will review your request.",
-                    );
+
+                    // Live mode: the server enforces capacity (accept vs waitlist).
+                    void (async () => {
+                      try {
+                        const status = await requestJoinOpenGame(game.id);
+                        recordMetric("joinRequests");
+                        analytics.track("join_requested", { gameId: game.id, status });
+                        Alert.alert(
+                          status === "joined"
+                            ? "You're in!"
+                            : status === "already_member"
+                              ? "Already joined"
+                              : "Request sent",
+                          status === "joined"
+                            ? "Check Messages to chat with the group."
+                            : status === "already_member"
+                              ? "You're already part of this game."
+                              : "You've been added to the waitlist, or the host will review your request.",
+                        );
+                      } catch (err) {
+                        Alert.alert("Could not join", err instanceof Error ? err.message : "Please try again.");
+                      }
+                    })();
                   }}
                 />
               </Card>

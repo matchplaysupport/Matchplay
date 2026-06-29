@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase";
 import { fetchProfile } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { registerForPushNotifications } from "@/integrations/notifications/NotificationProvider";
 import { useAppStore } from "@/stores/appStore";
 
 const queryClient = new QueryClient({
@@ -30,6 +31,7 @@ function AuthListener() {
         if (user) {
           const profile = await fetchProfile(user.id);
           setAuthSession(user.id, profile);
+          if (profile) void registerForPushNotifications(profile.id);
         }
       })
       .catch((err) => {
@@ -47,6 +49,7 @@ function AuthListener() {
         try {
           const profile = await fetchProfile(user.id);
           setAuthSession(user.id, profile);
+          if (profile) void registerForPushNotifications(profile.id);
         } catch (err) {
           logger.error("Failed to load profile on auth change", err);
         }
