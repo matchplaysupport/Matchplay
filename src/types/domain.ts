@@ -156,6 +156,9 @@ export interface OpenGame {
   cartIncluded?: boolean;
   handicapRangeMin?: number;
   handicapRangeMax?: number;
+  /** Populated by the live provider (joined). Absent on locally-created games. */
+  course?: CourseSummary;
+  creatorName?: string;
 }
 
 export interface DiscoveryProfile {
@@ -375,4 +378,69 @@ export interface LeaderboardEntry {
   points: number;
   verified: boolean;
   movement: number;
+}
+
+// ─── Live-scoring events (Phase A) ─────────────────────────────────────────────
+
+export type EventType = "junior" | "college" | "scramble" | "open" | "course";
+export type EventScoringMode = "group_scorer" | "self";
+export type LiveEventStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+
+export interface LiveEvent {
+  id: string;
+  name: string;
+  slug: string;
+  eventType: EventType;
+  organizerId: string;
+  courseId?: string;
+  teeSetId?: string;
+  holes: 9 | 18;
+  scoringMode: EventScoringMode;
+  status: LiveEventStatus;
+  publicScoreboard: boolean;
+  freeForParticipants: boolean;
+  startsAt?: string;
+}
+
+export interface EventParticipant {
+  id: string;
+  eventId: string;
+  /** Set only if the participant has an app account; juniors usually won't. */
+  profileId?: string;
+  displayName: string;
+  groupNo?: number;
+  startingHole: number;
+  teeSetId?: string;
+  status: "active" | "withdrawn" | "disqualified";
+}
+
+export interface EventScorer {
+  id: string;
+  eventId: string;
+  profileId: string;
+  /** null = may score the whole event (e.g. organizer). */
+  groupNo?: number;
+}
+
+export interface LiveScore {
+  participantId: string;
+  holeNumber: number;
+  strokes: number;
+  enteredBy?: string;
+  updatedAt?: string;
+}
+
+/** Derived standings row, computed from participants + live scores + hole pars. */
+export interface ScoreboardRow {
+  participantId: string;
+  displayName: string;
+  groupNo?: number;
+  /** Strokes relative to par over completed holes. */
+  toPar: number;
+  /** Number of holes completed. */
+  thru: number;
+  /** Gross strokes over completed holes. */
+  grossStrokes: number;
+  /** 1-based position; ties share a position. */
+  position: number;
 }
