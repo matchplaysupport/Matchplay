@@ -45,31 +45,58 @@ export default function HomeScreen() {
   const nearbyGames = openGames.slice(0, 2);
   const suggestedGolfers = demoProfiles.slice(1, 3);
   const nearbyTeeTimes = demoTeeTimes.slice(0, 2);
+  const spotlightTeeTime = nextBooking ? null : nearbyTeeTimes[0];
+  const spotlightCourse = spotlightTeeTime ? demoCourses.find((c) => c.id === spotlightTeeTime.courseId) : null;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
-      {/* Green header */}
-      <View style={[styles.header, { backgroundColor: p.primary }]}>
+      <View style={[styles.header, { backgroundColor: p.header }]}>
         <Row align="space-between">
-          <View style={{ flex: 1 }}>
-            <Text style={styles.greeting}>{getGreeting()},</Text>
-            <Text style={styles.name}>{profile?.displayName.split(" ")[0] ?? "Golfer"}</Text>
-            <Text style={styles.location}>
-              <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.7)" />
-              {"  "}{profile?.city ?? "Nashville"}, {profile?.state ?? "TN"}
-            </Text>
-          </View>
-          <View style={{ alignItems: "flex-end", gap: spacing.xs }}>
-            <Avatar name={profile?.displayName ?? "G"} size={52} />
-            <Chip label={profile?.reliabilityLabel ?? "New player"} variant="muted" size="xs" />
-          </View>
+          <Row gap={spacing.sm}>
+            <ClubhouseMark />
+            <View>
+              <Text style={styles.brandName}>The Clubhouse</Text>
+              <Text style={styles.brandSubline}>{profile?.city ?? "Nashville"}, {profile?.state ?? "TN"}</Text>
+            </View>
+          </Row>
+          <Avatar name={profile?.displayName ?? "G"} size={42} />
         </Row>
+
+        <View style={styles.heroCopy}>
+          <Text style={styles.greeting}>{getGreeting()}, {profile?.displayName.split(" ")[0] ?? "Golfer"}</Text>
+          <Text style={styles.name}>Your round, group, and next tee time.</Text>
+        </View>
+
+        {spotlightTeeTime && (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push({ pathname: "/(tabs)/tee-times/[id]", params: { id: spotlightTeeTime.id } })}
+            style={({ pressed }) => [
+              styles.spotlightCard,
+              { opacity: pressed ? 0.92 : 1 },
+            ]}
+          >
+            <Row align="space-between">
+              <View style={{ flex: 1, gap: spacing.xs }}>
+                <Text style={styles.spotlightLabel}>Next opening</Text>
+                <Text style={styles.spotlightTitle}>{spotlightCourse?.name ?? "Featured course"}</Text>
+                <Text style={styles.spotlightMeta}>
+                  {new Date(spotlightTeeTime.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} · {spotlightTeeTime.holes} holes · {spotlightTeeTime.availableSpots} spots
+                </Text>
+              </View>
+              <View style={styles.spotlightPrice}>
+                <Text style={styles.spotlightPriceText}>${Math.round(spotlightTeeTime.priceCents / 100)}</Text>
+                <Text style={styles.spotlightPriceSub}>golfer</Text>
+              </View>
+            </Row>
+          </Pressable>
+        )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Handicap card */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: -16 }}>
-          <Card elevated style={{ paddingVertical: spacing.lg }}>
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: -18 }}>
+          <Card elevated style={[styles.statDeck, { borderColor: p.border }]}>
             <Row align="space-between">
               <View style={{ gap: spacing.xs }}>
                 <Text style={{ fontSize: fontSizes.micro, fontWeight: fontWeights.heavy, color: p.muted, textTransform: "uppercase", letterSpacing: 1 }}>
@@ -80,9 +107,9 @@ export default function HomeScreen() {
                   source={profile?.handicapSource ?? "none"}
                 />
               </View>
-              <Divider style={{ width: 1, height: "100%", marginHorizontal: spacing.md }} />
+              <Divider style={{ width: 1, height: 54, marginHorizontal: spacing.md }} />
               <StatItem value={String(submittedRounds)} label="Rounds" />
-              <Divider style={{ width: 1, height: "100%", marginHorizontal: spacing.md }} />
+              <Divider style={{ width: 1, height: 54, marginHorizontal: spacing.md }} />
               <StatItem value={personalRank ? `#${personalRank.rank}` : "—"} label="Rank" valueColor={p.primary} />
             </Row>
           </Card>
@@ -116,8 +143,8 @@ export default function HomeScreen() {
           <View style={styles.actionGrid}>
             <QuickAction icon="calendar" label="Book tee time" color={p.primary} onPress={() => router.push("/(tabs)/tee-times")} />
             <QuickAction icon="golf" label="Start round" color="#2C5F8A" onPress={() => router.push("/(tabs)/play")} />
-            <QuickAction icon="trophy" label="Events" color="#7A3B8A" onPress={() => router.push("/(tabs)/tournaments")} />
-            <QuickAction icon="podium" label="Leaderboards" color="#B07030" onPress={() => router.push("/(tabs)/leaderboards")} />
+            <QuickAction icon="people" label="Groups" color="#2A7A6A" onPress={() => router.push("/(tabs)/play")} />
+            <QuickAction icon="trophy" label="Events" color="#B07030" onPress={() => router.push("/(tabs)/tournaments")} />
           </View>
         </View>
 
@@ -239,6 +266,16 @@ export default function HomeScreen() {
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
+function ClubhouseMark() {
+  return (
+    <View style={styles.markOuter}>
+      <View style={styles.markInner}>
+        <Text style={styles.markText}>C</Text>
+      </View>
+    </View>
+  );
+}
+
 function QuickAction({ icon, label, color, onPress }: { icon: IoniconsName; label: string; color: string; onPress: () => void }) {
   const p = useTheme();
   return (
@@ -255,7 +292,7 @@ function QuickAction({ icon, label, color, onPress }: { icon: IoniconsName; labe
         },
       ]}
     >
-      <View style={{ width: 44, height: 44, borderRadius: radii.md, backgroundColor: `${color}18`, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 42, height: 42, borderRadius: radii.full, backgroundColor: `${color}16`, alignItems: "center", justifyContent: "center" }}>
         <Ionicons name={icon} size={22} color={color} />
       </View>
       <Text style={{ fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, color: p.textSecondary, textAlign: "center", lineHeight: 15 }}>
@@ -269,37 +306,116 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxxl,
-    gap: spacing.sm,
+    paddingBottom: spacing.xxl,
+    gap: spacing.xl,
+    borderBottomLeftRadius: radii.xxl,
+    borderBottomRightRadius: radii.xxl,
+  },
+  markOuter: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.28)",
+  },
+  markInner: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#F6C15A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  markText: {
+    color: "#06261C",
+    fontSize: 15,
+    fontWeight: fontWeights.heavy,
+  },
+  brandName: {
+    color: "#FFFFFF",
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 0.2,
+  },
+  brandSubline: {
+    color: "rgba(255,255,255,0.58)",
+    fontSize: fontSizes.tiny,
+    marginTop: 1,
+  },
+  heroCopy: {
+    gap: spacing.xs,
   },
   greeting: {
-    fontSize: fontSizes.body,
-    color: "rgba(255,255,255,0.75)",
-    fontWeight: fontWeights.regular,
+    fontSize: fontSizes.small,
+    color: "rgba(255,255,255,0.66)",
+    fontWeight: fontWeights.medium,
   },
   name: {
-    fontSize: fontSizes.display,
+    fontSize: 30,
     fontWeight: fontWeights.heavy,
     color: "#FFFFFF",
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
+    lineHeight: 35,
+    maxWidth: 320,
   },
-  location: {
+  spotlightCard: {
+    backgroundColor: "rgba(255,255,255,0.94)",
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.75)",
+    ...shadows.lg,
+  },
+  spotlightLabel: {
+    fontSize: fontSizes.micro,
+    color: "#66736C",
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  spotlightTitle: {
+    fontSize: fontSizes.heading,
+    color: "#081812",
+    fontWeight: fontWeights.heavy,
+  },
+  spotlightMeta: {
     fontSize: fontSizes.small,
-    color: "rgba(255,255,255,0.7)",
-    marginTop: 2,
+    color: "#66736C",
+  },
+  spotlightPrice: {
+    minWidth: 70,
+    alignItems: "flex-end",
+  },
+  spotlightPriceText: {
+    color: "#0F6A43",
+    fontSize: fontSizes.title,
+    fontWeight: fontWeights.heavy,
+  },
+  spotlightPriceSub: {
+    color: "#66736C",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.semibold,
+    textTransform: "uppercase",
+  },
+  statDeck: {
+    paddingVertical: spacing.lg,
   },
   actionGrid: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: spacing.md,
     marginTop: spacing.sm,
   },
   quickAction: {
     flex: 1,
     alignItems: "center",
     gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radii.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radii.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    ...shadows.xs,
+    ...shadows.sm,
   },
 });

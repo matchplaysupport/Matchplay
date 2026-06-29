@@ -10,15 +10,15 @@ function TabIcon({ name, focused, label, isCenter }: { name: IoniconsName; focus
   const p = useTheme();
   if (isCenter) {
     return (
-      <View style={[styles.centerButton, { backgroundColor: p.primary }]}>
-        <Ionicons name={name} size={28} color="#FFFFFF" />
+      <View style={[styles.centerButton, { backgroundColor: focused ? p.primaryDark : p.primary }]}>
+        <Ionicons name={name} size={27} color="#FFFFFF" />
       </View>
     );
   }
   return (
-    <View style={styles.tabIcon}>
-      <Ionicons name={focused ? name : (name.replace("-outline", "") + "-outline") as IoniconsName} size={24} color={focused ? p.primary : p.mutedLight} />
-      <Text style={{ fontSize: fontSizes.micro, fontWeight: focused ? fontWeights.semibold : fontWeights.regular, color: focused ? p.primary : p.mutedLight, marginTop: 2 }}>
+    <View style={[styles.tabIcon, focused && { backgroundColor: p.successLight }]}>
+      <Ionicons name={focused ? name : (name.replace("-outline", "") + "-outline") as IoniconsName} size={22} color={focused ? p.primary : p.mutedLight} />
+      <Text style={{ fontSize: fontSizes.micro, fontWeight: focused ? fontWeights.semibold : fontWeights.medium, color: focused ? p.primary : p.mutedLight, marginTop: 2 }}>
         {label}
       </Text>
     </View>
@@ -31,7 +31,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: [styles.tabBar, { backgroundColor: p.tabBar, borderTopColor: p.border }],
+        tabBarStyle: [styles.tabBar, { backgroundColor: p.tabBar, borderTopColor: "rgba(0,0,0,0.06)" }],
         tabBarShowLabel: false,
       }}
     >
@@ -77,24 +77,31 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: Platform.OS === "ios" ? 82 : 62,
-    paddingTop: spacing.xs,
+    height: Platform.OS === "ios" ? 86 : 68,
+    paddingTop: spacing.sm,
+    paddingHorizontal: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     ...shadows.sm,
   },
   tabIcon: {
     alignItems: "center",
-    gap: 3,
-    paddingTop: 6,
+    justifyContent: "center",
+    gap: 2,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radii.full,
     minWidth: 56,
   },
   centerButton: {
-    width: 60,
-    height: 60,
+    width: 62,
+    height: 62,
     borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: Platform.OS === "ios" ? 12 : 8,
+    marginBottom: Platform.OS === "ios" ? 14 : 10,
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
     ...shadows.md,
   },
 });

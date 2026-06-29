@@ -77,16 +77,18 @@ export default function PlayScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: p.primary }]}>
+      <View style={[styles.header, { backgroundColor: p.header }]}>
         <Row align="space-between">
-          <View style={{ gap: 4 }}>
-            <Title style={{ color: "#FFFFFF" }}>Play</Title>
-            <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body }}>
-              Start scoring, join a game, or find partners
+          <View style={{ gap: spacing.xs, flex: 1 }}>
+            <Text style={styles.kicker}>Clubhouse round desk</Text>
+            <Title style={styles.headerTitle}>Play today</Title>
+            <Text style={styles.headerSubtitle}>
+              Score a round, build a group, or claim an open seat.
             </Text>
           </View>
-          <Ionicons name="golf" size={36} color="rgba(255,255,255,0.3)" />
+          <View style={styles.headerGlyph}>
+            <Ionicons name="golf" size={26} color="#06261C" />
+          </View>
         </Row>
       </View>
 
@@ -112,13 +114,14 @@ export default function PlayScreen() {
         ) : (
           <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg, gap: spacing.sm }}>
             <SectionHeader title="Start a round" />
-            <Card elevated>
+            <Card elevated style={styles.startCard}>
               <Row align="space-between">
                 <View style={{ gap: spacing.xs, flex: 1 }}>
+                  <Chip label="Ready when you are" variant="accent" size="xs" />
                   <Subheading>Find your course</Subheading>
-                  <Body color={p.muted}>Search 30,000+ courses or choose from nearby</Body>
+                  <Body color={p.muted}>Search courses, select tees, and keep a clean card from the first hole.</Body>
                 </View>
-                <View style={[styles.courseIcon, { backgroundColor: p.successLight }]}>
+                <View style={[styles.courseIcon, { backgroundColor: p.successLight, borderColor: p.border }]}>
                   <Ionicons name="golf" size={28} color={p.primary} />
                 </View>
               </Row>
@@ -136,7 +139,7 @@ export default function PlayScreen() {
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
           <SectionHeader title="Golfers near you" action="See all" onAction={() => router.push("/(tabs)/play/discovery")} />
           {firstDiscovery && (
-            <Card elevated>
+            <Card elevated style={styles.featureCard}>
               <Row gap={spacing.md}>
                 <Avatar name={firstDiscovery.displayName} size={56} />
                 <View style={{ flex: 1, gap: spacing.xs }}>
@@ -173,7 +176,7 @@ export default function PlayScreen() {
                   style={{ flex: 1 }}
                 />
               </Row>
-              <Button label="Browse all nearby golfers →" variant="ghost" onPress={() => router.push("/(tabs)/play/discovery")} size="sm" />
+              <Button label="Browse nearby golfers" variant="ghost" onPress={() => router.push("/(tabs)/play/discovery")} size="sm" />
             </Card>
           )}
         </View>
@@ -186,7 +189,7 @@ export default function PlayScreen() {
             const creator = demoProfiles.find((p) => p.id === game.creatorId);
             const spotsLeft = game.availableSpots - game.acceptedPlayerIds.length;
             return (
-              <Card key={game.id} elevated style={{ marginBottom: spacing.sm }}>
+              <Card key={game.id} elevated style={[styles.gameCard, { marginBottom: spacing.sm }]}>
                 <Row align="space-between">
                   <Row gap={spacing.md}>
                     <Avatar name={creator?.displayName ?? "G"} size={44} />
@@ -315,6 +318,57 @@ export default function PlayScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.xs },
-  courseIcon: { width: 56, height: 56, borderRadius: radii.lg, alignItems: "center", justifyContent: "center" },
+  header: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
+    gap: spacing.xs,
+    borderBottomLeftRadius: radii.xxl,
+    borderBottomRightRadius: radii.xxl,
+  },
+  kicker: {
+    color: "rgba(255,255,255,0.58)",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    lineHeight: 37,
+  },
+  headerSubtitle: {
+    color: "rgba(255,255,255,0.70)",
+    fontSize: fontSizes.body,
+    lineHeight: 21,
+    maxWidth: 270,
+  },
+  headerGlyph: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#F6C15A",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.45)",
+  },
+  startCard: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  featureCard: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  gameCard: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  courseIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: radii.xl,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+  },
 });

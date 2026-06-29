@@ -177,8 +177,8 @@ export function Card({
   const cardStyle: ViewStyle = {
     backgroundColor: p.surface,
     borderRadius: radii.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    padding: spacing.lg + 2,
+    gap: spacing.md,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: p.border,
     ...(elevated ? shadows.md : shadows.xs),
@@ -188,7 +188,11 @@ export function Card({
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [cardStyle, pressed && { opacity: 0.9 }, style]}
+        style={({ pressed }) => [
+          cardStyle,
+          pressed && { opacity: 0.94, transform: [{ scale: 0.995 }] },
+          style,
+        ]}
       >
         {children}
       </Pressable>
@@ -223,12 +227,12 @@ export function Button({
 }) {
   const p = useTheme();
 
-  const heights: Record<string, number> = { sm: 38, md: 50, lg: 58 };
+  const heights: Record<string, number> = { sm: 38, md: 48, lg: 54 };
   const fontSizeMap: Record<string, number> = { sm: fontSizes.small, md: fontSizes.body, lg: fontSizes.subheading };
 
   const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
     primary: { bg: p.primary, text: p.primaryText },
-    secondary: { bg: p.surface, text: p.text, border: p.border },
+    secondary: { bg: p.surfaceAlt, text: p.text, border: p.border },
     ghost: { bg: "transparent", text: p.primary },
     danger: { bg: p.danger, text: "#FFFFFF" },
     accent: { bg: p.accent, text: "#FFFFFF" },
@@ -248,12 +252,12 @@ export function Button({
           alignItems: "center",
           justifyContent: "center",
           gap: spacing.sm,
-          borderRadius: radii.md,
+          borderRadius: radii.full,
           backgroundColor: vs.bg,
           borderWidth: vs.border ? 1 : 0,
           borderColor: vs.border,
           paddingHorizontal: spacing.xl,
-          opacity: pressed ? 0.8 : disabled ? 0.5 : 1,
+          opacity: pressed ? 0.82 : disabled ? 0.5 : 1,
         },
         style,
       ]}
@@ -266,8 +270,9 @@ export function Button({
           <Text
             style={{
               color: vs.text,
-              fontWeight: fontWeights.bold,
+              fontWeight: fontWeights.semibold,
               fontSize: fontSizeMap[size] ?? fontSizes.body,
+              letterSpacing: 0.1,
             }}
           >
             {label}
@@ -378,8 +383,8 @@ export function Chip({
   };
 
   const vc = variantColors[variant] ?? variantColors.default;
-  const padH: Record<string, number> = { xs: 6, sm: 8, md: 10 };
-  const padV: Record<string, number> = { xs: 2, sm: 3, md: 5 };
+  const padH: Record<string, number> = { xs: 7, sm: 9, md: 11 };
+  const padV: Record<string, number> = { xs: 3, sm: 4, md: 6 };
   const fs: Record<string, number> = { xs: fontSizes.micro, sm: fontSizes.tiny, md: fontSizes.small };
 
   return (
@@ -390,9 +395,11 @@ export function Chip({
         backgroundColor: vc.bg,
         paddingHorizontal: padH[size] ?? 8,
         paddingVertical: padV[size] ?? 3,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: `${vc.text}22`,
       }}
     >
-      <Text style={{ color: vc.text, fontWeight: fontWeights.semibold, fontSize: fs[size] ?? fontSizes.tiny }}>
+      <Text style={{ color: vc.text, fontWeight: fontWeights.semibold, fontSize: fs[size] ?? fontSizes.tiny, letterSpacing: 0.1 }}>
         {label}
       </Text>
     </View>
@@ -467,6 +474,8 @@ export function Avatar({
           backgroundColor: bg,
           alignItems: "center",
           justifyContent: "center",
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.72)",
         },
         style,
       ]}
