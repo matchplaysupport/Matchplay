@@ -12,17 +12,24 @@ const NAV = [
   { href: "/admin/settings", label: "Settings", icon: "⚙" },
 ];
 
+const ADMIN_NAV = [
+  { href: "/admin/review", label: "Applications", icon: "📋" },
+];
+
 export default function AdminShell({
   children,
   email,
   courseName,
+  isAdmin = false,
 }: {
   children: React.ReactNode;
   email: string;
   courseName: string | null;
   courseId: string | null;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
+  const navItems = isAdmin ? [...NAV, ...ADMIN_NAV] : NAV;
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
 
@@ -62,7 +69,7 @@ export default function AdminShell({
 
         {/* Nav */}
         <nav style={{ flex: 1, padding: "0.75rem 0.75rem" }}>
-          {NAV.map((item) => {
+          {navItems.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
               <Link

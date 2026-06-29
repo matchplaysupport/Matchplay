@@ -23,16 +23,54 @@ export default async function DashboardPage() {
     .from("course_operators")
     .select("course_id, courses(id, name, city, state)")
     .eq("auth_user_id", user.id)
-    .single();
+    .maybeSingle();
 
+  // No course yet → the operator is mid-application. Show its status.
   if (!operator) {
+    const { data: application } = await supabase
+      .from("course_applications")
+      .select("course_name, status, review_notes, created_at")
+      .eq("auth_user_id", user.id)
+      .order("created_at", { ascending: false })
+      .maybeSingle();
+
+    if (application?.status === "pending") {
+      return (
+        <div style={{ padding: "3rem 2rem", maxWidth: 600 }}>
+          <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>⏳</div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.75rem" }}>Application under review</h1>
+          <p style={{ color: "var(--muted)", lineHeight: 1.6 }}>
+            Thanks for applying{application.course_name ? ` for ${application.course_name}` : ""}! Our team is
+            reviewing your course. We&apos;ll email you as soon as your tee-sheet portal is unlocked — usually
+            within a couple of business days.
+          </p>
+        </div>
+      );
+    }
+
+    if (application?.status === "rejected") {
+      return (
+        <div style={{ padding: "3rem 2rem", maxWidth: 600 }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.75rem" }}>Application not approved</h1>
+          <p style={{ color: "var(--muted)", lineHeight: 1.6, marginBottom: application.review_notes ? "1rem" : 0 }}>
+            We weren&apos;t able to approve this application right now.
+          </p>
+          {application.review_notes && (
+            <p style={{ color: "var(--text-2)", fontSize: "0.9rem", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "0.75rem 1rem" }}>
+              {application.review_notes}
+            </p>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div style={{ padding: "3rem 2rem", maxWidth: 600 }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>Welcome to The Clubhouse</h1>
         <p style={{ color: "var(--muted)", marginBottom: "1.5rem" }}>
-          Your account is active but isn't linked to a course yet. Go to Settings to register your course.
+          Your account isn&apos;t linked to a course yet. Apply for early access to set up your tee sheet.
         </p>
-        <Link href="/admin/settings" className="btn btn-primary">Set up your course →</Link>
+        <Link href="/signup/course" className="btn btn-primary">Apply for early access →</Link>
       </div>
     );
   }

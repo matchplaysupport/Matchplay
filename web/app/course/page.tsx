@@ -184,8 +184,8 @@ function CoursePage() {
       <Nav
         audience="course"
         links={COURSE_LINKS}
-        ctaLabel="Request early access"
-        ctaHref="#waitlist"
+        ctaLabel="Apply for early access"
+        ctaHref="/signup/course"
         logoHref="/course"
       />
 
@@ -231,7 +231,7 @@ function CoursePage() {
             </Reveal>
             <Reveal delay={240}>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <a href="#waitlist" className="btn btn-gold">Request early access <IconArrow size={18} /></a>
+                <a href="/signup/course" className="btn btn-gold">Apply for early access <IconArrow size={18} /></a>
                 <a href="#savings" className="btn btn-light">See the savings</a>
               </div>
             </Reveal>
@@ -459,7 +459,7 @@ function CoursePage() {
               <p className="font-semibold text-sm" style={{ color: "var(--text)" }}>Founding partner rates are locked in for life</p>
               <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Join during early access and your subscription price never increases.</p>
             </div>
-            <a href="#waitlist" className="btn btn-primary shrink-0" style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}>
+            <a href="/signup/course" className="btn btn-primary shrink-0" style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}>
               Lock in your rate
             </a>
           </Reveal>
@@ -554,7 +554,7 @@ function CoursePage() {
             </p>
           </div>
           <FooterCol title="Courses" links={[["How it works", "#how"], ["Features", "#features"], ["Savings", "#savings"], ["Pricing", "#pricing"]]} />
-          <FooterCol title="Platform" links={[["For Golfers", "/golfer"], ["FAQ", "#faq"], ["Join waitlist", "#waitlist"]]} />
+          <FooterCol title="Platform" links={[["For Golfers", "/golfer"], ["FAQ", "#faq"], ["Operator sign in", "/admin/login"], ["Join waitlist", "#waitlist"]]} />
           <FooterCol title="Legal" links={[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]]} />
         </div>
         <div className="border-t" style={{ borderColor: "var(--border)" }}>

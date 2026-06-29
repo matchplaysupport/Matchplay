@@ -181,8 +181,8 @@ function GolferPage() {
       <Nav
         audience="golfer"
         links={GOLFER_LINKS}
-        ctaLabel="Join the waitlist"
-        ctaHref="#waitlist"
+        ctaLabel="Create account"
+        ctaHref="/signup/golfer"
         logoHref="/golfer"
       />
 
@@ -228,7 +228,7 @@ function GolferPage() {
             </Reveal>
             <Reveal delay={240}>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <a href="#waitlist" className="btn btn-gold">Join the waitlist <IconArrow size={18} /></a>
+                <a href="/signup/golfer" className="btn btn-gold">Create your account <IconArrow size={18} /></a>
                 <a href="#how" className="btn btn-light">See how it works</a>
               </div>
             </Reveal>
@@ -482,7 +482,7 @@ function GolferPage() {
             </p>
           </div>
           <FooterCol title="Golfer" links={[["How it works", "#how"], ["Features", "#features"], ["Pricing", "#pricing"], ["FAQ", "#faq"]]} />
-          <FooterCol title="Platform" links={[["For Courses", "/course"], ["Join waitlist", "#waitlist"]]} />
+          <FooterCol title="Platform" links={[["For Courses", "/course"], ["Sign in", "/golfer/login"], ["Join waitlist", "#waitlist"]]} />
           <FooterCol title="Legal" links={[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]]} />
         </div>
         <div className="border-t" style={{ borderColor: "var(--border)" }}>
