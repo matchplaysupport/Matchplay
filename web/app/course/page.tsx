@@ -117,8 +117,8 @@ const COURSE_FAQ = [
     a: "We charge courses a flat monthly subscription — never a percentage of each booking. Every dollar a golfer pays for your green fee goes directly to you through Stripe Connect. No cuts, no surprises.",
   },
   {
-    q: "Does Match Play replace my existing tee-sheet or POS?",
-    a: "No — it works alongside it. Match Play is a direct booking channel you control. Set your availability, pricing rules, and blocks from our dashboard. Deeper POS integrations (foreUP, Lightspeed) are on the roadmap.",
+    q: "Does The Clubhouse replace my existing tee-sheet or POS?",
+    a: "No — it works alongside it. The Clubhouse is a direct booking channel you control. Set your availability, pricing rules, and blocks from our dashboard. Deeper POS integrations (foreUP, Lightspeed) are on the roadmap.",
   },
   {
     q: "How do payouts work?",
@@ -126,7 +126,7 @@ const COURSE_FAQ = [
   },
   {
     q: "How long does it take to get set up?",
-    a: "Under five minutes. Add your tee times, set pricing, and connect Stripe. We've designed the dashboard to require zero training — if you can use a calendar app, you can use Match Play.",
+    a: "Under five minutes. Add your tee times, set pricing, and connect Stripe. We've designed the dashboard to require zero training — if you can use a calendar app, you can use The Clubhouse.",
   },
   {
     q: "What are the founding pricing tiers?",
@@ -324,7 +324,7 @@ function CoursePage() {
       <section className="section">
         <div className="container">
           <Reveal className="text-center max-w-2xl mx-auto">
-            <span className="eyebrow">Why Match Play</span>
+            <span className="eyebrow">Why The Clubhouse</span>
             <h2 className="mt-3 text-3xl sm:text-5xl font-bold" style={{ color: "var(--text)" }}>
               The math legacy sites don&apos;t want you to do
             </h2>
@@ -341,7 +341,7 @@ function CoursePage() {
                 <span className="text-sm font-semibold" style={{ color: "var(--muted)" }}>Legacy sites</span>
               </div>
               <div className="p-4 sm:p-5 text-center" style={{ background: "var(--grad-brand)" }}>
-                <span className="text-sm font-bold text-white">Match Play</span>
+                <span className="text-sm font-bold text-white">The Clubhouse</span>
               </div>
 
               {[
@@ -369,7 +369,7 @@ function CoursePage() {
             </h2>
             <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
               Drag the sliders to match your course. We&apos;ll show what a commission-based platform
-              costs you today versus a flat Match Play subscription.
+              costs you today versus a flat Clubhouse subscription.
             </p>
           </Reveal>
 
@@ -396,7 +396,7 @@ function CoursePage() {
             {/* Independent / Muni */}
             <Reveal className="card p-7 flex flex-col">
               <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Starter</span>
-              <p className="mt-3 text-sm font-medium" style={{ color: "var(--muted)" }}>Independent & municipal courses</p>
+              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Independent & municipal courses</p>
               <div className="mt-4 flex items-end gap-1">
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$99</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
@@ -411,11 +411,11 @@ function CoursePage() {
 
             {/* Resort / Destination */}
             <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
-              <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Pro</span>
                 <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>
               </div>
-              <p className="mt-3 text-sm font-medium" style={{ color: "var(--muted)" }}>Resort & destination courses</p>
+              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Resort & destination courses</p>
               <div className="mt-4 flex items-end gap-1">
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", background: "var(--grad-gold)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>$199</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
@@ -431,7 +431,7 @@ function CoursePage() {
             {/* Private club */}
             <Reveal delay={160} className="card p-7 flex flex-col">
               <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Premium</span>
-              <p className="mt-3 text-sm font-medium" style={{ color: "var(--muted)" }}>Private clubs & multi-venue operators</p>
+              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Private clubs & multi-venue operators</p>
               <div className="mt-4 flex items-end gap-1">
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$399</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
@@ -550,7 +550,7 @@ function CoursePage() {
         </div>
         <div className="border-t" style={{ borderColor: "var(--border)" }}>
           <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs" style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} Match Play. All rights reserved.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} The Clubhouse. All rights reserved.</p>
             <p className="text-xs" style={{ color: "var(--muted)" }}>Made for golfers, by golfers.</p>
           </div>
         </div>

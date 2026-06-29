@@ -51,9 +51,9 @@ export function Nav({
       className="sticky top-0 z-50 transition-all duration-300"
       style={{
         background: scrolled
-          ? dark ? "rgba(8,15,11,0.82)" : "rgba(250,252,249,0.92)"
+          ? dark ? "rgba(8,15,11,0.95)" : "rgba(250,252,249,0.95)"
           : "transparent",
-        backdropFilter: scrolled ? "blur(14px)" : "none",
+        backdropFilter: scrolled ? "blur(16px) saturate(140%)" : "none",
         borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
     >

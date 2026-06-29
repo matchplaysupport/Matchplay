@@ -107,12 +107,13 @@ const GOLFER_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
+  { href: "/course", label: "For Courses" },
 ];
 
 const GOLFER_FAQ = [
   {
-    q: "How much does Match Play cost golfers?",
-    a: "Browsing tee times is completely free. To book and play, subscribe to Match Play+ ($9.99/mo) — that gives you booking, match-play scoring, handicap tracking, and local leaderboards. Match Play Pro ($19.99/mo) adds state and national leaderboards, private groups, and tournament hosting. You only ever pay the course's green fee on top of your plan — no per-booking fees.",
+    q: "How much does The Clubhouse cost golfers?",
+    a: "Browsing tee times is completely free. To book and play, subscribe to Clubhouse+ ($9.99/mo) — that gives you booking, match-play scoring, handicap tracking, and local leaderboards. Clubhouse Pro ($19.99/mo) adds state and national leaderboards, private groups, and tournament hosting. You only ever pay the course's green fee on top of your plan — no per-booking fees.",
   },
   {
     q: "What scoring formats does the app support?",
@@ -128,7 +129,7 @@ const GOLFER_FAQ = [
   },
   {
     q: "Does it track my GHIN handicap?",
-    a: "GHIN sync is on the roadmap for Match Play Pro. Until then, the app maintains its own handicap index based on every round you record.",
+    a: "GHIN sync is on the roadmap for Clubhouse Pro. Until then, the app maintains its own handicap index based on every round you record.",
   },
 ];
 
@@ -179,7 +180,7 @@ function GolferPage() {
         links={GOLFER_LINKS}
         ctaLabel="Join the waitlist"
         ctaHref="#waitlist"
-        logoHref="/"
+        logoHref="/golfer"
       />
 
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -255,7 +256,7 @@ function GolferPage() {
             </p>
           </Reveal>
 
-          <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+          <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="rounded-3xl p-7 sm:p-9" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
               <div className="flex flex-col gap-8">
                 <Step n="1" icon={<IconSearch size={18} />} title="Search nearby courses" body="Filter by date, time, players, and price. Compare live availability and sort by distance — all in one feed." />
@@ -264,8 +265,8 @@ function GolferPage() {
               </div>
             </Reveal>
 
-            <Reveal delay={120} className="flex justify-center lg:justify-end">
-              <div className="relative">
+            <Reveal delay={120} className="flex justify-center">
+              <div className="relative" style={{ transform: "scale(0.9)", transformOrigin: "center" }}>
                 <div
                   aria-hidden
                   className="absolute -inset-8 rounded-full pointer-events-none"
@@ -328,8 +329,8 @@ function GolferPage() {
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$0</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>forever</span>
               </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>
-                See every tee time near you. Subscribe when you&apos;re ready to play.
+              <p className="mt-3 min-h-10 text-sm" style={{ color: "var(--muted)" }}>
+                See every tee time near you — subscribe when you&apos;re ready.
               </p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
                 {["Live tee times & green fees", "Course profiles & info", "Search by date, time & players"].map((f) => (
@@ -339,17 +340,17 @@ function GolferPage() {
               <a href="#waitlist" className="btn btn-ghost mt-7 w-full">Join free</a>
             </Reveal>
 
-            {/* Match Play+ */}
+            {/* Clubhouse+ */}
             <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
               <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
-                <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Match Play+</span>
+                <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Clubhouse+</span>
                 <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>
               </div>
               <div className="mt-4 flex items-end gap-1">
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", background: "var(--grad-gold)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>$9.99</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo</span>
               </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>
+              <p className="mt-3 min-h-10 text-sm" style={{ color: "var(--muted)" }}>
                 Your whole golf app — book, score, and track every round.
               </p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
@@ -360,23 +361,23 @@ function GolferPage() {
               <a href="#waitlist" className="btn btn-gold mt-7 w-full">Get early access</a>
             </Reveal>
 
-            {/* Match Play Pro */}
+            {/* Clubhouse Pro */}
             <Reveal delay={160} className="card p-7 flex flex-col">
               <span
                 className="chip self-start"
                 style={{ background: "var(--surface-3)", color: "var(--gold)" }}
               >
-                Match Play Pro
+                Clubhouse Pro
               </span>
               <div className="mt-5 flex items-end gap-1">
                 <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$19.99</span>
                 <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo</span>
               </div>
-              <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>
+              <p className="mt-3 min-h-10 text-sm" style={{ color: "var(--muted)" }}>
                 For competitors and organizers who live on the leaderboard.
               </p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["Everything in Match Play+", "State & national leaderboards", "Ranked matches & private groups", "Advanced analytics & GHIN sync", "Host games & run tournaments"].map((f) => (
+                {["Everything in Clubhouse+", "State & national leaderboards", "Ranked matches & private groups", "Advanced analytics & GHIN sync", "Host games & run tournaments"].map((f) => (
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>
@@ -483,7 +484,7 @@ function GolferPage() {
         </div>
         <div className="border-t" style={{ borderColor: "var(--border)" }}>
           <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs" style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} Match Play. All rights reserved.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} The Clubhouse. All rights reserved.</p>
             <p className="text-xs" style={{ color: "var(--muted)" }}>Made for golfers, by golfers.</p>
           </div>
         </div>

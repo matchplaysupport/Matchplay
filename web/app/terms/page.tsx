@@ -12,7 +12,7 @@ export default function Terms() {
     <LegalPage title="Terms of Service" updated="June 28, 2026">
       <Section heading="Acceptance">
         <p>
-          By joining the The Clubhouse waitlist or using our websites and apps (the &quot;Services&quot;), you agree to these Terms. If you do
+          By joining the Clubhouse waitlist or using our websites and apps (the &quot;Services&quot;), you agree to these Terms. If you do
           not agree, please do not use the Services.
         </p>
       </Section>

@@ -5,16 +5,16 @@ import { IconChevron } from "./icons";
 
 const ITEMS = [
   {
-    q: "How much does Match Play cost golfers?",
-    a: "Browsing tee times is free. To book and play, subscribe to Match Play+ ($9.99/mo) for booking, scoring, handicap tracking, and leaderboards, or Match Play Pro ($19.99/mo) for competitive play, advanced stats, and event hosting. You only ever pay the course's green fee on top of your plan -- no per-booking fees or markups.",
+    q: "How much does The Clubhouse cost golfers?",
+    a: "Browsing tee times is free. To book and play, subscribe to Clubhouse+ ($9.99/mo) for booking, scoring, handicap tracking, and leaderboards, or Clubhouse Pro ($19.99/mo) for competitive play, advanced stats, and event hosting. You only ever pay the course's green fee on top of your plan -- no per-booking fees or markups.",
   },
   {
     q: "What is the catch with zero commission for courses?",
-    a: "There is not one. Instead of taking a cut of every booking like legacy tee-time sites, Match Play charges courses a simple flat monthly subscription. You keep 100% of your green fees and own your golfer relationships.",
+    a: "There is not one. Instead of taking a cut of every booking like legacy tee-time sites, The Clubhouse charges courses a simple flat monthly subscription. You keep 100% of your green fees and own your golfer relationships.",
   },
   {
-    q: "Does Match Play replace my existing tee-sheet or POS?",
-    a: "No -- it works alongside it. Match Play is a direct booking channel you control. Sync availability, set your own pricing rules, and fill last-minute gaps without disrupting your current setup. Deeper POS integrations (foreUP, Lightspeed) are on the roadmap.",
+    q: "Does The Clubhouse replace my existing tee-sheet or POS?",
+    a: "No -- it works alongside it. The Clubhouse is a direct booking channel you control. Sync availability, set your own pricing rules, and fill last-minute gaps without disrupting your current setup. Deeper POS integrations (foreUP, Lightspeed) are on the roadmap.",
   },
   {
     q: "How do payouts work?",
