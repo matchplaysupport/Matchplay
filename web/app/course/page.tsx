@@ -185,11 +185,11 @@ function CoursePage() {
         links={COURSE_LINKS}
         ctaLabel="Request early access"
         ctaHref="#waitlist"
-        logoHref="/"
+        logoHref="/course"
       />
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <header className="relative overflow-hidden">
+      {/* ── Hero (always cinematic-dark, regardless of body theme) ── */}
+      <header className="relative overflow-hidden theme-club" style={{ marginTop: "-68px" }}>
         <div className="absolute inset-0">
           <div className="absolute inset-0 kenburns">
             <Image
@@ -283,7 +283,7 @@ function CoursePage() {
             </p>
           </Reveal>
 
-          <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+          <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="flex justify-center">
               <div className="w-full max-w-md theme-light">
                 <DashboardMockup />

@@ -183,8 +183,8 @@ function GolferPage() {
         logoHref="/golfer"
       />
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <header className="relative overflow-hidden">
+      {/* ── Hero (always cinematic-dark, regardless of body theme) ── */}
+      <header className="relative overflow-hidden theme-club" style={{ marginTop: "-68px" }}>
         <div className="absolute inset-0">
           <div className="absolute inset-0 kenburns">
             <Image

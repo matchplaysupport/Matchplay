@@ -52,13 +52,13 @@ export function Nav({
       style={{
         background: scrolled
           ? dark ? "rgba(8,15,11,0.95)" : "rgba(250,252,249,0.95)"
-          : "transparent",
+          : "linear-gradient(180deg, rgba(6,13,9,0.72) 0%, rgba(6,13,9,0) 100%)",
         backdropFilter: scrolled ? "blur(16px) saturate(140%)" : "none",
         borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
     >
       <div className="container flex items-center justify-between h-16 sm:h-[68px]">
-        <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} /></a>
+        <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} /></a>
 
         <div className="hidden md:flex items-center gap-7">
           {links.map((l) => (
@@ -66,7 +66,7 @@ export function Nav({
               key={l.href}
               href={l.href}
               className="text-sm font-medium transition-colors hover:text-[var(--brand)]"
-              style={{ color: "var(--text-2)" }}
+              style={{ color: scrolled ? "var(--text-2)" : "rgba(244,239,227,0.86)" }}
             >
               {l.label}
             </a>
@@ -79,11 +79,9 @@ export function Nav({
             onClick={toggle}
             aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
             className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-colors"
-            style={{
-              background: "var(--surface-2)",
-              border: "1px solid var(--border)",
-              color: "var(--text-2)",
-            }}
+            style={scrolled
+              ? { background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }
+              : { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff" }}
           >
             {dark ? <IconSun size={16} /> : <IconMoon size={16} />}
           </button>
@@ -99,7 +97,9 @@ export function Nav({
 
           <button
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
-            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }}
+            style={scrolled
+              ? { background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }
+              : { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff" }}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
