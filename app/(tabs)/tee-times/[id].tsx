@@ -168,7 +168,7 @@ export default function TeeTimeDetailScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Course hero */}
         <View style={[styles.hero, { backgroundColor: selectedTeeSet?.color ?? p.primary }]}>
-          <Chip label="Demo Inventory" variant="accent" />
+          {env.EXPO_PUBLIC_USE_MOCK_AUTH && <Chip label="Demo Inventory" variant="accent" />}
           <Title style={{ color: "#FFFFFF", marginTop: spacing.sm }}>{course.name}</Title>
           <Text style={{ color: "rgba(255,255,255,0.85)", fontSize: fontSizes.body }}>
             {course.facilityName}

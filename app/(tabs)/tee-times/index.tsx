@@ -64,7 +64,9 @@ export default function TeeTimesScreen() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: p.primary }]}>
         <Title style={{ color: "#FFFFFF" }}>Tee Times</Title>
-        <Muted style={{ color: "rgba(255,255,255,0.75)" }}>Demo inventory — no real booking charges</Muted>
+        <Muted style={{ color: "rgba(255,255,255,0.75)" }}>
+          {env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Demo inventory — no real booking charges" : "Live availability near you"}
+        </Muted>
       </View>
 
       {/* Search bar */}
@@ -165,7 +167,7 @@ export default function TeeTimesScreen() {
               Find available tee times
             </Text>
             <Text style={{ fontSize: fontSizes.body, color: p.muted, textAlign: "center", marginTop: spacing.sm, maxWidth: 280, lineHeight: 22 }}>
-              Search by city, ZIP code, or course name to see demo inventory across Nashville and nearby areas.
+              Search by city, ZIP code, or course name to see available tee times near you.
             </Text>
           </View>
         )}
@@ -174,7 +176,7 @@ export default function TeeTimesScreen() {
           <TeeTimeCard key={teeTime.id} teeTime={teeTime} />
         ))}
 
-        {filtered.length > 0 && (
+        {filtered.length > 0 && env.EXPO_PUBLIC_USE_MOCK_AUTH && (
           <View style={{ paddingVertical: spacing.md, alignItems: "center" }}>
             <Chip label="Demo inventory — not a real reservation" variant="warning" />
           </View>
