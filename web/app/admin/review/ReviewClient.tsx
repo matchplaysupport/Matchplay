@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-browser";
 
 export type Application = {
   id: string;
@@ -30,28 +29,31 @@ export default function ReviewClient({ applications }: { applications: Applicati
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  async function approve(id: string) {
+  async function decide(id: string, action: "approve" | "reject", notes?: string | null) {
     setError("");
     setBusyId(id);
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("approve_course_application", { p_application_id: id });
-    setBusyId(null);
-    if (rpcError) { setError(rpcError.message); return; }
-    router.refresh();
+    try {
+      const res = await fetch("/api/admin/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId: id, action, notes }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      if (data.emailed === false) {
+        setError("Decision saved, but the notification email could not be sent — check email config.");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  async function reject(id: string) {
+  function reject(id: string) {
     const notes = window.prompt("Reason for rejection (optional — shown to the applicant):") ?? null;
-    setError("");
-    setBusyId(id);
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("reject_course_application", {
-      p_application_id: id,
-      p_notes: notes,
-    });
-    setBusyId(null);
-    if (rpcError) { setError(rpcError.message); return; }
-    router.refresh();
+    void decide(id, "reject", notes);
   }
 
   if (applications.length === 0) {
@@ -95,7 +97,7 @@ export default function ReviewClient({ applications }: { applications: Applicati
             {app.status === "pending" && (
               <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
                 <button
-                  onClick={() => void approve(app.id)}
+                  onClick={() => void decide(app.id, "approve")}
                   disabled={busyId === app.id}
                   className="btn btn-primary"
                   style={{ fontSize: "0.82rem", padding: "0.45rem 0.9rem", opacity: busyId === app.id ? 0.6 : 1 }}
@@ -103,7 +105,7 @@ export default function ReviewClient({ applications }: { applications: Applicati
                   {busyId === app.id ? "…" : "Approve"}
                 </button>
                 <button
-                  onClick={() => void reject(app.id)}
+                  onClick={() => reject(app.id)}
                   disabled={busyId === app.id}
                   style={{ fontSize: "0.82rem", padding: "0.45rem 0.9rem", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--muted)", cursor: "pointer", fontWeight: 600 }}
                 >
