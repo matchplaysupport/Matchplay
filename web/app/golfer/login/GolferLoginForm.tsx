@@ -3,12 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
-import { ensureGolferProfile } from "@/lib/golfer-profile";
-
-const inputStyle: React.CSSProperties = {
-  padding: "0.65rem 0.875rem", borderRadius: 10, border: "1px solid var(--border)",
-  background: "var(--surface)", color: "var(--text)", fontSize: "0.9rem", outline: "none",
-};
 
 export default function GolferLoginForm() {
   const [email, setEmail] = useState("");
@@ -22,17 +16,13 @@ export default function GolferLoginForm() {
     setLoading(true);
     setError("");
     const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
       setError(authError.message);
       setLoading(false);
       return;
     }
-    if (data.user) {
-      // Create the profile if sign-up happened via email confirmation.
-      await ensureGolferProfile(supabase, data.user);
-    }
-    router.push("/golfer/stats");
+    router.push("/golfer/dashboard");
     router.refresh();
   };
 
@@ -41,11 +31,19 @@ export default function GolferLoginForm() {
       <div className="card" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
           <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-2)" }}>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" style={inputStyle} />
+          <input
+            type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+            placeholder="you@example.com"
+            style={{ padding: "0.65rem 0.875rem", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)", fontSize: "0.9rem", outline: "none" }}
+          />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
           <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-2)" }}>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+          <input
+            type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
+            placeholder="••••••••"
+            style={{ padding: "0.65rem 0.875rem", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)", fontSize: "0.9rem", outline: "none" }}
+          />
         </div>
         {error && (
           <p style={{ fontSize: "0.8rem", color: "#dc2626", background: "#fef2f2", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
