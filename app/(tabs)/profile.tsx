@@ -19,7 +19,7 @@ import {
   Title,
   useTheme,
 } from "@/design-system/components";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { env } from "@/lib/env";
 import { signOut } from "@/lib/auth";
 import { useAppStore } from "@/stores/appStore";
@@ -32,7 +32,22 @@ export default function ProfileScreen() {
   const metrics = useAppStore((state) => state.metrics);
   const p = useTheme();
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
+        <View style={styles.emptyProfile}>
+          <View style={[styles.emptyProfileIcon, { backgroundColor: p.successLight }]}>
+            <Ionicons name="person-circle-outline" size={52} color={p.primary} />
+          </View>
+          <Title style={{ textAlign: "center" }}>Finish setting up your profile</Title>
+          <Body color={p.muted} style={{ textAlign: "center" }}>
+            Sign in or complete onboarding to manage handicap, privacy, notifications, and account settings.
+          </Body>
+          <Button label="Go to sign in" onPress={() => router.replace("/(auth)/login")} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const submittedRounds = rounds.filter((r) => r.verificationState !== "draft").length;
   const partnerVerified = rounds.filter((r) => r.verificationState === "partner_verified").length;
@@ -165,7 +180,7 @@ export default function ProfileScreen() {
               variant="accent"
               onPress={() => Alert.alert(
                 "Clubhouse Pro",
-                "Pricing and subscriptions are configured via RevenueCat. Monthly and annual plans will be available at launch.",
+                "Monthly and annual plans are being connected through the app's Stripe subscription flow.",
               )}
             />
           </Card>
@@ -237,7 +252,7 @@ export default function ProfileScreen() {
         {/* Build info */}
         <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.xl, alignItems: "center", gap: spacing.xs }}>
           <Muted>The Clubhouse · MVP Build</Muted>
-          <Muted>Demo mode · No backend connected</Muted>
+          <Muted>{env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Demo mode · No backend connected" : "Live account mode"}</Muted>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -248,4 +263,18 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.xs },
   notice: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, marginTop: spacing.xs },
   toggleBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
+  emptyProfile: {
+    flex: 1,
+    justifyContent: "center",
+    padding: spacing.xl,
+    gap: spacing.lg,
+  },
+  emptyProfileIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+  },
 });

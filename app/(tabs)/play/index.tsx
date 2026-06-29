@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -15,11 +16,11 @@ import {
   Title,
   useTheme,
 } from "@/design-system/components";
-import { demoCourses, demoProfiles, discoveryProfiles, seededOpenGames } from "@/features/courses/demoData";
+import { demoCourses, demoProfiles, discoveryProfiles } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
 import { joinOpenGame, requestJoinOpenGame } from "@/services/openGames";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { OpenGame } from "@/types/domain";
 
@@ -31,9 +32,9 @@ export default function PlayScreen() {
   const rounds = useAppStore((state) => state.rounds);
   const addOpenGame = useAppStore((state) => state.addOpenGame);
   const updateOpenGame = useAppStore((state) => state.updateOpenGame);
-  const startRound = useAppStore((state) => state.startRound);
   const recordMetric = useAppStore((state) => state.recordMetric);
   const p = useTheme();
+  const [joiningGameId, setJoiningGameId] = useState<string | null>(null);
 
   const firstDiscovery = discoveryProfiles[0];
   const nearbyGames = openGames.slice(0, 3);
@@ -166,9 +167,7 @@ export default function PlayScreen() {
                   style={{ flex: 1 }}
                 />
               </Row>
-              <Link href="/(tabs)/play/discovery" asChild>
-                <Button label="Browse all nearby golfers →" variant="ghost" onPress={() => undefined} size="sm" />
-              </Link>
+              <Button label="Browse all nearby golfers →" variant="ghost" onPress={() => router.push("/(tabs)/play/discovery")} size="sm" />
             </Card>
           )}
         </View>
@@ -205,17 +204,21 @@ export default function PlayScreen() {
                 </Row>
                 {game.description && <Muted>{game.description}</Muted>}
                 <Button
-                  label={game.approvalRequired ? "Request to join" : "Join this game"}
+                  label={joiningGameId === game.id ? "Sending..." : game.approvalRequired ? "Request to join" : "Join this game"}
                   variant={spotsLeft === 0 ? "secondary" : "primary"}
+                  loading={joiningGameId === game.id}
+                  disabled={joiningGameId != null}
                   onPress={() => {
                     if (!profile) return;
 
                     // Mock mode: optimistic local update.
                     if (env.EXPO_PUBLIC_USE_MOCK_AUTH) {
+                      setJoiningGameId(game.id);
                       const result = joinOpenGame(game, profile.id);
                       updateOpenGame(result.game);
                       recordMetric("joinRequests");
                       analytics.track("join_requested", { gameId: game.id, status: result.status });
+                      setJoiningGameId(null);
                       Alert.alert(
                         result.status === "joined" ? "You're in!" : "Request sent",
                         result.status === "joined"
@@ -227,6 +230,7 @@ export default function PlayScreen() {
 
                     // Live mode: the server enforces capacity (accept vs waitlist).
                     void (async () => {
+                      setJoiningGameId(game.id);
                       try {
                         const status = await requestJoinOpenGame(game.id);
                         recordMetric("joinRequests");
@@ -245,6 +249,8 @@ export default function PlayScreen() {
                         );
                       } catch (err) {
                         Alert.alert("Could not join", err instanceof Error ? err.message : "Please try again.");
+                      } finally {
+                        setJoiningGameId(null);
                       }
                     })();
                   }}

@@ -1,11 +1,10 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Link } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Avatar,
   Body,
-  Button,
   Card,
   Chip,
   Divider,
@@ -16,10 +15,9 @@ import {
   SectionHeader,
   StatItem,
   Subheading,
-  Title,
   useTheme,
 } from "@/design-system/components";
-import { demoCourses, demoLeaderboard, demoProfiles, demoTeeTimes, seededOpenGames } from "@/features/courses/demoData";
+import { demoCourses, demoLeaderboard, demoProfiles, demoTeeTimes } from "@/features/courses/demoData";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 
@@ -44,7 +42,7 @@ export default function HomeScreen() {
   const submittedRounds = rounds.filter((r) => r.verificationState !== "draft").length;
   const personalRank = demoLeaderboard[0];
 
-  const nearbyGames = seededOpenGames.slice(0, 2);
+  const nearbyGames = openGames.slice(0, 2);
   const suggestedGolfers = demoProfiles.slice(1, 3);
   const nearbyTeeTimes = demoTeeTimes.slice(0, 2);
 
@@ -93,24 +91,22 @@ export default function HomeScreen() {
         {/* Active round banner */}
         {activeRound && (
           <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
-            <Link href="/play/scoring" asChild>
-              <Card elevated style={{ backgroundColor: p.primary, borderColor: p.primaryLight }}>
-                <Row align="space-between">
-                  <View style={{ gap: 4 }}>
-                    <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                      Round in progress
-                    </Text>
-                    <Text style={{ color: "#FFFFFF", fontSize: fontSizes.subheading, fontWeight: fontWeights.bold }}>
-                      Hole {activeRound.currentHole} of {activeRound.holes}
-                    </Text>
-                    <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small }}>
-                      {activeRound.scores.length} holes scored
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.8)" />
-                </Row>
-              </Card>
-            </Link>
+            <Card elevated style={{ backgroundColor: p.primary, borderColor: p.primaryLight }} onPress={() => router.push("/(tabs)/play/scoring")}>
+              <Row align="space-between">
+                <View style={{ gap: 4 }}>
+                  <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, textTransform: "uppercase", letterSpacing: 0.8 }}>
+                    Round in progress
+                  </Text>
+                  <Text style={{ color: "#FFFFFF", fontSize: fontSizes.subheading, fontWeight: fontWeights.bold }}>
+                    Hole {activeRound.currentHole} of {activeRound.holes}
+                  </Text>
+                  <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small }}>
+                    {activeRound.scores.length} holes scored
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.8)" />
+              </Row>
+            </Card>
           </View>
         )}
 
@@ -118,18 +114,10 @@ export default function HomeScreen() {
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
           <SectionHeader title="Quick actions" />
           <View style={styles.actionGrid}>
-            <Link href="/tee-times" asChild>
-              <QuickAction icon="calendar" label="Book tee time" color={p.primary} />
-            </Link>
-            <Link href="/play" asChild>
-              <QuickAction icon="golf" label="Start round" color="#2C5F8A" />
-            </Link>
-            <Link href="/tournaments" asChild>
-              <QuickAction icon="trophy" label="Events" color="#7A3B8A" />
-            </Link>
-            <Link href="/leaderboards" asChild>
-              <QuickAction icon="podium" label="Leaderboards" color="#B07030" />
-            </Link>
+            <QuickAction icon="calendar" label="Book tee time" color={p.primary} onPress={() => router.push("/(tabs)/tee-times")} />
+            <QuickAction icon="golf" label="Start round" color="#2C5F8A" onPress={() => router.push("/(tabs)/play")} />
+            <QuickAction icon="trophy" label="Events" color="#7A3B8A" onPress={() => router.push("/(tabs)/tournaments")} />
+            <QuickAction icon="podium" label="Leaderboards" color="#B07030" onPress={() => router.push("/(tabs)/leaderboards")} />
           </View>
         </View>
 
@@ -137,7 +125,7 @@ export default function HomeScreen() {
         {nextBooking && nextBookingCourse ? (
           <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
             <SectionHeader title="Your next round" />
-            <Card elevated onPress={() => undefined}>
+            <Card elevated onPress={() => router.push("/(tabs)/tee-times")}>
               <Row align="space-between">
                 <Chip label="Confirmed" variant="primary" />
                 <Chip label={`${nextBooking.players} players`} variant="muted" />
@@ -158,31 +146,29 @@ export default function HomeScreen() {
           </View>
         ) : (
           <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-            <SectionHeader title="Upcoming tee times" action="Browse all" onAction={() => undefined} />
+            <SectionHeader title="Upcoming tee times" action="Browse all" onAction={() => router.push("/(tabs)/tee-times")} />
             {nearbyTeeTimes.map((tt) => {
               const course = demoCourses.find((c) => c.id === tt.courseId);
               return (
-                <Link key={tt.id} href={`/tee-times/${tt.id}` as never} asChild>
-                  <Card elevated style={{ marginBottom: spacing.sm }} onPress={() => undefined}>
-                    <Row align="space-between">
-                      <View style={{ flex: 1 }}>
-                        <Subheading>{course?.name ?? "Course"}</Subheading>
-                        <Body color={p.muted}>{course?.city}, {course?.state}</Body>
-                      </View>
-                      <View style={{ alignItems: "flex-end", gap: spacing.xs }}>
-                        <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.heavy, color: p.text }}>
-                          ${Math.round(tt.priceCents / 100)}
-                        </Text>
-                        <Text style={{ fontSize: fontSizes.tiny, color: p.muted }}>/golfer</Text>
-                      </View>
-                    </Row>
-                    <Row gap={spacing.md}>
-                      <Chip label={new Date(tt.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} variant="primary" />
-                      <Chip label={`${tt.holes} holes`} variant="muted" />
-                      <Chip label={`${tt.availableSpots} spots`} variant={tt.availableSpots <= 1 ? "warning" : "muted"} />
-                    </Row>
-                  </Card>
-                </Link>
+                <Card key={tt.id} elevated style={{ marginBottom: spacing.sm }} onPress={() => router.push({ pathname: "/(tabs)/tee-times/[id]", params: { id: tt.id } })}>
+                  <Row align="space-between">
+                    <View style={{ flex: 1 }}>
+                      <Subheading>{course?.name ?? "Course"}</Subheading>
+                      <Body color={p.muted}>{course?.city}, {course?.state}</Body>
+                    </View>
+                    <View style={{ alignItems: "flex-end", gap: spacing.xs }}>
+                      <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.heavy, color: p.text }}>
+                        ${Math.round(tt.priceCents / 100)}
+                      </Text>
+                      <Text style={{ fontSize: fontSizes.tiny, color: p.muted }}>/golfer</Text>
+                    </View>
+                  </Row>
+                  <Row gap={spacing.md}>
+                    <Chip label={new Date(tt.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} variant="primary" />
+                    <Chip label={`${tt.holes} holes`} variant="muted" />
+                    <Chip label={`${tt.availableSpots} spots`} variant={tt.availableSpots <= 1 ? "warning" : "muted"} />
+                  </Row>
+                </Card>
               );
             })}
           </View>
@@ -190,7 +176,7 @@ export default function HomeScreen() {
 
         {/* Open games nearby */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-          <SectionHeader title="Open games nearby" action="See all" onAction={() => undefined} />
+          <SectionHeader title="Open games nearby" action="See all" onAction={() => router.push("/(tabs)/play")} />
           {nearbyGames.map((game) => {
             const course = demoCourses.find((c) => c.id === game.courseId);
             const creator = demoProfiles.find((p) => p.id === game.creatorId);
@@ -225,10 +211,10 @@ export default function HomeScreen() {
 
         {/* Suggested golfers */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-          <SectionHeader title="Golfers near you" action="See all" onAction={() => undefined} />
+          <SectionHeader title="Golfers near you" action="See all" onAction={() => router.push("/(tabs)/play/discovery")} />
           {suggestedGolfers.map((golfer) => (
             <Card key={golfer.id} elevated style={{ marginBottom: spacing.sm }}>
-              <PressableRow onPress={() => undefined}>
+              <PressableRow onPress={() => router.push("/(tabs)/play/discovery")}>
                 <Avatar name={golfer.displayName} size={48} />
                 <View style={{ flex: 1 }}>
                   <Subheading>{golfer.displayName}</Subheading>
@@ -251,33 +237,33 @@ export default function HomeScreen() {
   );
 }
 
-function QuickAction({ icon, label, color, onPress }: { icon: string; label: string; color: string; onPress?: () => void }) {
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
+function QuickAction({ icon, label, color, onPress }: { icon: IoniconsName; label: string; color: string; onPress: () => void }) {
   const p = useTheme();
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        gap: spacing.sm,
-        padding: spacing.md,
-        borderRadius: radii.lg,
-        backgroundColor: p.surface,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: p.border,
-        ...shadows.xs,
-      }}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.quickAction,
+        {
+          backgroundColor: p.surface,
+          borderColor: p.border,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
     >
       <View style={{ width: 44, height: 44, borderRadius: radii.md, backgroundColor: `${color}18`, alignItems: "center", justifyContent: "center" }}>
-        <Ionicons name={icon as any} size={22} color={color} />
+        <Ionicons name={icon} size={22} color={color} />
       </View>
       <Text style={{ fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, color: p.textSecondary, textAlign: "center", lineHeight: 15 }}>
         {label}
       </Text>
-    </View>
+    </Pressable>
   );
 }
-
-const { StyleSheet: RNStyleSheet } = require("react-native");
 
 const styles = StyleSheet.create({
   header: {
@@ -306,5 +292,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  quickAction: {
+    flex: 1,
+    alignItems: "center",
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radii.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    ...shadows.xs,
   },
 });

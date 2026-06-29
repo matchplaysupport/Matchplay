@@ -4,11 +4,9 @@ import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  Body,
   Card,
   Chip,
   Muted,
-  PillSelector,
   Row,
   Subheading,
   Title,
@@ -19,7 +17,7 @@ import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeT
 import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { TeeTime } from "@/types/domain";
 
@@ -54,6 +52,10 @@ export default function TeeTimesScreen() {
       setSearched(true);
       recordMetric("searches");
       analytics.track("tee_time_searched", { query, count: res.length });
+    } catch (err) {
+      setResults([]);
+      setSearched(true);
+      Alert.alert("Search failed", err instanceof Error ? err.message : "Please try again.");
     } finally {
       setLoading(false);
     }

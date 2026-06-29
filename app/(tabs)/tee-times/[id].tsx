@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,6 +30,8 @@ const provider = env.EXPO_PUBLIC_USE_MOCK_AUTH
   ? new SimulatedTeeTimeProvider()
   : new SupabaseTeeTimeProvider();
 
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
 export default function TeeTimeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const p = useTheme();
@@ -54,6 +56,17 @@ export default function TeeTimeDetailScreen() {
 
   const totalPrice = teeTime ? (teeTime.priceCents / 100) * players : 0;
   const selectedTeeSet = course?.teeSets[0];
+  const maxPlayers = Math.max(teeTime?.availableSpots ?? 1, 1);
+  const hasAvailableSpots = Boolean(teeTime && teeTime.availableSpots > 0);
+
+  useEffect(() => {
+    if (!teeTime) return;
+    setPlayers((current) => Math.min(Math.max(current, 1), maxPlayers));
+  }, [maxPlayers, teeTime]);
+
+  useEffect(() => {
+    setCommunitySpots((current) => Math.min(current, Math.max(players - 1, 0)));
+  }, [players]);
 
   if (isLoading) {
     return (
@@ -78,6 +91,11 @@ export default function TeeTimeDetailScreen() {
   }
 
   const handleBook = async () => {
+    if (!hasAvailableSpots) {
+      Alert.alert("No spots available", "This tee time is no longer available.");
+      return;
+    }
+
     setBooking(true);
     try {
       const result = await provider.reserve({ teeTimeId: teeTime.id, players, communitySpots });
@@ -243,7 +261,8 @@ export default function TeeTimeDetailScreen() {
                 <Row gap={spacing.md}>
                   <Pressable
                     onPress={() => setPlayers((p) => Math.max(1, p - 1))}
-                    style={[styles.counter, { borderColor: p.border }]}
+                    disabled={players <= 1}
+                    style={[styles.counter, { borderColor: p.border, opacity: players <= 1 ? 0.45 : 1 }]}
                   >
                     <Text style={{ fontSize: fontSizes.heading, color: p.text }}>−</Text>
                   </Pressable>
@@ -251,10 +270,11 @@ export default function TeeTimeDetailScreen() {
                     {players}
                   </Text>
                   <Pressable
-                    onPress={() => setPlayers((p) => Math.min(teeTime.availableSpots, p + 1))}
-                    style={[styles.counter, { borderColor: p.border, backgroundColor: players >= teeTime.availableSpots ? p.backgroundAlt : undefined }]}
+                    onPress={() => setPlayers((p) => Math.min(maxPlayers, p + 1))}
+                    disabled={players >= maxPlayers}
+                    style={[styles.counter, { borderColor: p.border, backgroundColor: players >= maxPlayers ? p.backgroundAlt : undefined, opacity: players >= maxPlayers ? 0.45 : 1 }]}
                   >
-                    <Text style={{ fontSize: fontSizes.heading, color: players >= teeTime.availableSpots ? p.mutedLight : p.text }}>+</Text>
+                    <Text style={{ fontSize: fontSizes.heading, color: players >= maxPlayers ? p.mutedLight : p.text }}>+</Text>
                   </Pressable>
                 </Row>
               </Row>
@@ -262,14 +282,22 @@ export default function TeeTimeDetailScreen() {
               <Row align="space-between">
                 <Text style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, color: p.text }}>Open to community</Text>
                 <Row gap={spacing.md}>
-                  <Pressable onPress={() => setCommunitySpots((s) => Math.max(0, s - 1))} style={[styles.counter, { borderColor: p.border }]}>
+                  <Pressable
+                    onPress={() => setCommunitySpots((s) => Math.max(0, s - 1))}
+                    disabled={communitySpots <= 0}
+                    style={[styles.counter, { borderColor: p.border, opacity: communitySpots <= 0 ? 0.45 : 1 }]}
+                  >
                     <Text style={{ fontSize: fontSizes.heading, color: p.text }}>−</Text>
                   </Pressable>
                   <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.bold, color: p.text, minWidth: 28, textAlign: "center" }}>
                     {communitySpots}
                   </Text>
-                  <Pressable onPress={() => setCommunitySpots((s) => Math.min(players - 1, s + 1))} style={[styles.counter, { borderColor: p.border }]}>
-                    <Text style={{ fontSize: fontSizes.heading, color: p.text }}>+</Text>
+                  <Pressable
+                    onPress={() => setCommunitySpots((s) => Math.min(players - 1, s + 1))}
+                    disabled={communitySpots >= players - 1}
+                    style={[styles.counter, { borderColor: p.border, opacity: communitySpots >= players - 1 ? 0.45 : 1 }]}
+                  >
+                    <Text style={{ fontSize: fontSizes.heading, color: communitySpots >= players - 1 ? p.mutedLight : p.text }}>+</Text>
                   </Pressable>
                 </Row>
               </Row>
@@ -288,6 +316,7 @@ export default function TeeTimeDetailScreen() {
               label={booking ? "Processing..." : env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Request this tee time (demo)" : "Pay & book"}
               onPress={() => void handleBook()}
               loading={booking}
+              disabled={!hasAvailableSpots}
               size="lg"
             />
 
@@ -305,11 +334,11 @@ export default function TeeTimeDetailScreen() {
   );
 }
 
-function InfoBadge({ icon, label }: { icon: string; label: string }) {
+function InfoBadge({ icon, label }: { icon: IoniconsName; label: string }) {
   const p = useTheme();
   return (
     <Row gap={spacing.xs} style={{ paddingVertical: spacing.xs }}>
-      <Ionicons name={icon as any} size={15} color={p.muted} />
+      <Ionicons name={icon} size={15} color={p.muted} />
       <Text style={{ fontSize: fontSizes.small, color: p.muted }}>{label}</Text>
     </Row>
   );

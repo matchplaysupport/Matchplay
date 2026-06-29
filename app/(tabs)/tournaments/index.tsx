@@ -3,13 +3,10 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  Body,
   Button,
   Card,
-  Chip,
   Muted,
   Row,
-  SectionHeader,
   Subheading,
   Title,
   useTheme,
@@ -178,6 +175,21 @@ export default function TournamentsScreen() {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Title style={{ marginBottom: spacing.md }}>Events</Title>
 
+        {!profile && (
+          <Card style={styles.signedOutCard}>
+            <Row style={{ alignItems: "center", gap: spacing.md }}>
+              <View style={[styles.sectionIcon, { backgroundColor: p.successLight }]}>
+                <Ionicons name="person-circle-outline" size={18} color={p.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Subheading>Sign in to host events</Subheading>
+                <Muted>Browse events now, or sign in to create scrambles and tournaments.</Muted>
+              </View>
+            </Row>
+            <Button label="Go to sign in" size="sm" variant="secondary" onPress={() => router.replace("/(auth)/login")} />
+          </Card>
+        )}
+
         {/* ── Scrambles ─────────────────────────────────────────── */}
         <View style={[styles.sectionBlock, { backgroundColor: p.surface, borderColor: p.border }]}>
           <Row style={styles.sectionBlockHeader}>
@@ -304,6 +316,9 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
+  },
+  signedOutCard: {
+    gap: spacing.md,
   },
   emptyInline: {
     padding: spacing.lg,

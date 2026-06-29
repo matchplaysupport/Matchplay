@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -7,19 +7,22 @@ import {
   Body,
   Card,
   Chip,
-  Muted,
   PillSelector,
   Row,
   SectionHeader,
-  Subheading,
   Title,
   useTheme,
 } from "@/design-system/components";
-import { demoLeaderboard, demoProfiles } from "@/features/courses/demoData";
+import { useQuery } from "@tanstack/react-query";
 import { analytics } from "@/lib/analytics";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { env } from "@/lib/env";
+import { getLeaderboardProvider } from "@/integrations/leaderboard/LeaderboardProvider";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { LeaderboardEntry } from "@/types/domain";
+
+const provider = getLeaderboardProvider();
 
 type Scope = "local" | "state" | "national" | "friends";
 type Period = "weekly" | "monthly" | "seasonal";
@@ -61,34 +64,45 @@ export default function LeaderboardsScreen() {
   const p = useTheme();
 
   useEffect(() => {
-    analytics.track("leaderboard_viewed", { scope });
-  }, [scope]);
+    analytics.track("leaderboard_viewed", { scope, period });
+  }, [period, scope]);
 
   const submittedRounds = rounds.filter((r) => r.verificationState !== "draft").length;
   const bonusPoints = submittedRounds * 30;
 
-  const entries: LeaderboardEntry[] = profile
-    ? [
-        {
-          rank: 1,
-          playerId: profile.id,
-          displayName: profile.displayName,
-          location: `${profile.city}, ${profile.state}`,
-          metricLabel: profile.handicapValue
-            ? `${profile.handicapValue.toFixed(1)} HCP`
-            : "No handicap",
-          points: 540 + bonusPoints,
-          verified: false,
-          movement: submittedRounds > 0 ? 3 : 1,
-        },
-        ...demoLeaderboard
-          .filter((e) => e.playerId !== profile.id)
-          .map((e, i) => ({ ...e, rank: i + 2 })),
-      ]
-    : demoLeaderboard;
+  // State & national standings are a Pro feature.
+  const { can } = useEntitlement();
+  const scopeLocked =
+    (scope === "state" || scope === "national") && !can("state_national_leaderboards");
+
+  const { data: liveEntries = [], isLoading } = useQuery({
+    queryKey: ["leaderboard", scope, period],
+    queryFn: () => provider.list(scope, period),
+    enabled: !scopeLocked,
+  });
+
+  const entries: LeaderboardEntry[] = useMemo(() => {
+    // In demo mode, anchor the local user at the top so there's always a "you" row.
+    if (env.EXPO_PUBLIC_USE_MOCK_AUTH && profile && !profile.privacy.hideLeaderboards) {
+      const me: LeaderboardEntry = {
+        rank: 1,
+        playerId: profile.id,
+        displayName: profile.displayName,
+        location: `${profile.city}, ${profile.state}`,
+        metricLabel: profile.handicapValue ? `${profile.handicapValue.toFixed(1)} HCP` : "No handicap",
+        points: 540 + bonusPoints,
+        verified: false,
+        movement: submittedRounds > 0 ? 3 : 1,
+      };
+      return [
+        me,
+        ...liveEntries.filter((e) => e.playerId !== profile.id).map((e, i) => ({ ...e, rank: i + 2 })),
+      ];
+    }
+    return liveEntries;
+  }, [liveEntries, profile, bonusPoints, submittedRounds]);
 
   const topThree = entries.slice(0, 3);
-  const rest = entries.slice(3);
 
   const scopeLabel = SCOPE_OPTIONS.find((o) => o.value === scope)?.label ?? "Local";
   const periodLabel = PERIOD_OPTIONS.find((o) => o.value === period)?.label ?? "Seasonal";
@@ -124,15 +138,38 @@ export default function LeaderboardsScreen() {
           <View style={[styles.disclaimer, { backgroundColor: p.accentBg }]}>
             <Ionicons name="information-circle-outline" size={16} color={p.accentText} />
             <Text style={{ flex: 1, fontSize: fontSizes.tiny, color: p.accentText, lineHeight: 17 }}>
-              Points are based on demo activity. Users who hide leaderboard participation are not shown publicly.
+              {profile?.privacy.hideLeaderboards
+                ? "Your leaderboard privacy setting is on, so your profile is hidden from public rankings."
+                : env.EXPO_PUBLIC_USE_MOCK_AUTH
+                  ? "Points are based on demo activity. Users who hide leaderboard participation are not shown publicly."
+                : "Points reflect verified and self-reported rounds. Users who hide leaderboard participation aren't shown publicly."}
             </Text>
           </View>
         </View>
 
+        {scopeLocked && (
+          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
+            <Card>
+              <View style={{ alignItems: "center", gap: spacing.sm, paddingVertical: spacing.lg }}>
+                <Ionicons name="lock-closed-outline" size={34} color={p.mutedLight} />
+                <Body color={p.muted} style={{ textAlign: "center" }}>
+                  State and national leaderboards are included with Clubhouse Pro.
+                </Body>
+              </View>
+            </Card>
+          </View>
+        )}
+
+        {isLoading && !scopeLocked && (
+          <View style={{ paddingVertical: spacing.xxl, alignItems: "center" }}>
+            <ActivityIndicator color={p.primary} />
+          </View>
+        )}
+
         {/* Top 3 podium */}
-        <View style={[styles.podium, { marginHorizontal: spacing.lg, marginTop: spacing.lg }]}>
+        {!isLoading && !scopeLocked && topThree.length > 0 && (
+          <View style={[styles.podium, { marginHorizontal: spacing.lg, marginTop: spacing.lg }]}>
           {topThree.map((entry) => {
-            const golfer = demoProfiles.find((dp) => dp.id === entry.playerId) ?? { displayName: entry.displayName };
             const medal = RANK_MEDALS[entry.rank] ?? `#${entry.rank}`;
             const isMe = profile && entry.playerId === profile.id;
             return (
@@ -153,10 +190,12 @@ export default function LeaderboardsScreen() {
               </View>
             );
           })}
-        </View>
+          </View>
+        )}
 
         {/* Rest of leaderboard */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg, gap: spacing.sm }}>
+        {!isLoading && !scopeLocked && entries.length > 0 && (
+          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg, gap: spacing.sm }}>
           <SectionHeader title={`Rankings — ${scopeLabel}`} />
           {entries.map((entry) => {
             const isMe = profile && entry.playerId === profile.id;
@@ -206,7 +245,19 @@ export default function LeaderboardsScreen() {
               </View>
             );
           })}
-        </View>
+          </View>
+        )}
+
+        {!isLoading && !scopeLocked && entries.length === 0 && (
+          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
+            <Card>
+              <View style={{ alignItems: "center", gap: spacing.sm, paddingVertical: spacing.lg }}>
+                <Ionicons name="podium-outline" size={36} color={p.mutedLight} />
+                <Body color={p.muted} style={{ textAlign: "center" }}>No rankings yet for this scope and period.</Body>
+              </View>
+            </Card>
+          </View>
+        )}
 
         {/* Points explanation */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
