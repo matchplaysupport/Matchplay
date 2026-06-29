@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
         <AdminLoginForm />
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.8rem", color: "var(--muted)" }}>
           Not yet a partner?{" "}
-          <a href="/#waitlist" style={{ color: "var(--brand)", fontWeight: 600 }}>
+          <a href="/signup/course" style={{ color: "var(--brand)", fontWeight: 600 }}>
             Apply for early access
           </a>
         </p>

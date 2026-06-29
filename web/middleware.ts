@@ -36,9 +36,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin/dashboard", request.url));
   }
 
+  // Protect the golfer dashboard
+  if (pathname.startsWith("/golfer/dashboard") && !user) {
+    return NextResponse.redirect(new URL("/golfer/login", request.url));
+  }
+
+  // Redirect signed-in golfers away from login
+  if (pathname === "/golfer/login" && user) {
+    return NextResponse.redirect(new URL("/golfer/dashboard", request.url));
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/golfer/login", "/golfer/dashboard/:path*"],
 };
