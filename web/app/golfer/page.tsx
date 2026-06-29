@@ -269,7 +269,7 @@ function GolferPage() {
                 <div
                   aria-hidden
                   className="absolute -inset-8 rounded-full pointer-events-none"
-                  style={{ background: "radial-gradient(circle, rgba(216,179,106,0.14), transparent 68%)" }}
+                  style={{ background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)" }}
                 />
                 <div className="theme-light relative">
                   <PhoneMockup />
@@ -340,7 +340,7 @@ function GolferPage() {
             </Reveal>
 
             {/* Match Play+ */}
-            <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg), 0 0 34px -12px rgba(216,179,106,0.4)" }}>
+            <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
               <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
                 <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Match Play+</span>
                 <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>

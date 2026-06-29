@@ -109,7 +109,7 @@ function ChooserContent() {
           <Link
             href="/course"
             className="group card card-hover p-8 flex flex-col gap-5"
-            style={{ borderColor: "var(--gold)", boxShadow: "0 0 28px -10px rgba(216,179,106,0.2)" }}
+            style={{ borderColor: "var(--gold)" }}
           >
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"

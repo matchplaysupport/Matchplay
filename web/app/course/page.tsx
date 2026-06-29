@@ -410,7 +410,7 @@ function CoursePage() {
             </Reveal>
 
             {/* Resort / Destination */}
-            <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg), 0 0 34px -12px rgba(216,179,106,0.4)" }}>
+            <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
               <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
                 <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Pro</span>
                 <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>
