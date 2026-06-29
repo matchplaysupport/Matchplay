@@ -63,8 +63,8 @@ function Step({ n, title, body, icon }: { n: string; title: string; body: string
   );
 }
 
-function AppBadges() {
-  const Pill = ({ glyph, top, bottom }: { glyph: ReactNode; top: string; bottom: string }) => (
+function AppBadgePill({ glyph, top, bottom }: { glyph: ReactNode; top: string; bottom: string }) {
+  return (
     <span className="inline-flex items-center gap-2.5 rounded-xl px-4 py-2.5" style={{ background: "#0B0F0C", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}>
       {glyph}
       <span className="flex flex-col leading-tight text-left">
@@ -73,12 +73,15 @@ function AppBadges() {
       </span>
     </span>
   );
+}
+
+function AppBadges() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Pill top="Coming soon to the" bottom="App Store"
+      <AppBadgePill top="Coming soon to the" bottom="App Store"
         glyph={<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.36 1.43c.07 1-.32 1.96-.94 2.66-.65.74-1.7 1.31-2.71 1.23-.09-.97.37-1.98.96-2.62.66-.72 1.79-1.26 2.69-1.27zM19.9 17.2c-.52 1.2-.77 1.73-1.44 2.79-.94 1.48-2.26 3.32-3.9 3.33-1.45.01-1.83-.95-3.8-.94-1.97.01-2.38.96-3.84.95-1.64-.02-2.89-1.68-3.83-3.16-2.62-4.13-2.9-8.98-1.28-11.56 1.15-1.83 2.97-2.9 4.68-2.9 1.74 0 2.84.96 4.28.96 1.4 0 2.25-.96 4.27-.96 1.52 0 3.13.83 4.28 2.26-3.76 2.06-3.15 7.43.6 9.18z" /></svg>}
       />
-      <Pill top="Coming soon to" bottom="Google Play"
+      <AppBadgePill top="Coming soon to" bottom="Google Play"
         glyph={<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.2c-.3.3-.5.7-.5 1.3v17c0 .6.2 1 .5 1.3l9.2-9.8L3.6 2.2zm12.3 6.2L5.3 2.3 14.9 8l1 0.4zm3.4 2.3-2.6-1.5-2.4 2.5 2.4 2.5 2.7-1.5c.8-.5.8-1.9-.1-2.5zM5.3 21.7l10.6-6.1-1.9-2-8.7 8.1z" /></svg>}
       />
     </div>
@@ -107,7 +110,6 @@ const GOLFER_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
-  { href: "/course", label: "For Courses" },
 ];
 
 const GOLFER_FAQ = [
@@ -177,6 +179,7 @@ function GolferPage() {
   return (
     <>
       <Nav
+        audience="golfer"
         links={GOLFER_LINKS}
         ctaLabel="Join the waitlist"
         ctaHref="#waitlist"
@@ -272,7 +275,7 @@ function GolferPage() {
                   className="absolute -inset-8 rounded-full pointer-events-none"
                   style={{ background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)" }}
                 />
-                <div className="theme-light relative">
+                <div className="theme-light relative" style={{ color: "var(--text)" }}>
                   <PhoneMockup />
                 </div>
               </div>
@@ -459,7 +462,7 @@ function GolferPage() {
               </div>
               <div
                 className="theme-light rounded-2xl p-6 sm:p-7"
-                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
+                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)", color: "var(--text)" }}
               >
                 <WaitlistForm defaultAudience="golfer" />
               </div>
