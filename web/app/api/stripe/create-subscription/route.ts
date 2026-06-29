@@ -60,11 +60,12 @@ export async function POST(req: Request) {
     expand: ["latest_invoice.payment_intent"],
   });
 
-  const invoice = subscription.latest_invoice as import("stripe").Stripe.Invoice;
-  const paymentIntent = invoice.payment_intent as import("stripe").Stripe.PaymentIntent;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const invoice = subscription.latest_invoice as any;
+  const clientSecret = invoice?.payment_intent?.client_secret ?? null;
 
   return NextResponse.json({
     subscriptionId: subscription.id,
-    clientSecret: paymentIntent?.client_secret ?? null,
+    clientSecret,
   });
 }
