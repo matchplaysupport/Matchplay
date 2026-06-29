@@ -95,10 +95,13 @@ export async function POST(req: Request) {
     event.type === "customer.subscription.updated" ||
     event.type === "customer.subscription.deleted"
   ) {
-    const sub = event.data.object;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sub = event.data.object as any;
     const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
     const active = sub.status === "active" || sub.status === "trialing";
-    const periodEnd = new Date(sub.current_period_end * 1000).toISOString();
+    const periodEnd = sub.current_period_end
+      ? new Date(sub.current_period_end * 1000).toISOString()
+      : null;
 
     // Check which table owns this customer ID
     const { data: operator } = await supabase
