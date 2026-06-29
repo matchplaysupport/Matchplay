@@ -285,8 +285,16 @@ function CoursePage() {
 
           <div className="mt-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="flex justify-center">
-              <div className="w-full max-w-md theme-light">
-                <DashboardMockup />
+              <div className="relative w-full max-w-md">
+                <div
+                  aria-hidden
+                  className="absolute -inset-8 rounded-3xl pointer-events-none"
+                  style={{ background: "radial-gradient(circle, rgba(216,179,106,0.13), transparent 70%)" }}
+                />
+                {/* color set so the bright mockup stays crisp in dark mode */}
+                <div className="theme-light relative" style={{ color: "var(--text)" }}>
+                  <DashboardMockup />
+                </div>
               </div>
             </Reveal>
 
@@ -525,7 +533,7 @@ function CoursePage() {
               </div>
               <div
                 className="theme-light rounded-2xl p-6 sm:p-7"
-                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
+                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)", color: "var(--text)" }}
               >
                 <WaitlistForm defaultAudience="course" />
               </div>

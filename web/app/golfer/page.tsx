@@ -272,7 +272,7 @@ function GolferPage() {
                   className="absolute -inset-8 rounded-full pointer-events-none"
                   style={{ background: "radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%)" }}
                 />
-                <div className="theme-light relative">
+                <div className="theme-light relative" style={{ color: "var(--text)" }}>
                   <PhoneMockup />
                 </div>
               </div>
@@ -459,7 +459,7 @@ function GolferPage() {
               </div>
               <div
                 className="theme-light rounded-2xl p-6 sm:p-7"
-                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
+                style={{ background: "var(--surface)", boxShadow: "var(--shadow-lg)", color: "var(--text)" }}
               >
                 <WaitlistForm defaultAudience="golfer" />
               </div>
