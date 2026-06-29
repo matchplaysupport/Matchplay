@@ -8,6 +8,7 @@ type AnalyticsEvent =
   | "round_started"
   | "hole_scored"
   | "round_completed"
+  | "round_sync_failed"
   | "handicap_viewed"
   | "leaderboard_viewed"
   | "discovery_swipe"

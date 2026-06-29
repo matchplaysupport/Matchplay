@@ -56,11 +56,11 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Header banner */}
-        <View style={[styles.header, { backgroundColor: p.primary }]}>
+        <View style={[styles.header, { backgroundColor: p.header }]}>
           <Row align="space-between">
             <View style={{ flex: 1, gap: spacing.xs }}>
-              <Title style={{ color: "#FFFFFF" }}>{profile.displayName}</Title>
+              <Text style={styles.kicker}>Member profile</Text>
+              <Title style={styles.headerTitle}>{profile.displayName}</Title>
               <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body }}>
                 @{profile.username}
               </Text>
@@ -69,7 +69,7 @@ export default function ProfileScreen() {
                 <Chip label={profile.skillLevel} variant="muted" size="xs" />
               </Row>
             </View>
-            <Avatar name={profile.displayName} size={72} />
+            <Avatar name={profile.displayName} size={70} />
           </Row>
         </View>
 
@@ -267,7 +267,7 @@ function SubscriptionCard() {
       <Card elevated>
         <Row align="space-between">
           <View style={{ flex: 1, gap: spacing.xs }}>
-            <Chip label="Match Play+" variant="primary" />
+            <Chip label="Clubhouse+" variant="primary" />
             <Body style={{ fontSize: fontSizes.small }}>Upgrade to Pro to unlock leaderboards, tournaments, and more.</Body>
           </View>
         </Row>
@@ -291,7 +291,26 @@ function SubscriptionCard() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.xs },
+  header: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxxl,
+    gap: spacing.xs,
+    borderBottomLeftRadius: radii.xxl,
+    borderBottomRightRadius: radii.xxl,
+  },
+  kicker: {
+    color: "rgba(255,255,255,0.58)",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 30,
+    lineHeight: 35,
+  },
   notice: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm, padding: spacing.md, borderRadius: radii.md, marginTop: spacing.xs },
   toggleBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radii.full },
   emptyProfile: {

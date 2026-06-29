@@ -17,7 +17,7 @@ import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeT
 import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
-import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { TeeTime } from "@/types/domain";
 
@@ -63,17 +63,24 @@ export default function TeeTimesScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: p.primary }]}>
-        <Title style={{ color: "#FFFFFF" }}>Tee Times</Title>
-        <Muted style={{ color: "rgba(255,255,255,0.75)" }}>
-          {env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Demo inventory — no real booking charges" : "Live availability near you"}
-        </Muted>
+      <View style={[styles.header, { backgroundColor: p.header }]}>
+        <Row align="space-between">
+          <View style={{ flex: 1, gap: spacing.xs }}>
+            <Text style={styles.kicker}>Clubhouse booking</Text>
+            <Title style={styles.headerTitle}>Tee Times</Title>
+            <Muted style={styles.headerSubtitle}>
+              {env.EXPO_PUBLIC_USE_MOCK_AUTH ? "Demo inventory. No real booking charges." : "Live availability near you."}
+            </Muted>
+          </View>
+          <View style={styles.headerGlyph}>
+            <Ionicons name="calendar" size={24} color="#06261C" />
+          </View>
+        </Row>
       </View>
 
       {/* Search bar */}
       <View style={[styles.searchContainer, { backgroundColor: p.surface, borderBottomColor: p.border }]}>
-        <View style={[styles.searchBox, { backgroundColor: p.backgroundAlt, borderColor: p.border }]}>
+        <View style={[styles.searchBox, { backgroundColor: p.surfaceAlt, borderColor: p.border }]}>
           <Ionicons name="search-outline" size={18} color={p.muted} />
           <TextInput
             value={query}
@@ -243,9 +250,49 @@ function TeeTimeCard({ teeTime }: { teeTime: TeeTime }) {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.lg, gap: spacing.xs },
-  searchContainer: { padding: spacing.lg, gap: spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth },
-  searchBox: { flexDirection: "row", alignItems: "center", gap: spacing.sm, borderWidth: 1, borderRadius: radii.md, paddingHorizontal: spacing.md, height: 48 },
+  header: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
+    borderBottomLeftRadius: radii.xxl,
+    borderBottomRightRadius: radii.xxl,
+  },
+  kicker: {
+    color: "rgba(255,255,255,0.58)",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    lineHeight: 37,
+  },
+  headerSubtitle: {
+    color: "rgba(255,255,255,0.70)",
+    fontSize: fontSizes.body,
+  },
+  headerGlyph: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#F6C15A",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.45)",
+  },
+  searchContainer: {
+    marginHorizontal: spacing.lg,
+    marginTop: -20,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radii.xl,
+    ...shadows.md,
+  },
+  searchBox: { flexDirection: "row", alignItems: "center", gap: spacing.sm, borderWidth: StyleSheet.hairlineWidth, borderRadius: radii.full, paddingHorizontal: spacing.md, height: 48 },
   filterChip: { flexDirection: "row", alignItems: "center", gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2, borderRadius: radii.full, borderWidth: 1 },
   searchBtn: { height: 48, borderRadius: radii.md, alignItems: "center", justifyContent: "center" },
   emptyIcon: { width: 80, height: 80, borderRadius: radii.xl, alignItems: "center", justifyContent: "center" },

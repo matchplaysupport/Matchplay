@@ -172,8 +172,19 @@ export default function TournamentsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
+      <View style={[styles.header, { backgroundColor: p.header }]}>
+        <Row align="space-between">
+          <View style={{ flex: 1, gap: spacing.xs }}>
+            <Text style={styles.kicker}>Clubhouse events</Text>
+            <Title style={styles.headerTitle}>Events</Title>
+            <Muted style={styles.headerSubtitle}>Host a scramble, run a bracket, or join what your group is playing.</Muted>
+          </View>
+          <View style={styles.headerGlyph}>
+            <Ionicons name="trophy" size={24} color="#06261C" />
+          </View>
+        </Row>
+      </View>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Title style={{ marginBottom: spacing.md }}>Events</Title>
 
         {!profile && (
           <Card style={styles.signedOutCard}>
@@ -293,9 +304,43 @@ export default function TournamentsScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
     gap: spacing.md,
+  },
+  header: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
+    borderBottomLeftRadius: radii.xxl,
+    borderBottomRightRadius: radii.xxl,
+  },
+  kicker: {
+    color: "rgba(255,255,255,0.58)",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    lineHeight: 37,
+  },
+  headerSubtitle: {
+    color: "rgba(255,255,255,0.70)",
+    fontSize: fontSizes.body,
+    lineHeight: 21,
+  },
+  headerGlyph: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#F6C15A",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.45)",
   },
   sectionBlock: {
     borderRadius: radii.xl,

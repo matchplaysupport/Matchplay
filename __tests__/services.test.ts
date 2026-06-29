@@ -5,6 +5,7 @@ import { allocateMatchStrokes, calculatePlayingHandicap, formatMatchResult } fro
 import { joinOpenGame } from "@/services/openGames";
 import { projectPublicProfile } from "@/services/privacy";
 import { calculateRoundStats } from "@/services/roundStats";
+import { calculateCareerStats } from "@/services/careerStats";
 import { distanceMiles } from "@/services/distance";
 import type { OpenGame, Profile, Round } from "@/types/domain";
 
@@ -51,6 +52,31 @@ describe("domain services", () => {
     const result = calculateEstimatedHandicap([makeRound(Array(18).fill(5) as number[])]);
     expect(result.value).not.toBeNull();
     expect(result.explanation).toContain("not an official");
+  });
+
+  it("aggregates career stats across rounds", () => {
+    const par = course.holes.map((hole) => hole.par);
+    const rounds: Round[] = [
+      { ...makeRound(par), id: "r-1", submittedAt: "2026-07-01T12:00:00.000Z" },
+      { ...makeRound(par.map((p) => p + 1)), id: "r-2", submittedAt: "2026-07-08T12:00:00.000Z" },
+    ];
+    const stats = calculateCareerStats(rounds);
+    expect(stats.roundsPlayed).toBe(2);
+    expect(stats.eligibleRounds).toBe(2);
+    expect(stats.averagePutts).toBe(2);
+    expect(stats.greensInRegulationPct).toBe(100);
+    expect(stats.bestGross?.roundId).toBe("r-1");
+    // Trend is ordered oldest → newest by submission date.
+    expect(stats.trend.map((point) => point.roundId)).toEqual(["r-1", "r-2"]);
+    expect(stats.handicap.value).not.toBeNull();
+  });
+
+  it("returns empty career stats when there are no rounds", () => {
+    const stats = calculateCareerStats([]);
+    expect(stats.eligibleRounds).toBe(0);
+    expect(stats.averagePutts).toBeNull();
+    expect(stats.bestGross).toBeNull();
+    expect(stats.handicap.value).toBeNull();
   });
 
   it("calculates playing handicap and stroke allocation", () => {

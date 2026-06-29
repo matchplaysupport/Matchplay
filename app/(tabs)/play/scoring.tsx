@@ -11,6 +11,8 @@ import { useAppStore } from "@/stores/appStore";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { PaywallScreen } from "@/components/PaywallScreen";
 import { env } from "@/lib/env";
+import { calculateEstimatedHandicap } from "@/services/handicap";
+import { getRoundsProvider } from "@/integrations/rounds/RoundsProvider";
 import type { HoleScore, Round } from "@/types/domain";
 
 type FairwayResult = HoleScore["fairway"];
@@ -36,6 +38,7 @@ export default function ScoringScreen() {
   const advanceHole = useAppStore((state) => state.advanceHole);
   const abandonRound = useAppStore((state) => state.abandonRound);
   const saveRound = useAppStore((state) => state.saveRound);
+  const rounds = useAppStore((state) => state.rounds);
   const profile = useAppStore((state) => state.profile);
   const p = useTheme();
 
@@ -146,6 +149,17 @@ export default function ScoringScreen() {
       submittedAt: new Date().toISOString(),
     };
     saveRound(round);
+
+    // Persist to Supabase + refresh stored handicap (no-op in mock mode).
+    // Fire-and-forget: the local store already holds the round, so a sync
+    // failure must not block the submit flow.
+    if (profile) {
+      const handicap = calculateEstimatedHandicap([round, ...rounds.filter((r) => r.id !== round.id)]);
+      getRoundsProvider()
+        .save({ profileId: profile.id, round, handicap })
+        .catch((error) => analytics.track("round_sync_failed", { roundId: round.id, message: String(error) }));
+    }
+
     abandonRound();
     analytics.track("round_completed", { courseId: round.courseId, grossScore: round.scores.reduce((s, h) => s + h.grossScore, 0) });
     Alert.alert(
