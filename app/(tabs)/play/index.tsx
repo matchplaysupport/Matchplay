@@ -22,6 +22,7 @@ import { env } from "@/lib/env";
 import { joinOpenGame, requestJoinOpenGame } from "@/services/openGames";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import type { OpenGame } from "@/types/domain";
 
 export default function PlayScreen() {
@@ -34,6 +35,7 @@ export default function PlayScreen() {
   const updateOpenGame = useAppStore((state) => state.updateOpenGame);
   const recordMetric = useAppStore((state) => state.recordMetric);
   const p = useTheme();
+  const { can } = useEntitlement();
   const [joiningGameId, setJoiningGameId] = useState<string | null>(null);
 
   const firstDiscovery = discoveryProfiles[0];
@@ -47,6 +49,10 @@ export default function PlayScreen() {
 
   const handleCreateGame = () => {
     if (!profile) return;
+    if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("create_open_games")) {
+      router.push("/(tabs)/upgrade");
+      return;
+    }
     const defaultCourse = activeCourse ?? demoCourses[0];
     const game: OpenGame = {
       id: `game-${Date.now()}`,
@@ -210,6 +216,10 @@ export default function PlayScreen() {
                   disabled={joiningGameId != null}
                   onPress={() => {
                     if (!profile) return;
+                    if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("join_open_games")) {
+                      router.push("/(tabs)/upgrade");
+                      return;
+                    }
 
                     // Mock mode: optimistic local update.
                     if (env.EXPO_PUBLIC_USE_MOCK_AUTH) {
