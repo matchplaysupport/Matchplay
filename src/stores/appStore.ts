@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { demoProfiles, seededMessages, seededOpenGames } from "@/features/courses/demoData";
+import { demoProfiles } from "@/features/courses/demoData";
 import type {
   ActiveRoundState,
   Booking,
@@ -89,8 +89,8 @@ export const useAppStore = create<AppState>()(
       _hasHydrated: false,
       bookings: [],
       rounds: [],
-      openGames: seededOpenGames,
-      messages: seededMessages,
+      openGames: [],
+      messages: [],
       tournaments: [],
       scrambles: [],
       metrics: initialMetrics,
@@ -213,7 +213,7 @@ export const useAppStore = create<AppState>()(
       abandonRound: () => set({ activeRound: null, activeCourse: null }),
     }),
     {
-      name: "match-play-app-v2",
+      name: "match-play-app-v3",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state._hasHydrated = true;
