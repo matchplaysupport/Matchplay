@@ -13,12 +13,28 @@ type EventRow = {
 };
 
 type RankRow = {
+  profile_id: string;
   rank: number;
   points: number;
   verified: boolean;
   scope: string;
   profiles: { display_name: string; city: string; state: string } | null;
 };
+
+// leaderboard_entries can hold several rows per player (different period /
+// category). Rows arrive ordered by rank, so keep each player's first (best)
+// entry and cap the list.
+function dedupeByPlayer(rows: RankRow[], top: number): RankRow[] {
+  const seen = new Set<string>();
+  const out: RankRow[] = [];
+  for (const r of rows) {
+    if (seen.has(r.profile_id)) continue;
+    seen.add(r.profile_id);
+    out.push(r);
+    if (out.length >= top) break;
+  }
+  return out;
+}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text)", margin: "2rem 0 1rem" }}>{children}</h2>;
@@ -64,21 +80,21 @@ export default async function LeaderboardsPage() {
 
   const { data: localData } = await supabase
     .from("leaderboard_entries")
-    .select("rank, points, verified, scope, profiles(display_name, city, state)")
+    .select("profile_id, rank, points, verified, scope, profiles(display_name, city, state)")
     .eq("scope", "local")
     .order("rank", { ascending: true })
-    .limit(10);
-  const local = ((localData ?? []) as unknown as RankRow[]);
+    .limit(40);
+  const local = dedupeByPlayer((localData ?? []) as unknown as RankRow[], 10);
 
   let regional: RankRow[] = [];
   if (hasPro(tier)) {
     const { data: regData } = await supabase
       .from("leaderboard_entries")
-      .select("rank, points, verified, scope, profiles(display_name, city, state)")
+      .select("profile_id, rank, points, verified, scope, profiles(display_name, city, state)")
       .in("scope", ["state", "national"])
       .order("rank", { ascending: true })
-      .limit(20);
-    regional = ((regData ?? []) as unknown as RankRow[]);
+      .limit(60);
+    regional = dedupeByPlayer((regData ?? []) as unknown as RankRow[], 20);
   }
 
   return (

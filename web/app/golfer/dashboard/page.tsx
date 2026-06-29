@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PortalShell, ProfileSetupNotice } from "../_components/PortalShell";
 import { loadGolfer } from "@/lib/golfer-session";
+import CancelBookingButton from "./CancelBookingButton";
 
 export const metadata = { title: "Your dashboard · The Clubhouse" };
 
@@ -8,6 +9,7 @@ type BookingRow = {
   id: string;
   players: number;
   confirmation_code: string;
+  status: string;
   tee_times: {
     starts_at: string;
     holes: number;
@@ -32,13 +34,13 @@ export default async function GolferDashboardPage() {
   const nowIso = new Date().toISOString();
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("id, players, confirmation_code, tee_times!inner(starts_at, holes, price_cents, courses(name, city, state))")
+    .select("id, players, confirmation_code, status, tee_times!inner(starts_at, holes, price_cents, courses(name, city, state))")
     .eq("profile_id", profile.id)
     .gt("tee_times.starts_at", nowIso)
     .limit(20);
 
   const upcoming = ((bookings ?? []) as unknown as BookingRow[])
-    .filter((b) => b.tee_times)
+    .filter((b) => b.tee_times && b.status !== "cancelled")
     .sort((a, b) => (a.tee_times!.starts_at < b.tee_times!.starts_at ? -1 : 1))
     .slice(0, 10);
 
@@ -95,6 +97,7 @@ export default async function GolferDashboardPage() {
                 <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--brand)", background: "rgba(26,122,69,0.1)", padding: "0.2rem 0.55rem", borderRadius: 999 }}>
                   {b.confirmation_code}
                 </span>
+                <CancelBookingButton bookingId={b.id} />
               </div>
             );
           })}
