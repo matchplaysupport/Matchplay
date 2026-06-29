@@ -10,22 +10,33 @@ import { ThemeProvider } from "../components/ThemeProvider";
 import {
   IconSearch, IconTrophy, IconBell, IconMapPin, IconFlag,
   IconCard, IconCheck, IconArrow, IconStar, IconZap, IconUsers, IconChevron,
+  IconChart, IconShield, IconCalendar,
 } from "../components/icons";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
-function FeatureCard({ icon, title, description, delay = 0 }: {
-  icon: ReactNode; title: string; description: string; delay?: number;
+function FeatureCard({ icon, title, description, delay = 0, badge }: {
+  icon: ReactNode; title: string; description: string; delay?: number; badge?: string;
 }) {
   return (
     <Reveal delay={delay} className="card card-hover p-6 flex flex-col gap-3">
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: "var(--surface-3)", color: "var(--brand)" }}
-      >
-        {icon}
+      <div className="flex items-center justify-between gap-2">
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: "var(--surface-3)", color: "var(--brand)" }}
+        >
+          {icon}
+        </div>
+        {badge && (
+          <span
+            className="chip"
+            style={{ background: "var(--surface-3)", color: "var(--gold)", fontSize: "0.62rem" }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
       <h3 className="font-semibold text-base" style={{ color: "var(--text)" }}>{title}</h3>
       <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{description}</p>
@@ -293,15 +304,40 @@ function GolferPage() {
               Your whole golf life, one app
             </h2>
             <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
-              The app stays on your home screen because it does far more than book a tee time.
+              Booking is just the start. Once you&apos;re on the course, The Clubhouse keeps score,
+              tracks your game, and runs the competition.
             </p>
           </Reveal>
 
-          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <FeatureCard icon={<IconSearch size={20} />} title="Smart tee-time search" description="Filter by date, time, players, and price. Sort by distance or availability and book in seconds." />
-            <FeatureCard icon={<IconTrophy size={20} />} title="Match-play scoring" description="Match and stroke play, automatic handicap tracking, and live leaderboards with your regular group." delay={80} />
-            <FeatureCard icon={<IconBell size={20} />} title="Last-minute alerts" description="Get pinged when a slot opens at a course you love — and grab the deal before anyone else." delay={160} />
-            <FeatureCard icon={<IconMapPin size={20} />} title="Courses near you" description="Discover new tracks while you travel, with real availability and transparent green-fee pricing." delay={240} />
+          {/* Available now */}
+          <Reveal className="mt-12 flex items-center gap-3">
+            <span className="text-[0.72rem] font-bold tracking-[0.18em] uppercase" style={{ color: "var(--brand)" }}>
+              Available now
+            </span>
+            <span className="flex-1 h-px" style={{ background: "var(--border)" }} />
+          </Reveal>
+          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <FeatureCard icon={<IconTrophy size={20} />} title="Match & stroke-play scoring" description="Score any format with handicap strokes applied automatically, hole by hole." />
+            <FeatureCard icon={<IconStar size={20} />} title="Live leaderboards" description="Your group sees who's up and by how much, updating as scores come in." delay={80} />
+            <FeatureCard icon={<IconChart size={20} />} title="Handicap index & stats" description="Every round feeds a running index, plus trends on scoring, GIR, and putts." delay={160} />
+            <FeatureCard icon={<IconMapPin size={20} />} title="GPS hole maps & yardages" description="Distances to the front, center, and back of every green, right in your scorecard." delay={240} />
+            <FeatureCard icon={<IconFlag size={20} />} title="Tournaments & scrambles" description="Spin up a tournament or scramble, invite your group, and run the whole event in-app." />
+            <FeatureCard icon={<IconUsers size={20} />} title="Find partners & groups" description="Match with golfers near you and build the regular crew you play with every week." delay={80} />
+            <FeatureCard icon={<IconBell size={20} />} title="Last-minute deal alerts" description="Get pinged when a slot opens at a course you love — and grab it before anyone else." delay={160} />
+            <FeatureCard icon={<IconSearch size={20} />} title="Travel discovery" description="Find new courses with real availability and transparent green fees wherever you go." delay={240} />
+          </div>
+
+          {/* Coming soon */}
+          <Reveal className="mt-14 flex items-center gap-3">
+            <span className="text-[0.72rem] font-bold tracking-[0.18em] uppercase" style={{ color: "var(--gold)" }}>
+              On the roadmap
+            </span>
+            <span className="flex-1 h-px" style={{ background: "var(--border)" }} />
+          </Reveal>
+          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <FeatureCard badge="Coming soon" icon={<IconShield size={20} />} title="GHIN handicap sync" description="Push your verified scores straight to your official GHIN index — no double entry." />
+            <FeatureCard badge="Coming soon" icon={<IconZap size={20} />} title="State & national rankings" description="Climb regional and national leaderboards, not just the standings in your local group." delay={80} />
+            <FeatureCard badge="Coming soon" icon={<IconCalendar size={20} />} title="Private clubs & season races" description="Standing groups, season-long points races, and member-only competitions." delay={160} />
           </div>
         </div>
       </section>
@@ -380,7 +416,7 @@ function GolferPage() {
                 For competitors and organizers who live on the leaderboard.
               </p>
               <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["Everything in Clubhouse+", "State & national leaderboards", "Ranked matches & private groups", "Advanced analytics & GHIN sync", "Host games & run tournaments"].map((f) => (
+                {["Everything in Clubhouse+", "State & national leaderboards", "Ranked matches & private groups", "Advanced analytics & insights", "GHIN sync (coming soon)", "Host games & run tournaments"].map((f) => (
                   <Check key={f}>{f}</Check>
                 ))}
               </ul>

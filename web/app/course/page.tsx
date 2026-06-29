@@ -212,7 +212,7 @@ function CoursePage() {
               <div className="flex items-center gap-3.5 mb-7">
                 <span className="gold-rule" />
                 <span className="text-[0.72rem] font-semibold uppercase" style={{ color: "var(--gold)", letterSpacing: "0.22em" }}>
-                  For course operators · Founding pricing now open
+                  For course operators · 100 founding spots open
                 </span>
               </div>
             </Reveal>
@@ -253,7 +253,7 @@ function CoursePage() {
       <section style={{ paddingBlock: "4rem", background: "var(--surface)" }}>
         <div className="container grid grid-cols-2 lg:grid-cols-4 gap-y-8">
           {[
-            { v: <Counter to={0} suffix="%" />, l: "Commission on bookings" },
+            { v: "0%", l: "Commission on bookings" },
             { v: <Counter to={5} prefix="<" suffix=" min" />, l: "To set up a course" },
             { v: <Counter to={2} suffix="-day" />, l: "Stripe payouts" },
             { v: <span style={{ fontSize: "clamp(1.6rem, 4vw, 2.1rem)" }}>iOS + Android</span>, l: "Native golfer app" },
@@ -397,8 +397,14 @@ function CoursePage() {
               One flat rate. Keep everything else.
             </h2>
             <p className="mt-4 text-base" style={{ color: "var(--muted)" }}>
-              Founding partners lock in these rates for life.
+              Founding partners lock in these rates for life — limited to the first 100 courses.
             </p>
+            <span
+              className="chip mt-4 inline-flex"
+              style={{ background: "var(--grad-gold)", color: "#1A1206" }}
+            >
+              Only 100 founding spots
+            </span>
           </Reveal>
 
           <div className="mt-12 grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -456,8 +462,8 @@ function CoursePage() {
 
           <Reveal delay={80} className="mt-8 max-w-4xl mx-auto rounded-2xl p-5 sm:p-6 flex flex-wrap items-center gap-4" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm" style={{ color: "var(--text)" }}>Founding partner rates are locked in for life</p>
-              <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Join during early access and your subscription price never increases.</p>
+              <p className="font-semibold text-sm" style={{ color: "var(--text)" }}>Founding partner rates are locked in for life — only 100 spots</p>
+              <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Once the first 100 courses are onboarded, founding pricing closes. Your rate never increases.</p>
             </div>
             <a href="#waitlist" className="btn btn-primary shrink-0" style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}>
               Lock in your rate
