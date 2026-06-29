@@ -11,18 +11,18 @@ export type PlusFeature =
   | "personal_stats"
   | "local_leaderboards"
   | "discovery"
-  | "messaging";
+  | "messaging"
+  | "create_open_games"
+  | "join_open_games";
 
 export type ProFeature =
   | "state_national_leaderboards"
-  | "unlimited_open_games"
   | "ranked_match_challenges"
   | "private_groups"
   | "advanced_analytics"
   | "ghin_sync"
   | "create_tournaments"
   | "scramble_organizer"
-  | "discovery_undo"
   | "advanced_filters";
 
 export type Feature = PlusFeature | ProFeature;
@@ -35,6 +35,8 @@ const PLUS_FEATURES = new Set<Feature>([
   "local_leaderboards",
   "discovery",
   "messaging",
+  "create_open_games",
+  "join_open_games",
 ]);
 
 export function entitlementCanUse(entitlement: Entitlement, feature: Feature): boolean {
