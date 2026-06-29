@@ -47,7 +47,7 @@ function ChooserContent() {
           className="text-[0.72rem] font-bold uppercase tracking-[0.2em]"
           style={{ color: "var(--gold)" }}
         >
-          Welcome to The Clubhouse
+          Welcome to Match Play
         </span>
 
         <h1
@@ -69,7 +69,7 @@ function ChooserContent() {
         </h1>
 
         <p className="mt-5 text-lg max-w-md" style={{ color: "var(--muted)" }}>
-          Whether you play rounds or run a course, The Clubhouse has you covered.
+          Whether you play rounds or run a course, Match Play has you covered.
           Choose your path:
         </p>
 
@@ -153,7 +153,7 @@ function ChooserContent() {
       {/* Footer */}
       <footer className="container py-6 flex items-center justify-between flex-wrap gap-3">
         <p className="text-xs" style={{ color: "var(--muted)" }}>
-          © {new Date().getFullYear()} The Clubhouse. All rights reserved.
+          © {new Date().getFullYear()} Match Play. All rights reserved.
         </p>
         <div className="flex items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
           <Link href="/privacy" className="hover:text-[var(--brand)] transition-colors">Privacy</Link>

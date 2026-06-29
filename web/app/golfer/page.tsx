@@ -6,7 +6,7 @@ import { Reveal } from "../components/motion";
 import { WaitlistForm } from "../components/WaitlistForm";
 import { PhoneMockup } from "../components/Mockups";
 import { Logo } from "../components/Logo";
-import { ThemeProvider, useTheme } from "../components/ThemeProvider";
+import { ThemeProvider } from "../components/ThemeProvider";
 import {
   IconSearch, IconTrophy, IconBell, IconMapPin, IconFlag,
   IconCard, IconCheck, IconArrow, IconStar, IconZap, IconUsers, IconChevron,
