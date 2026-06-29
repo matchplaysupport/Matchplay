@@ -2,6 +2,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import {
   Avatar,
   Body,
@@ -163,27 +164,9 @@ export default function ProfileScreen() {
           </Card>
         </View>
 
-        {/* Clubhouse Pro */}
+        {/* Subscription */}
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <Card elevated style={{ backgroundColor: p.primaryDark, borderColor: "transparent" }}>
-            <Row align="space-between">
-              <View style={{ flex: 1, gap: spacing.xs }}>
-                <Chip label="Clubhouse Pro" variant="accent" />
-                <Subheading style={{ color: "#FFFFFF", marginTop: spacing.xs }}>Unlock the full game</Subheading>
-                <Body style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small, lineHeight: 19 }}>
-                  Unlimited discovery, advanced stats, detailed leaderboards, match history, private groups, and more.
-                </Body>
-              </View>
-            </Row>
-            <Button
-              label="View Pro options"
-              variant="accent"
-              onPress={() => Alert.alert(
-                "Clubhouse Pro",
-                "Monthly and annual plans are being connected through the app's Stripe subscription flow.",
-              )}
-            />
-          </Card>
+          <SubscriptionCard />
         </View>
 
         {/* Settings */}
@@ -256,6 +239,54 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function SubscriptionCard() {
+  const p = useTheme();
+  const { entitlement } = useEntitlement();
+
+  if (entitlement === "pro") {
+    return (
+      <Card elevated style={{ backgroundColor: p.primaryDark, borderColor: "transparent" }}>
+        <Row gap={spacing.sm}>
+          <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+          <View style={{ flex: 1 }}>
+            <Chip label="Match Play Pro" variant="accent" />
+            <Body style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small, marginTop: spacing.xs }}>
+              You have full access to every feature.
+            </Body>
+          </View>
+        </Row>
+      </Card>
+    );
+  }
+
+  if (entitlement === "plus") {
+    return (
+      <Card elevated>
+        <Row align="space-between">
+          <View style={{ flex: 1, gap: spacing.xs }}>
+            <Chip label="Match Play+" variant="primary" />
+            <Body style={{ fontSize: fontSizes.small }}>Upgrade to Pro to unlock leaderboards, tournaments, and more.</Body>
+          </View>
+        </Row>
+        <Button label="Upgrade to Pro" size="sm" onPress={() => router.push("/(tabs)/upgrade")} />
+      </Card>
+    );
+  }
+
+  return (
+    <Card elevated style={{ backgroundColor: p.primaryDark, borderColor: "transparent" }}>
+      <View style={{ gap: spacing.xs }}>
+        <Chip label="Free plan" variant="muted" />
+        <Subheading style={{ color: "#FFFFFF" }}>Unlock the full game</Subheading>
+        <Body style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small, lineHeight: 19 }}>
+          Book tee times, track rounds, compete on leaderboards, and more.
+        </Body>
+      </View>
+      <Button label="See plans" variant="accent" onPress={() => router.push("/(tabs)/upgrade")} />
+    </Card>
   );
 }
 

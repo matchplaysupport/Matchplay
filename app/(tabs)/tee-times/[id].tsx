@@ -25,6 +25,7 @@ import { supabase } from "@/lib/supabase";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { useEntitlement } from "@/hooks/useEntitlement";
 
 const provider = env.EXPO_PUBLIC_USE_MOCK_AUTH
   ? new SimulatedTeeTimeProvider()
@@ -53,6 +54,7 @@ export default function TeeTimeDetailScreen() {
   const addBooking = useAppStore((state) => state.addBooking);
   const recordMetric = useAppStore((state) => state.recordMetric);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { can } = useEntitlement();
 
   const totalPrice = teeTime ? (teeTime.priceCents / 100) * players : 0;
   const selectedTeeSet = course?.teeSets[0];
@@ -91,6 +93,11 @@ export default function TeeTimeDetailScreen() {
   }
 
   const handleBook = async () => {
+    if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("booking")) {
+      router.push("/(tabs)/upgrade");
+      return;
+    }
+
     if (!hasAvailableSpots) {
       Alert.alert("No spots available", "This tee time is no longer available.");
       return;
