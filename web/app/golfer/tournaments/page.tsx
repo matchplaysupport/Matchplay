@@ -62,7 +62,7 @@ export default async function TournamentsPage() {
               const dt = new Date(t.starts_at);
               const players = t.tournament_players?.[0]?.count ?? 0;
               return (
-                <div key={t.id} className="card" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                <Link key={t.id} href={`/golfer/tournaments/${t.id}`} className="card" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", textDecoration: "none" }}>
                   <div style={{ flex: 1, minWidth: 200 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
                       <p style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--text)" }}>{t.name}</p>
@@ -77,7 +77,7 @@ export default async function TournamentsPage() {
                     <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "var(--text)" }}>{players}/{t.max_players}</p>
                     <p style={{ fontSize: "0.7rem", color: "var(--muted)" }}>{t.buy_in_cents > 0 ? `$${(t.buy_in_cents / 100).toFixed(0)} buy-in` : "Free"}</p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
