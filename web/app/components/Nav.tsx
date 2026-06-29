@@ -24,6 +24,9 @@ interface NavProps {
   links?: NavLink[];
   ctaHref?: string;
   ctaLabel?: string;
+  /** Optional secondary "Log in" link shown beside the primary CTA. */
+  loginHref?: string;
+  loginLabel?: string;
   logoHref?: string;
   /** Which side of the marketplace this page belongs to — drives the switcher. */
   audience?: Audience;
@@ -67,6 +70,8 @@ export function Nav({
   links = DEFAULT_LINKS,
   ctaHref = "#waitlist",
   ctaLabel = "Join the waitlist",
+  loginHref,
+  loginLabel = "Log in",
   logoHref = "#top",
   audience,
 }: NavProps) {
@@ -135,6 +140,16 @@ export function Nav({
             {dark ? <IconSun size={16} /> : <IconMoon size={16} />}
           </button>
 
+          {loginHref && (
+            <a
+              href={loginHref}
+              className="hidden sm:inline-flex items-center text-sm font-medium transition-colors hover:text-[var(--brand)]"
+              style={{ padding: "0.6rem 0.6rem", color: scrolled ? "var(--text-2)" : "rgba(244,239,227,0.86)" }}
+            >
+              {loginLabel}
+            </a>
+          )}
+
           <a
             href={ctaHref}
             onClick={() => track("nav_cta_click")}
@@ -185,6 +200,15 @@ export function Nav({
             >
               {ctaLabel}
             </a>
+            {loginHref && (
+              <a
+                href={loginHref}
+                onClick={() => setOpen(false)}
+                className="btn btn-ghost mt-3 w-full"
+              >
+                {loginLabel}
+              </a>
+            )}
           </div>
         </div>
       )}
