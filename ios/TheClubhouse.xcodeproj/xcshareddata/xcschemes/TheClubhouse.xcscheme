@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MatchPlay.app"
-               BlueprintName = "MatchPlay"
-               ReferencedContainer = "container:MatchPlay.xcodeproj">
+               BuildableName = "TheClubhouse.app"
+               BlueprintName = "TheClubhouse"
+               ReferencedContainer = "container:TheClubhouse.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MatchPlayTests.xctest"
-               BlueprintName = "MatchPlayTests"
-               ReferencedContainer = "container:MatchPlay.xcodeproj">
+               BuildableName = "TheClubhouseTests.xctest"
+               BlueprintName = "TheClubhouseTests"
+               ReferencedContainer = "container:TheClubhouse.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MatchPlay.app"
-            BlueprintName = "MatchPlay"
-            ReferencedContainer = "container:MatchPlay.xcodeproj">
+            BuildableName = "TheClubhouse.app"
+            BlueprintName = "TheClubhouse"
+            ReferencedContainer = "container:TheClubhouse.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MatchPlay.app"
-            BlueprintName = "MatchPlay"
-            ReferencedContainer = "container:MatchPlay.xcodeproj">
+            BuildableName = "TheClubhouse.app"
+            BlueprintName = "TheClubhouse"
+            ReferencedContainer = "container:TheClubhouse.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
