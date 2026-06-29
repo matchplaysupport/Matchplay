@@ -1,25 +1,20 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Avatar,
-  Body,
-  Card,
-  Chip,
-  Divider,
-  HandicapLabel,
-  Muted,
-  PressableRow,
-  Row,
-  SectionHeader,
-  StatItem,
-  Subheading,
-  useTheme,
-} from "@/design-system/components";
-import { demoCourses, demoLeaderboard, demoProfiles, demoTeeTimes } from "@/features/courses/demoData";
+import { Row } from "@/design-system/components";
+import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
+import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
+import { env } from "@/lib/env";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import type { TeeTime } from "@/types/domain";
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
+const heroCourse = require("../../web/public/hero-course.png");
+const logoDark = require("../../assets/logo-dark.png");
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -28,394 +23,527 @@ function getGreeting() {
   return "Good evening";
 }
 
+const teeTimeProvider = env.EXPO_PUBLIC_USE_MOCK_AUTH
+  ? new SimulatedTeeTimeProvider()
+  : new SupabaseTeeTimeProvider();
+
 export default function HomeScreen() {
   const profile = useAppStore((state) => state.profile);
   const bookings = useAppStore((state) => state.bookings);
   const rounds = useAppStore((state) => state.rounds);
-  const openGames = useAppStore((state) => state.openGames);
-  const activeRound = useAppStore((state) => state.activeRound);
-  const p = useTheme();
 
   const nextBooking = bookings[0];
-  const nextBookingCourse = nextBooking ? demoCourses.find((c) => c.id === nextBooking.courseId) : null;
 
-  const submittedRounds = rounds.filter((r) => r.verificationState !== "draft").length;
-  const personalRank = demoLeaderboard[0];
+  // Featured card = the soonest available live tee time near the player.
+  const [featuredTeeTime, setFeaturedTeeTime] = useState<TeeTime | null>(null);
+  useEffect(() => {
+    let active = true;
+    teeTimeProvider
+      .search({ query: profile?.city, sortBy: "earliest" })
+      .then((res) => {
+        if (active) setFeaturedTeeTime(res[0] ?? null);
+      })
+      .catch(() => {
+        if (active) setFeaturedTeeTime(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [profile?.city]);
 
-  const nearbyGames = openGames.slice(0, 2);
-  const suggestedGolfers = demoProfiles.slice(1, 3);
-  const nearbyTeeTimes = demoTeeTimes.slice(0, 2);
-  const spotlightTeeTime = nextBooking ? null : nearbyTeeTimes[0];
-  const spotlightCourse = spotlightTeeTime ? demoCourses.find((c) => c.id === spotlightTeeTime.courseId) : null;
+  const featuredCourse = featuredTeeTime?.course;
+  const submittedRounds = rounds.filter((round) => round.verificationState !== "draft").length;
+  const handicap = profile?.handicapValue ?? null;
+  const firstName = profile?.displayName?.split(" ")[0] ?? "Golfer";
+  const featuredStartsAt = featuredTeeTime ? new Date(featuredTeeTime.startsAt) : null;
+  const featuredTime = featuredStartsAt
+    ? featuredStartsAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    : "--";
+  const featuredDay = featuredStartsAt
+    ? featuredStartsAt.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
+    : "Find a time";
+  const featuredPlayers = nextBooking?.players ?? featuredTeeTime?.availableSpots ?? 2;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
-      <View style={[styles.header, { backgroundColor: p.header }]}>
-        <Row align="space-between">
-          <Row gap={spacing.sm}>
-            <ClubhouseMark />
-            <View>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Row align="space-between">
+            <Row gap={spacing.md}>
+              <ClubhouseCrest />
               <Text style={styles.brandName}>The Clubhouse</Text>
-              <Text style={styles.brandSubline}>{profile?.city ?? "Nashville"}, {profile?.state ?? "TN"}</Text>
-            </View>
+            </Row>
+            <Pressable accessibilityRole="button" style={styles.bellButton}>
+              <Ionicons name="notifications-outline" size={22} color="#F7F3E8" />
+              <View style={styles.bellDot} />
+            </Pressable>
           </Row>
-          <Avatar name={profile?.displayName ?? "G"} size={42} />
-        </Row>
 
-        <View style={styles.heroCopy}>
-          <Text style={styles.greeting}>{getGreeting()}, {profile?.displayName.split(" ")[0] ?? "Golfer"}</Text>
-          <Text style={styles.name}>Your round, group, and next tee time.</Text>
+            <Text style={styles.greeting}>{getGreeting()}, {firstName}.</Text>
+          <Row gap={spacing.sm} style={styles.locationRow}>
+            <Ionicons name="location-outline" size={22} color="#F7F3E8" />
+            <Text style={styles.locationText}>{profile?.city ?? "Nashville"}, {profile?.state ?? "TN"}</Text>
+            <Ionicons name="chevron-down" size={17} color="#BFD2C4" />
+          </Row>
         </View>
 
-        {spotlightTeeTime && (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.push({ pathname: "/(tabs)/tee-times/[id]", params: { id: spotlightTeeTime.id } })}
-            style={({ pressed }) => [
-              styles.spotlightCard,
-              { opacity: pressed ? 0.92 : 1 },
-            ]}
-          >
-            <Row align="space-between">
-              <View style={{ flex: 1, gap: spacing.xs }}>
-                <Text style={styles.spotlightLabel}>Next opening</Text>
-                <Text style={styles.spotlightTitle}>{spotlightCourse?.name ?? "Featured course"}</Text>
-                <Text style={styles.spotlightMeta}>
-                  {new Date(spotlightTeeTime.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} · {spotlightTeeTime.holes} holes · {spotlightTeeTime.availableSpots} spots
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            if (featuredTeeTime) {
+              router.push({ pathname: "/(tabs)/tee-times/[id]", params: { id: featuredTeeTime.id } });
+            } else {
+              router.push("/(tabs)/tee-times");
+            }
+          }}
+          style={({ pressed }) => [styles.teeCard, pressed && styles.pressed]}
+        >
+          <ImageBackground source={heroCourse} resizeMode="cover" style={styles.teeImage} imageStyle={styles.teeImageSource}>
+            <View style={styles.teeImageShade}>
+              <Text style={styles.teeImageLabel}>Next tee time</Text>
+            </View>
+          </ImageBackground>
+          <View style={styles.teeDetails}>
+            <Row align="space-between" style={styles.teeTitleRow}>
+              <View style={styles.teeTitleBlock}>
+                <Text numberOfLines={1} style={styles.teeCourse}>
+                  {featuredCourse?.name ?? "No tee times nearby"}
+                </Text>
+                <Text style={styles.teeSubline}>
+                  {featuredCourse ? `${featuredCourse.city}, ${featuredCourse.state}` : "Tap to search availability"}
                 </Text>
               </View>
-              <View style={styles.spotlightPrice}>
-                <Text style={styles.spotlightPriceText}>${Math.round(spotlightTeeTime.priceCents / 100)}</Text>
-                <Text style={styles.spotlightPriceSub}>golfer</Text>
-              </View>
+              <Ionicons name="chevron-forward" size={22} color="#E6D9B7" />
             </Row>
-          </Pressable>
-        )}
-      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Handicap card */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: -18 }}>
-          <Card elevated style={[styles.statDeck, { borderColor: p.border }]}>
-            <Row align="space-between">
-              <View style={{ gap: spacing.xs }}>
-                <Text style={{ fontSize: fontSizes.micro, fontWeight: fontWeights.heavy, color: p.muted, textTransform: "uppercase", letterSpacing: 1 }}>
-                  Handicap
-                </Text>
-                <HandicapLabel
-                  value={profile?.handicapValue}
-                  source={profile?.handicapSource ?? "none"}
-                />
-              </View>
-              <Divider style={{ width: 1, height: 54, marginHorizontal: spacing.md }} />
-              <StatItem value={String(submittedRounds)} label="Rounds" />
-              <Divider style={{ width: 1, height: 54, marginHorizontal: spacing.md }} />
-              <StatItem value={personalRank ? `#${personalRank.rank}` : "—"} label="Rank" valueColor={p.primary} />
+            <Row gap={spacing.sm} style={styles.teeMetricGrid}>
+              <TeeMetric icon="calendar-outline" label={featuredDay} value={featuredTime} />
+              <TeeMetric icon="people-outline" label="Open spots" value={featuredTeeTime ? String(featuredTeeTime.availableSpots) : String(featuredPlayers)} />
+              <TeeMetric icon="cash-outline" label="Green fee" value={featuredTeeTime ? `$${Math.round(featuredTeeTime.priceCents / 100)}` : "--"} />
             </Row>
-          </Card>
+
+            <View style={styles.bookButton}>
+              <Text style={styles.bookButtonText}>Book</Text>
+              <Ionicons name="chevron-forward" size={22} color="#F7F3E8" />
+            </View>
+          </View>
+        </Pressable>
+
+        <View style={styles.statRail}>
+          <StatCell icon="golf-outline" label="Handicap" value={handicap != null ? handicap.toFixed(1) : "--"} />
+          <View style={styles.statRule} />
+          <StatCell icon="flag-outline" label="Rounds" value={String(submittedRounds)} />
+          <View style={styles.statRule} />
+          <StatCell icon="trophy-outline" label="Rank" value="--" />
         </View>
 
-        {/* Active round banner */}
-        {activeRound && (
-          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
-            <Card elevated style={{ backgroundColor: p.primary, borderColor: p.primaryLight }} onPress={() => router.push("/(tabs)/play/scoring")}>
-              <Row align="space-between">
-                <View style={{ gap: 4 }}>
-                  <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                    Round in progress
-                  </Text>
-                  <Text style={{ color: "#FFFFFF", fontSize: fontSizes.subheading, fontWeight: fontWeights.bold }}>
-                    Hole {activeRound.currentHole} of {activeRound.holes}
-                  </Text>
-                  <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.small }}>
-                    {activeRound.scores.length} holes scored
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.8)" />
-              </Row>
-            </Card>
-          </View>
-        )}
-
-        {/* Quick actions */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.lg }}>
-          <SectionHeader title="Quick actions" />
-          <View style={styles.actionGrid}>
-            <QuickAction icon="calendar" label="Book tee time" color={p.primary} onPress={() => router.push("/(tabs)/tee-times")} />
-            <QuickAction icon="golf" label="Start round" color="#2C5F8A" onPress={() => router.push("/(tabs)/play")} />
-            <QuickAction icon="people" label="Groups" color="#2A7A6A" onPress={() => router.push("/(tabs)/play")} />
-            <QuickAction icon="trophy" label="Events" color="#B07030" onPress={() => router.push("/(tabs)/tournaments")} />
-          </View>
+        <View style={styles.actionGrid}>
+          <ActionTile icon="calendar-outline" label="Book" onPress={() => router.push("/(tabs)/tee-times")} />
+          <ActionTile icon="golf-outline" label="Play" onPress={() => router.push("/(tabs)/play")} />
+          <ActionTile icon="ticket-outline" label="Events" onPress={() => router.push("/(tabs)/tournaments")} />
+          <ActionTile icon="people-outline" label="Groups" onPress={() => router.push("/(tabs)/play/discovery")} />
         </View>
 
-        {/* Next tee time */}
-        {nextBooking && nextBookingCourse ? (
-          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-            <SectionHeader title="Your next round" />
-            <Card elevated onPress={() => router.push("/(tabs)/tee-times")}>
-              <Row align="space-between">
-                <Chip label="Confirmed" variant="primary" />
-                <Chip label={`${nextBooking.players} players`} variant="muted" />
-              </Row>
-              <Subheading>{nextBookingCourse.name}</Subheading>
-              <Body color={p.muted}>{nextBookingCourse.city}, {nextBookingCourse.state}</Body>
-              <Row gap={spacing.lg}>
-                <Row gap={spacing.xs}>
-                  <Ionicons name="people-outline" size={15} color={p.muted} />
-                  <Text style={{ fontSize: fontSizes.small, color: p.muted }}>{nextBooking.players} golfers</Text>
-                </Row>
-                <Row gap={spacing.xs}>
-                  <Ionicons name="checkmark-circle-outline" size={15} color={p.success} />
-                  <Text style={{ fontSize: fontSizes.small, color: p.success }}>{nextBooking.confirmationCode}</Text>
-                </Row>
-              </Row>
-            </Card>
-          </View>
-        ) : (
-          <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-            <SectionHeader title="Upcoming tee times" action="Browse all" onAction={() => router.push("/(tabs)/tee-times")} />
-            {nearbyTeeTimes.map((tt) => {
-              const course = demoCourses.find((c) => c.id === tt.courseId);
-              return (
-                <Card key={tt.id} elevated style={{ marginBottom: spacing.sm }} onPress={() => router.push({ pathname: "/(tabs)/tee-times/[id]", params: { id: tt.id } })}>
-                  <Row align="space-between">
-                    <View style={{ flex: 1 }}>
-                      <Subheading>{course?.name ?? "Course"}</Subheading>
-                      <Body color={p.muted}>{course?.city}, {course?.state}</Body>
-                    </View>
-                    <View style={{ alignItems: "flex-end", gap: spacing.xs }}>
-                      <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.heavy, color: p.text }}>
-                        ${Math.round(tt.priceCents / 100)}
-                      </Text>
-                      <Text style={{ fontSize: fontSizes.tiny, color: p.muted }}>/golfer</Text>
-                    </View>
-                  </Row>
-                  <Row gap={spacing.md}>
-                    <Chip label={new Date(tt.startsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} variant="primary" />
-                    <Chip label={`${tt.holes} holes`} variant="muted" />
-                    <Chip label={`${tt.availableSpots} spots`} variant={tt.availableSpots <= 1 ? "warning" : "muted"} />
-                  </Row>
-                </Card>
-              );
-            })}
-          </View>
-        )}
-
-        {/* Open games nearby */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-          <SectionHeader title="Open games nearby" action="See all" onAction={() => router.push("/(tabs)/play")} />
-          {nearbyGames.map((game) => {
-            const course = demoCourses.find((c) => c.id === game.courseId);
-            const creator = demoProfiles.find((p) => p.id === game.creatorId);
-            const spotsLeft = game.availableSpots - game.acceptedPlayerIds.length;
-            return (
-              <Card key={game.id} elevated style={{ marginBottom: spacing.sm }}>
-                <Row align="space-between">
-                  <Row gap={spacing.md}>
-                    <Avatar name={creator?.displayName ?? "G"} size={40} />
-                    <View style={{ flex: 1 }}>
-                      <Subheading>{creator?.displayName ?? "Golfer"}</Subheading>
-                      <Body color={p.muted}>{course?.name ?? "Course"}</Body>
-                    </View>
-                  </Row>
-                  <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontSize: fontSizes.subheading, fontWeight: fontWeights.heavy, color: spotsLeft <= 1 ? p.warning : p.text }}>
-                      {spotsLeft}
-                    </Text>
-                    <Muted>spots left</Muted>
-                  </View>
-                </Row>
-                <Row gap={spacing.sm}>
-                  <Chip label={new Date(game.startsAt).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })} variant="muted" />
-                  {game.holes && <Chip label={`${game.holes} holes`} variant="muted" />}
-                  {game.approvalRequired && <Chip label="Approval req." variant="warning" />}
-                </Row>
-                {game.description && <Muted>{game.description}</Muted>}
-              </Card>
-            );
-          })}
+        <View style={styles.panel}>
+          <PanelHeader title="Open games" action="View all" onPress={() => router.push("/(tabs)/play")} />
+          <PanelEmpty
+            icon="people-outline"
+            title="No open games near you yet"
+            body="Be the first to host a game and invite golfers nearby."
+            cta="Host a game"
+            onPress={() => router.push("/(tabs)/play")}
+          />
         </View>
 
-        {/* Suggested golfers */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xl }}>
-          <SectionHeader title="Golfers near you" action="See all" onAction={() => router.push("/(tabs)/play/discovery")} />
-          {suggestedGolfers.map((golfer) => (
-            <Card key={golfer.id} elevated style={{ marginBottom: spacing.sm }}>
-              <PressableRow onPress={() => router.push("/(tabs)/play/discovery")}>
-                <Avatar name={golfer.displayName} size={48} />
-                <View style={{ flex: 1 }}>
-                  <Subheading>{golfer.displayName}</Subheading>
-                  <Body color={p.muted}>{golfer.city}, {golfer.state}</Body>
-                  <Row gap={spacing.xs} style={{ marginTop: spacing.xs }}>
-                    <Chip label={golfer.skillLevel} variant="muted" size="xs" />
-                    {golfer.handicapValue != null && (
-                      <Chip label={`${golfer.handicapValue.toFixed(1)} HCP`} variant="primary" size="xs" />
-                    )}
-                    <Chip label={golfer.reliabilityLabel} variant={golfer.reliabilityLabel === "Highly reliable" ? "success" : "muted"} size="xs" />
-                  </Row>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={p.mutedLight} />
-              </PressableRow>
-            </Card>
-          ))}
+        <View style={styles.panel}>
+          <PanelHeader title="Golfers nearby" action="View all" onPress={() => router.push("/(tabs)/play/discovery")} />
+          <PanelEmpty
+            icon="golf-outline"
+            title="Finding golfers near you"
+            body="As more players join The Clubhouse in your area, they'll show up here."
+            cta="Browse discovery"
+            onPress={() => router.push("/(tabs)/play/discovery")}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+function ClubhouseCrest() {
+  return <Image source={logoDark} style={styles.crest} resizeMode="cover" />;
+}
 
-function ClubhouseMark() {
+function TeeMetric({ icon, label, value }: { icon: IoniconsName; label: string; value: string }) {
   return (
-    <View style={styles.markOuter}>
-      <View style={styles.markInner}>
-        <Text style={styles.markText}>C</Text>
+    <View style={styles.teeMetric}>
+      <Ionicons name={icon} size={18} color="#E6D9B7" />
+      <Text numberOfLines={1} style={styles.teeMetricValue}>{value}</Text>
+      <Text numberOfLines={1} style={styles.teeMetricLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function StatCell({ icon, label, value }: { icon: IoniconsName; label: string; value: string }) {
+  return (
+    <View style={styles.statCell}>
+      <View style={styles.statIcon}>
+        <Ionicons name={icon} size={22} color="#E6D9B7" />
+      </View>
+      <View>
+        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={styles.statValue}>{value}</Text>
       </View>
     </View>
   );
 }
 
-function QuickAction({ icon, label, color, onPress }: { icon: IoniconsName; label: string; color: string; onPress: () => void }) {
-  const p = useTheme();
+function ActionTile({ icon, label, onPress }: { icon: IoniconsName; label: string; onPress: () => void }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.quickAction,
-        {
-          backgroundColor: p.surface,
-          borderColor: p.border,
-          opacity: pressed ? 0.8 : 1,
-        },
-      ]}
-    >
-      <View style={{ width: 42, height: 42, borderRadius: radii.full, backgroundColor: `${color}16`, alignItems: "center", justifyContent: "center" }}>
-        <Ionicons name={icon} size={22} color={color} />
-      </View>
-      <Text style={{ fontSize: fontSizes.tiny, fontWeight: fontWeights.semibold, color: p.textSecondary, textAlign: "center", lineHeight: 15 }}>
-        {label}
-      </Text>
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.actionTile, pressed && styles.pressed]}>
+      <Ionicons name={icon} size={34} color="#CBE7C1" />
+      <Text style={styles.actionLabel}>{label}</Text>
     </Pressable>
   );
 }
 
+function PanelHeader({ title, action, onPress }: { title: string; action: string; onPress: () => void }) {
+  return (
+    <Row align="space-between" style={styles.panelHeader}>
+      <Text style={styles.panelTitle}>{title}</Text>
+      <Pressable accessibilityRole="button" onPress={onPress} style={styles.panelAction}>
+        <Text style={styles.panelActionText}>{action}</Text>
+        <Ionicons name="chevron-forward" size={18} color="#416D51" />
+      </Pressable>
+    </Row>
+  );
+}
+
+function PanelEmpty({ icon, title, body, cta, onPress }: {
+  icon: IoniconsName;
+  title: string;
+  body: string;
+  cta: string;
+  onPress: () => void;
+}) {
+  return (
+    <View style={styles.emptyPanel}>
+      <View style={styles.emptyPanelIcon}>
+        <Ionicons name={icon} size={26} color="#52695C" />
+      </View>
+      <Text style={styles.emptyPanelTitle}>{title}</Text>
+      <Text style={styles.emptyPanelBody}>{body}</Text>
+      <Pressable accessibilityRole="button" onPress={onPress} style={styles.emptyPanelCta}>
+        <Text style={styles.emptyPanelCtaText}>{cta}</Text>
+        <Ionicons name="chevron-forward" size={16} color="#416D51" />
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#062B24",
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: 112,
+  },
   header: {
-    paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
-    gap: spacing.xl,
-    borderBottomLeftRadius: radii.xxl,
-    borderBottomRightRadius: radii.xxl,
+    paddingBottom: spacing.xl,
+    gap: spacing.lg,
   },
-  markOuter: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.28)",
-  },
-  markInner: {
-    width: 28,
-    height: 28,
+  crest: {
+    width: 54,
+    height: 54,
     borderRadius: 14,
-    backgroundColor: "#F6C15A",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markText: {
-    color: "#06261C",
-    fontSize: 15,
-    fontWeight: fontWeights.heavy,
+    backgroundColor: "#021C17",
   },
   brandName: {
-    color: "#FFFFFF",
-    fontSize: fontSizes.body,
-    fontWeight: fontWeights.heavy,
-    letterSpacing: 0.2,
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 27,
+    fontWeight: fontWeights.bold,
   },
-  brandSubline: {
-    color: "rgba(255,255,255,0.58)",
-    fontSize: fontSizes.tiny,
-    marginTop: 1,
+  bellButton: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(247, 243, 232, 0.26)",
+    backgroundColor: "rgba(255,255,255,0.06)",
   },
-  heroCopy: {
-    gap: spacing.xs,
+  bellDot: {
+    position: "absolute",
+    top: 10,
+    right: 11,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#A7D8A0",
   },
   greeting: {
-    fontSize: fontSizes.small,
-    color: "rgba(255,255,255,0.66)",
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 31,
+    lineHeight: 37,
+    fontWeight: fontWeights.bold,
+  },
+  locationRow: {
+    marginTop: -spacing.sm,
+  },
+  locationText: {
+    color: "#F7F3E8",
+    fontSize: fontSizes.heading,
     fontWeight: fontWeights.medium,
   },
-  name: {
-    fontSize: 30,
-    fontWeight: fontWeights.heavy,
-    color: "#FFFFFF",
-    letterSpacing: -0.3,
-    lineHeight: 35,
-    maxWidth: 320,
-  },
-  spotlightCard: {
-    backgroundColor: "rgba(255,255,255,0.94)",
-    borderRadius: radii.xl,
-    padding: spacing.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.75)",
+  teeCard: {
+    minHeight: 306,
+    borderRadius: 24,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(230, 217, 183, 0.48)",
+    backgroundColor: "#0B352C",
     ...shadows.lg,
   },
-  spotlightLabel: {
+  teeImage: {
+    width: "100%",
+    height: 132,
+  },
+  teeImageSource: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  teeImageShade: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: spacing.md,
+    backgroundColor: "rgba(3,18,12,0.18)",
+  },
+  teeImageLabel: {
+    alignSelf: "flex-start",
+    overflow: "hidden",
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 1,
+    backgroundColor: "rgba(6,43,36,0.82)",
+    color: "#E6D9B7",
     fontSize: fontSizes.micro,
-    color: "#66736C",
     fontWeight: fontWeights.heavy,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
-  spotlightTitle: {
-    fontSize: fontSizes.heading,
-    color: "#081812",
-    fontWeight: fontWeights.heavy,
+  teeDetails: {
+    padding: spacing.lg,
+    backgroundColor: "rgba(6, 43, 36, 0.94)",
+    gap: spacing.sm,
   },
-  spotlightMeta: {
+  teeTitleRow: {
+    gap: spacing.sm,
+  },
+  teeTitleBlock: {
+    flex: 1,
+    minWidth: 0,
+  },
+  teeCourse: {
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 28,
+    lineHeight: 33,
+    fontWeight: fontWeights.bold,
+  },
+  teeSubline: {
+    color: "#E3D6B9",
     fontSize: fontSizes.small,
-    color: "#66736C",
+    marginTop: 2,
   },
-  spotlightPrice: {
-    minWidth: 70,
-    alignItems: "flex-end",
+  teeMetricGrid: {
+    marginTop: spacing.xs,
   },
-  spotlightPriceText: {
-    color: "#0F6A43",
-    fontSize: fontSizes.title,
-    fontWeight: fontWeights.heavy,
+  teeMetric: {
+    flex: 1,
+    minHeight: 70,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(230,217,183,0.24)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+    paddingHorizontal: spacing.xs,
   },
-  spotlightPriceSub: {
-    color: "#66736C",
+  teeMetricValue: {
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 19,
+    fontWeight: fontWeights.bold,
+    maxWidth: "100%",
+  },
+  teeMetricLabel: {
+    color: "#E3D6B9",
     fontSize: fontSizes.micro,
     fontWeight: fontWeights.semibold,
+  },
+  bookButton: {
+    minHeight: 52,
+    marginTop: spacing.sm,
+    borderRadius: radii.full,
+    backgroundColor: "#2D6A50",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(203, 231, 193, 0.42)",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: spacing.lg,
+  },
+  bookButtonText: {
+    color: "#F7F3E8",
+    fontSize: fontSizes.heading,
+    fontWeight: fontWeights.semibold,
+  },
+  statRail: {
+    minHeight: 80,
+    marginTop: spacing.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(230, 217, 183, 0.32)",
+    backgroundColor: "rgba(7, 55, 45, 0.86)",
+  },
+  statCell: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+  },
+  statIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(230, 217, 183, 0.30)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statLabel: {
+    color: "#C7D8CA",
+    fontSize: fontSizes.micro,
+    fontWeight: fontWeights.heavy,
+    letterSpacing: 1.3,
     textTransform: "uppercase",
   },
-  statDeck: {
-    paddingVertical: spacing.lg,
+  statValue: {
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 25,
+    fontWeight: fontWeights.bold,
+  },
+  statRule: {
+    width: StyleSheet.hairlineWidth,
+    height: 52,
+    backgroundColor: "rgba(230, 217, 183, 0.26)",
   },
   actionGrid: {
     flexDirection: "row",
-    gap: spacing.md,
-    marginTop: spacing.sm,
-  },
-  quickAction: {
-    flex: 1,
-    alignItems: "center",
     gap: spacing.sm,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xs,
-    borderRadius: radii.xl,
+    marginTop: spacing.lg,
+  },
+  actionTile: {
+    flex: 1,
+    minHeight: 98,
+    borderRadius: 18,
     borderWidth: StyleSheet.hairlineWidth,
-    ...shadows.sm,
+    borderColor: "rgba(203, 231, 193, 0.26)",
+    backgroundColor: "rgba(8, 58, 47, 0.88)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+  },
+  actionLabel: {
+    color: "#F7F3E8",
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.semibold,
+  },
+  panel: {
+    marginTop: spacing.xl,
+    padding: spacing.md,
+    borderRadius: 20,
+    backgroundColor: "#FFFDF7",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#E2DCCF",
+    ...shadows.md,
+  },
+  panelHeader: {
+    marginBottom: spacing.md,
+  },
+  panelTitle: {
+    color: "#082E25",
+    fontFamily: "Georgia",
+    fontSize: 25,
+    fontWeight: fontWeights.bold,
+  },
+  panelAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  panelActionText: {
+    color: "#416D51",
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.medium,
+  },
+  pressed: {
+    opacity: 0.86,
+  },
+  emptyPanel: {
+    alignItems: "center",
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: spacing.xs,
+  },
+  emptyPanelIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EFEADC",
+    marginBottom: spacing.xs,
+  },
+  emptyPanelTitle: {
+    color: "#0D2F27",
+    fontSize: fontSizes.subheading,
+    fontWeight: fontWeights.semibold,
+    textAlign: "center",
+  },
+  emptyPanelBody: {
+    color: "#6F746E",
+    fontSize: fontSizes.small,
+    textAlign: "center",
+    lineHeight: 19,
+    maxWidth: 260,
+  },
+  emptyPanelCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: "#416D51",
+  },
+  emptyPanelCtaText: {
+    color: "#416D51",
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.medium,
   },
 });

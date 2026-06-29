@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Body, Button, Muted, Row, Subheading, useTheme } from "@/design-system/components";
 import { analytics } from "@/lib/analytics";
+import { createOpenGame } from "@/services/openGames";
 import { supabase } from "@/lib/supabase";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
@@ -81,7 +82,7 @@ export default function CreateGameScreen() {
     };
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!profile) return;
     const course = courses.find((c) => c.id === courseId);
     if (!course) {
@@ -102,34 +103,50 @@ export default function CreateGameScreen() {
       zipCode: course.zip_code,
     };
 
-    const priceCents = priceText.trim() ? Math.round(Number(priceText) * 100) : undefined;
-
-    const game: OpenGame = {
-      id: `game-${Date.now()}`,
-      courseId: course.id,
-      creatorId: profile.id,
-      creatorName: profile.displayName,
-      startsAt: startsAt.toISOString(),
-      availableSpots: spots,
-      acceptedPlayerIds: [profile.id],
-      waitlistedPlayerIds: [],
-      approvalRequired,
-      visibility: "public",
-      description: description.trim() || undefined,
-      holes,
-      estimatedPriceCents: Number.isFinite(priceCents) ? priceCents : undefined,
-      cartIncluded: true,
-      course: summary,
-    };
+    const rawPrice = priceText.trim() ? Math.round(Number(priceText) * 100) : undefined;
+    const estimatedPriceCents = rawPrice != null && Number.isFinite(rawPrice) ? rawPrice : undefined;
 
     setSubmitting(true);
-    addOpenGame(game);
-    recordMetric("openGameCreations");
-    analytics.track("open_game_created", { courseId: game.courseId, holes, spots });
-    setSubmitting(false);
-    Alert.alert("Game created", "Your open game is now visible to nearby golfers.", [
-      { text: "Done", onPress: () => router.back() },
-    ]);
+    try {
+      const created = await createOpenGame({
+        course: summary,
+        startsAt: startsAt.toISOString(),
+        availableSpots: spots,
+        approvalRequired,
+        holes,
+        estimatedPriceCents,
+        cartIncluded: true,
+        description: description.trim() || undefined,
+      });
+      addOpenGame(created);
+    } catch {
+      // Fallback: keep it local so the flow still works (e.g. migration pending).
+      const local: OpenGame = {
+        id: `game-${Date.now()}`,
+        courseId: course.id,
+        creatorId: profile.id,
+        creatorName: profile.displayName,
+        startsAt: startsAt.toISOString(),
+        availableSpots: spots,
+        acceptedPlayerIds: [profile.id],
+        waitlistedPlayerIds: [],
+        approvalRequired,
+        visibility: "public",
+        description: description.trim() || undefined,
+        holes,
+        estimatedPriceCents,
+        cartIncluded: true,
+        course: summary,
+      };
+      addOpenGame(local);
+    } finally {
+      recordMetric("openGameCreations");
+      analytics.track("open_game_created", { courseId: course.id, holes, spots });
+      setSubmitting(false);
+      Alert.alert("Game created", "Your open game is now visible to nearby golfers.", [
+        { text: "Done", onPress: () => router.back() },
+      ]);
+    }
   };
 
   return (

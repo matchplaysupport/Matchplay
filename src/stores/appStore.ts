@@ -65,6 +65,7 @@ interface AppState {
   saveRound(round: Round): void;
   addOpenGame(game: OpenGame): void;
   updateOpenGame(game: OpenGame): void;
+  setOpenGames(games: OpenGame[]): void;
   addMessage(message: Message): void;
   addTournament(tournament: Tournament): void;
   updateTournament(tournament: Tournament): void;
@@ -156,6 +157,8 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           openGames: state.openGames.map((g) => (g.id === game.id ? game : g)),
         })),
+
+      setOpenGames: (games) => set({ openGames: games }),
 
       addMessage: (message) =>
         set((state) => ({ messages: [message, ...state.messages] })),

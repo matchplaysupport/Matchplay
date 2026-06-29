@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,7 +17,7 @@ import {
 import { demoCourses } from "@/features/courses/demoData";
 import { analytics } from "@/lib/analytics";
 import { env } from "@/lib/env";
-import { joinOpenGame, requestJoinOpenGame } from "@/services/openGames";
+import { joinOpenGame, listOpenGames, requestJoinOpenGame } from "@/services/openGames";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import { useEntitlement } from "@/hooks/useEntitlement";
@@ -29,10 +29,26 @@ export default function PlayScreen() {
   const openGames = useAppStore((state) => state.openGames);
   const rounds = useAppStore((state) => state.rounds);
   const updateOpenGame = useAppStore((state) => state.updateOpenGame);
+  const setOpenGames = useAppStore((state) => state.setOpenGames);
   const recordMetric = useAppStore((state) => state.recordMetric);
   const p = useTheme();
   const { can } = useEntitlement();
   const [joiningGameId, setJoiningGameId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    listOpenGames()
+      .then((live) => {
+        if (!active) return;
+        const current = useAppStore.getState().openGames;
+        const localOnly = current.filter((g) => g.id.startsWith("game-") && !live.some((l) => l.id === g.id));
+        setOpenGames([...live, ...localOnly]);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [setOpenGames]);
 
   const nearbyGames = openGames.slice(0, 3);
 

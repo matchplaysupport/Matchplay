@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -11,7 +11,7 @@ import {
   Title,
   useTheme,
 } from "@/design-system/components";
-import { discoveryProfiles } from "@/features/courses/demoData";
+import { listDiscoveryProfiles } from "@/services/discovery";
 import { analytics } from "@/lib/analytics";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
@@ -30,17 +30,28 @@ const SKILL_COLORS: Record<string, string> = {
 
 export default function DiscoveryScreen() {
   const { can } = useEntitlement();
-  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("discovery")) {
-    return <PaywallScreen requiredTier="plus" title="Player discovery is a Match Play+ feature" description="Find golfers nearby, match up, and build your playing group." />;
-  }
-
   const [index, setIndex] = useState(0);
   const [passedIds, setPassedIds] = useState<string[]>([]);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const recordMetric = useAppStore((state) => state.recordMetric);
   const p = useTheme();
+  const [profiles, setProfiles] = useState<DiscoveryProfile[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const available = discoveryProfiles.filter((dp) => !passedIds.includes(dp.id) && !matchedIds.includes(dp.id));
+  useEffect(() => {
+    let active = true;
+    listDiscoveryProfiles()
+      .then((res) => { if (active) setProfiles(res); })
+      .catch(() => { if (active) setProfiles([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("discovery")) {
+    return <PaywallScreen requiredTier="plus" title="Player discovery is a Clubhouse+ feature" description="Find golfers nearby, match up, and build your playing group." />;
+  }
+
+  const available = profiles.filter((dp) => !passedIds.includes(dp.id) && !matchedIds.includes(dp.id));
   const current = available[index % (available.length || 1)];
 
   const handlePass = (profile: DiscoveryProfile) => {
@@ -68,14 +79,24 @@ export default function DiscoveryScreen() {
     }
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: p.background }}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator color={p.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (available.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: p.background }}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.lg }}>
           <Ionicons name="people-outline" size={64} color={p.mutedLight} />
-          <Title style={{ textAlign: "center" }}>You&rsquo;ve seen everyone nearby</Title>
+          <Title style={{ textAlign: "center" }}>No golfers nearby yet</Title>
           <Body color={p.muted} style={{ textAlign: "center", lineHeight: 22 }}>
-            The Clubhouse will surface new golfers as more players join in your area. Expand your search radius in Settings.
+            As more players join The Clubhouse in your area, they&rsquo;ll show up here to match and play with.
           </Body>
         </View>
       </SafeAreaView>
@@ -108,7 +129,7 @@ export default function DiscoveryScreen() {
               <Text style={styles.playerName}>{current.displayName}</Text>
               <Row gap={spacing.xs}>
                 <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.75)" />
-                <Text style={styles.playerLocation}>{current.approximateLocation} · {current.distanceMiles} mi away</Text>
+                <Text style={styles.playerLocation}>{current.approximateLocation}{current.distanceMiles > 0 ? ` · ${current.distanceMiles} mi away` : ""}</Text>
               </Row>
             </View>
 
@@ -172,7 +193,7 @@ export default function DiscoveryScreen() {
                 Your matches
               </Text>
               {matchedIds.map((id) => {
-                const matched = discoveryProfiles.find((dp) => dp.id === id);
+                const matched = profiles.find((dp) => dp.id === id);
                 if (!matched) return null;
                 return (
                   <Pressable
