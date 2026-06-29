@@ -7,14 +7,17 @@ import { useTheme } from "./ThemeProvider";
 import { track } from "../../lib/track";
 
 type NavLink = { href: string; label: string };
+type Audience = "golfer" | "course";
 
 const DEFAULT_LINKS: NavLink[] = [
   { href: "#how", label: "How it works" },
-  { href: "#golfers", label: "For Golfers" },
-  { href: "#courses", label: "For Courses" },
-  { href: "#savings", label: "Savings" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
+];
+
+const AUDIENCES: { key: Audience; label: string; href: string }[] = [
+  { key: "golfer", label: "Golfers", href: "/golfer" },
+  { key: "course", label: "Courses", href: "/course" },
 ];
 
 interface NavProps {
@@ -22,6 +25,42 @@ interface NavProps {
   ctaHref?: string;
   ctaLabel?: string;
   logoHref?: string;
+  /** Which side of the marketplace this page belongs to — drives the switcher. */
+  audience?: Audience;
+}
+
+/** Persistent "Golfers | Courses" switcher so both audiences always have a clear,
+ *  one-click path to their side and can see which one they're on. */
+function AudienceSwitch({ audience, scrolled, full = false }: { audience: Audience; scrolled: boolean; full?: boolean }) {
+  return (
+    <div
+      className={`inline-flex items-center rounded-full p-1 ${full ? "w-full" : ""}`}
+      style={scrolled
+        ? { background: "var(--surface-2)", border: "1px solid var(--border)" }
+        : { background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}
+      role="tablist"
+      aria-label="Choose your experience"
+    >
+      {AUDIENCES.map(({ key, label, href }) => {
+        const active = audience === key;
+        return (
+          <a
+            key={key}
+            href={href}
+            role="tab"
+            aria-selected={active}
+            onClick={() => track("audience_switch", { to: key })}
+            className={`text-center rounded-full text-[0.8rem] font-semibold transition-all ${full ? "flex-1 py-2.5" : "px-3.5 py-1"}`}
+            style={active
+              ? { background: "var(--grad-brand)", color: "#fff", boxShadow: "var(--shadow-sm)" }
+              : { color: scrolled ? "var(--text-2)" : "rgba(244,239,227,0.82)" }}
+          >
+            {label}
+          </a>
+        );
+      })}
+    </div>
+  );
 }
 
 export function Nav({
@@ -29,6 +68,7 @@ export function Nav({
   ctaHref = "#waitlist",
   ctaLabel = "Join the waitlist",
   logoHref = "#top",
+  audience,
 }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -58,9 +98,18 @@ export function Nav({
       }}
     >
       <div className="container flex items-center justify-between h-16 sm:h-[68px]">
-        <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} /></a>
+        {/* Left: logo + audience switcher */}
+        <div className="flex items-center gap-3.5">
+          <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} /></a>
+          {audience && (
+            <div className="hidden sm:block">
+              <AudienceSwitch audience={audience} scrolled={scrolled} />
+            </div>
+          )}
+        </div>
 
-        <div className="hidden md:flex items-center gap-7">
+        {/* Center: section links (large screens only) */}
+        <div className="hidden lg:flex items-center gap-7">
           {links.map((l) => (
             <a
               key={l.href}
@@ -73,8 +122,8 @@ export function Nav({
           ))}
         </div>
 
+        {/* Right: theme toggle + CTA + mobile menu */}
         <div className="flex items-center gap-2">
-          {/* Dark / light toggle */}
           <button
             onClick={toggle}
             aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
@@ -96,7 +145,7 @@ export function Nav({
           </a>
 
           <button
-            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
+            className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
             style={scrolled
               ? { background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }
               : { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff" }}
@@ -109,10 +158,15 @@ export function Nav({
         </div>
       </div>
 
-      {/* Mobile sheet */}
+      {/* Mobile / tablet sheet */}
       {open && (
-        <div className="md:hidden fixed inset-0 top-16 z-40" style={{ background: "var(--bg)" }}>
+        <div className="lg:hidden fixed inset-0 top-16 z-40 overflow-y-auto" style={{ background: "var(--bg)" }}>
           <div className="container py-6 flex flex-col gap-1">
+            {audience && (
+              <div className="mb-4">
+                <AudienceSwitch audience={audience} scrolled full />
+              </div>
+            )}
             {links.map((l) => (
               <a
                 key={l.href}

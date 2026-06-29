@@ -107,7 +107,6 @@ const GOLFER_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
-  { href: "/course", label: "For Courses" },
 ];
 
 const GOLFER_FAQ = [
@@ -177,6 +176,7 @@ function GolferPage() {
   return (
     <>
       <Nav
+        audience="golfer"
         links={GOLFER_LINKS}
         ctaLabel="Join the waitlist"
         ctaHref="#waitlist"

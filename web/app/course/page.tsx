@@ -182,6 +182,7 @@ function CoursePage() {
   return (
     <>
       <Nav
+        audience="course"
         links={COURSE_LINKS}
         ctaLabel="Request early access"
         ctaHref="#waitlist"
