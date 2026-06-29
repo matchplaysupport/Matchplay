@@ -13,8 +13,8 @@ interface Props {
 }
 
 const TIER_LABELS: Record<Exclude<Entitlement, "free">, string> = {
-  plus: "Match Play+",
-  pro: "Match Play Pro",
+  plus: "Clubhouse+",
+  pro: "Clubhouse Pro",
 };
 
 export function PaywallScreen({ requiredTier, title, description }: Props) {

@@ -157,11 +157,11 @@ export default function LeaderboardsScreen() {
                 <Ionicons name="lock-closed-outline" size={34} color={p.mutedLight} />
                 <Body color={p.muted} style={{ textAlign: "center" }}>
                   {localLocked
-                    ? "Leaderboards are included with Match Play+."
-                    : "State and national leaderboards are included with Match Play Pro."}
+                    ? "Leaderboards are included with Clubhouse+."
+                    : "State and national leaderboards are included with Clubhouse Pro."}
                 </Body>
                 <Button
-                  label={localLocked ? "Upgrade to Match Play+" : "Upgrade to Pro"}
+                  label={localLocked ? "Upgrade to Clubhouse+" : "Upgrade to Pro"}
                   size="sm"
                   onPress={() => router.push("/(tabs)/upgrade")}
                 />

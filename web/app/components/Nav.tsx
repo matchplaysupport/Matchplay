@@ -97,10 +97,10 @@ export function Nav({
         borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
     >
-      <div className="container flex items-center justify-between h-16 sm:h-[68px]">
+      <div className="container flex items-center justify-between h-[76px] sm:h-20">
         {/* Left: logo + audience switcher */}
         <div className="flex items-center gap-3.5">
-          <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} /></a>
+          <a href={logoHref} aria-label="The Clubhouse home"><Logo size={60} onDark={!scrolled || dark} /></a>
           {audience && (
             <div className="hidden sm:block">
               <AudienceSwitch audience={audience} scrolled={scrolled} />

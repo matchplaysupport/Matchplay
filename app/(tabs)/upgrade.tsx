@@ -27,7 +27,7 @@ type Billing = "monthly" | "annual";
 
 const PLANS = {
   plus: {
-    name: "Match Play+",
+    name: "Clubhouse+",
     tagline: "Your whole golf app — book, score, and track every round.",
     monthly: { label: "$9.99/mo", priceKey: "plus-monthly" as const },
     annual: { label: "$99.99/yr", priceKey: "plus-annual" as const, savings: "Save $20" },
@@ -43,12 +43,12 @@ const PLANS = {
     founding: false,
   },
   pro: {
-    name: "Match Play Pro",
+    name: "Clubhouse Pro",
     tagline: "For competitors and organizers who live on the leaderboard.",
-    monthly: { label: "$9.99/mo founding", priceKey: "pro-monthly" as const, founding: true },
+    monthly: { label: "$19.99/mo", priceKey: "pro-monthly" as const },
     annual: { label: "$199.99/yr", priceKey: "pro-annual" as const, savings: "Save $40" },
     features: [
-      "Everything in Match Play+",
+      "Everything in Clubhouse+",
       "State & national leaderboards",
       "Ranked match challenges",
       "Create & host tournaments",

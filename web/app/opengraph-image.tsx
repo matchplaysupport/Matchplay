@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 
 export const alt = "The Clubhouse — Book the tee time. Keep the score.";
@@ -5,6 +7,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpengraphImage() {
+  const logo = readFileSync(join(process.cwd(), "public", "logo-dark.png"));
+  const logoUri = `data:image/png;base64,${logo.toString("base64")}`;
   return new ImageResponse(
     (
       <div
@@ -16,9 +20,9 @@ export default function OpengraphImage() {
         }}
       >
         {/* top: logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#22A85B,#15803D)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34 }}>⛳️</div>
-          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>The Clubhouse</div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoUri} width={104} height={104} style={{ borderRadius: 18 }} alt="The Clubhouse" />
         </div>
 
         {/* middle: headline */}

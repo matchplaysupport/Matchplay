@@ -4,20 +4,31 @@
     "slug": "the-clubhouse",
     "version": "0.1.0",
     "orientation": "portrait",
-    "scheme": "theclubbhouse",
+    "icon": "./assets/icon-light.png",
+    "scheme": "theclubhouse",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "icon": {
+        "light": "./assets/icon-light.png",
+        "dark": "./assets/icon-dark.png"
+      },
       "supportsTablet": true,
       "requireFullScreen": true,
-      "bundleIdentifier": "com.theclubbhouse.mobile",
+      "bundleIdentifier": "com.theclubhouse.mobile",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "The Clubhouse uses approximate location to suggest nearby tee times, golfers, and open games."
       }
     },
     "android": {
-      "package": "com.theclubbhouse.mobile",
+      "package": "com.theclubhouse.mobile",
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "splash": {
+      "backgroundColor": "#062B24",
+      "image": "./assets/logo-dark.png",
+      "resizeMode": "contain"
     },
     "plugins": [
       "expo-router",
@@ -27,7 +38,7 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.theclubbhouse.mobile",
+          "merchantIdentifier": "merchant.com.theclubhouse.mobile",
           "enableGooglePay": false
         }
       ]
