@@ -7,7 +7,7 @@ export function LegalPage({ title, updated, children }: { title: string; updated
     <div className="flex flex-col min-h-screen">
       <header className="border-b" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
         <div className="container h-16 flex items-center justify-between">
-          <Link href="/" aria-label="The Clubhouse home"><Logo size={28} /></Link>
+          <Link href="/" aria-label="The Clubhouse home"><Logo size={28} onDark={false} /></Link>
           <Link href="/" className="text-sm font-medium hover:text-[var(--brand)]" style={{ color: "var(--text-2)" }}>← Back to home</Link>
         </div>
       </header>

@@ -100,7 +100,7 @@ export function Nav({
       <div className="container flex items-center justify-between h-16 sm:h-[68px]">
         {/* Left: logo + audience switcher */}
         <div className="flex items-center gap-3.5">
-          <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} /></a>
+          <a href={logoHref} aria-label="The Clubhouse home"><Logo size={30} light={!scrolled} onDark={!scrolled || dark} /></a>
           {audience && (
             <div className="hidden sm:block">
               <AudienceSwitch audience={audience} scrolled={scrolled} />

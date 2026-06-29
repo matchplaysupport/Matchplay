@@ -548,7 +548,7 @@ function CoursePage() {
         <div style={{ height: 1, background: "linear-gradient(90deg, transparent, var(--border-strong) 20%, var(--gold) 50%, var(--border-strong) 80%, transparent)" }} />
         <div className="container py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Logo size={30} />
+            <Logo size={32} />
             <p className="mt-4 text-sm max-w-xs" style={{ color: "var(--muted)" }}>
               Zero-commission golf booking and match-play scoring, built for modern courses and the golfers who love them.
             </p>
