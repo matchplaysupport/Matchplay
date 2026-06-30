@@ -3,9 +3,10 @@ import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View }
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Row } from "@/design-system/components";
+import { Avatar, Row } from "@/design-system/components";
 import { SimulatedTeeTimeProvider } from "@/integrations/tee-times/SimulatedTeeTimeProvider";
 import { SupabaseTeeTimeProvider } from "@/integrations/tee-times/SupabaseTeeTimeProvider";
+import { discoveryProfiles, demoCourses, seededOpenGames } from "@/features/courses/demoData";
 import { env } from "@/lib/env";
 import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
@@ -31,6 +32,8 @@ export default function HomeScreen() {
   const profile = useAppStore((state) => state.profile);
   const bookings = useAppStore((state) => state.bookings);
   const rounds = useAppStore((state) => state.rounds);
+  const openGames = useAppStore((state) => state.openGames);
+  const demoMode = useAppStore((state) => state.demoMode);
 
   const nextBooking = bookings[0];
 
@@ -146,24 +149,77 @@ export default function HomeScreen() {
 
         <View style={styles.panel}>
           <PanelHeader title="Open games" action="View all" onPress={() => router.push("/(tabs)/play")} />
-          <PanelEmpty
-            icon="people-outline"
-            title="No open games near you yet"
-            body="Be the first to host a game and invite golfers nearby."
-            cta="Host a game"
-            onPress={() => router.push("/(tabs)/play")}
-          />
+          {demoMode ? (
+            <View style={{ gap: spacing.sm }}>
+              {seededOpenGames.slice(0, 2).map((game) => {
+                const course = demoCourses.find((c) => c.id === game.courseId);
+                const spotsLeft = game.availableSpots - game.acceptedPlayerIds.length;
+                return (
+                  <Pressable
+                    key={game.id}
+                    accessibilityRole="button"
+                    onPress={() => router.push("/(tabs)/play")}
+                    style={[styles.miniGameRow, { borderColor: "rgba(0,0,0,0.06)" }]}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.miniGameTitle}>{course?.name ?? "Course"}</Text>
+                      <Text style={styles.miniGameMeta}>
+                        {new Date(game.startsAt).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })}
+                        {game.holes ? ` · ${game.holes}H` : ""}
+                        {game.estimatedPriceCents ? ` · ~$${Math.round(game.estimatedPriceCents / 100)}` : ""}
+                      </Text>
+                    </View>
+                    <View style={styles.spotsTag}>
+                      <Text style={[styles.spotsCount, { color: spotsLeft <= 1 ? "#A77A23" : "#416D51" }]}>{spotsLeft}</Text>
+                      <Text style={styles.spotsLabel}>spots</Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : (
+            <PanelEmpty
+              icon="people-outline"
+              title="No open games near you yet"
+              body="Be the first to host a game and invite golfers nearby."
+              cta="Host a game"
+              onPress={() => router.push("/(tabs)/play")}
+            />
+          )}
         </View>
 
         <View style={styles.panel}>
           <PanelHeader title="Golfers nearby" action="View all" onPress={() => router.push("/(tabs)/play/discovery")} />
-          <PanelEmpty
-            icon="golf-outline"
-            title="Finding golfers near you"
-            body="As more players join The Clubhouse in your area, they'll show up here."
-            cta="Browse discovery"
-            onPress={() => router.push("/(tabs)/play/discovery")}
-          />
+          {demoMode ? (
+            <View style={{ gap: spacing.sm }}>
+              {discoveryProfiles.slice(0, 3).map((dp) => (
+                <Pressable
+                  key={dp.id}
+                  accessibilityRole="button"
+                  onPress={() => router.push("/(tabs)/play/discovery")}
+                  style={[styles.miniGameRow, { borderColor: "rgba(0,0,0,0.06)" }]}
+                >
+                  <Avatar name={dp.displayName} size={36} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.miniGameTitle}>{dp.displayName}</Text>
+                    <Text style={styles.miniGameMeta}>
+                      {dp.approximateLocation}
+                      {dp.distanceMiles > 0 ? ` · ${dp.distanceMiles} mi` : ""}
+                      {dp.handicapValue != null ? ` · ${dp.handicapValue.toFixed(1)} HCP` : ""}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <PanelEmpty
+              icon="golf-outline"
+              title="Finding golfers near you"
+              body="As more players join The Clubhouse in your area, they'll show up here."
+              cta="Browse discovery"
+              onPress={() => router.push("/(tabs)/play/discovery")}
+            />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -545,5 +601,34 @@ const styles = StyleSheet.create({
     color: "#416D51",
     fontSize: fontSizes.body,
     fontWeight: fontWeights.medium,
+  },
+  miniGameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  miniGameTitle: {
+    color: "#0D2F27",
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.semibold,
+  },
+  miniGameMeta: {
+    color: "#6F746E",
+    fontSize: fontSizes.small,
+    marginTop: 2,
+  },
+  spotsTag: {
+    alignItems: "center",
+    minWidth: 36,
+  },
+  spotsCount: {
+    fontSize: fontSizes.heading,
+    fontWeight: fontWeights.heavy,
+  },
+  spotsLabel: {
+    color: "#6F746E",
+    fontSize: fontSizes.micro,
   },
 });

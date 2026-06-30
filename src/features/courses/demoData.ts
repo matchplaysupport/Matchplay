@@ -1,11 +1,15 @@
 import type {
   Course,
   DiscoveryProfile,
+  HoleScore,
   LeaderboardEntry,
   Message,
   OpenGame,
   Profile,
+  Round,
+  Scramble,
   TeeTime,
+  Tournament,
 } from "@/types/domain";
 
 // ─── Holes factory ────────────────────────────────────────────────────────────
@@ -442,6 +446,178 @@ export const seededOpenGames: OpenGame[] = [
     cartIncluded: true,
     handicapRangeMin: 0,
     handicapRangeMax: 18,
+  },
+];
+
+// ─── Demo rounds ──────────────────────────────────────────────────────────────
+
+function makeScore(holeNumber: number, par: number, offset: number): HoleScore {
+  const gross = Math.max(1, par + offset);
+  return {
+    holeNumber,
+    grossScore: gross,
+    putts: gross <= par ? 2 : 3,
+    fairway: par === 3 ? "not_applicable" : offset <= 0 ? "hit" : "miss_right",
+    greenInRegulation: gross <= par,
+    penaltyStrokes: 0,
+    sandSaveOpportunity: false,
+    sandSaveMade: false,
+    upAndDownOpportunity: gross > par,
+    upAndDownMade: gross === par + 1,
+  };
+}
+
+const PAR_SEQ = [4, 5, 3, 4, 4, 3, 5, 4, 4, 4, 3, 5, 4, 4, 3, 4, 5, 4] as const;
+const ROUND_OFFSETS: number[][] = [
+  [2,1,1,0,2,2,1,1,1,2,1,0,2,1,1,2,1,2], // ~85
+  [1,0,1,0,1,2,0,1,1,1,1,0,1,1,0,1,0,1], // ~82
+  [2,2,2,1,1,2,1,2,1,2,2,1,2,2,2,1,2,2], // ~87
+  [0,1,1,0,1,1,0,0,1,1,0,0,1,1,0,1,0,1], // ~80
+  [1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1], // ~84
+];
+
+export const demoRounds: Round[] = ROUND_OFFSETS.map((offsets, i) => ({
+  id: `demo-round-${i + 1}`,
+  courseId: "course-riverbend",
+  teeSetId: "riverbend-silver",
+  format: "stroke_play" as const,
+  holes: 18 as const,
+  scores: PAR_SEQ.map((par, j) => makeScore(j + 1, par, offsets[j] ?? 1)),
+  verificationState: i < 2 ? ("partner_verified" as const) : ("self_reported" as const),
+  startedAt: new Date(2026, 5 - i, 15).toISOString(),
+  submittedAt: new Date(2026, 5 - i, 15, 4).toISOString(),
+}));
+
+// ─── Demo tournaments ──────────────────────────────────────────────────────────
+
+export const demoTournaments: Tournament[] = [
+  {
+    id: "demo-tournament-1",
+    name: "Sunday Stroke Play Classic",
+    courseName: "Riverbend Commons",
+    courseId: "course-riverbend",
+    creatorId: "user-demo-marco",
+    startsAt: "2026-07-13T08:00:00.000Z",
+    format: "stroke_play",
+    holes: 18,
+    maxPlayers: 16,
+    buyInCents: 2500,
+    prizeDistribution: "top3_split",
+    status: "open",
+    description: "Low-gross individual stroke play. Cash prizes for top 3.",
+    players: [
+      { playerId: "user-demo-marco", displayName: "Marco Delgado", paymentStatus: "paid", joinedAt: "2026-06-25T10:00:00.000Z" },
+      { playerId: "user-demo-maya", displayName: "Maya Brooks", paymentStatus: "paid", joinedAt: "2026-06-26T09:00:00.000Z" },
+      { playerId: "user-demo-eli", displayName: "Eli Carter", paymentStatus: "registered", joinedAt: "2026-06-27T14:00:00.000Z" },
+    ],
+    createdAt: "2026-06-24T08:00:00.000Z",
+  },
+  {
+    id: "demo-tournament-2",
+    name: "Spring Match Play Cup",
+    courseName: "Iron Ridge Links",
+    courseId: "course-iron-ridge",
+    creatorId: "user-demo-maya",
+    startsAt: "2026-05-04T07:30:00.000Z",
+    format: "match_play",
+    holes: 18,
+    maxPlayers: 8,
+    buyInCents: 5000,
+    prizeDistribution: "winner_takes_all",
+    status: "completed",
+    description: "Single-elimination match play. Winner takes the pot.",
+    players: [
+      { playerId: "user-demo-maya", displayName: "Maya Brooks", paymentStatus: "paid", finalPosition: 1, payoutCents: 40000, joinedAt: "2026-04-20T08:00:00.000Z" },
+      { playerId: "user-demo-marco", displayName: "Marco Delgado", paymentStatus: "paid", finalPosition: 2, joinedAt: "2026-04-21T09:00:00.000Z" },
+      { playerId: "user-demo-eli", displayName: "Eli Carter", paymentStatus: "paid", finalPosition: 3, joinedAt: "2026-04-22T10:00:00.000Z" },
+      { playerId: "user-demo-sarah", displayName: "Sarah Whitfield", paymentStatus: "paid", finalPosition: 4, joinedAt: "2026-04-22T11:00:00.000Z" },
+    ],
+    createdAt: "2026-04-15T08:00:00.000Z",
+  },
+];
+
+// ─── Demo scrambles ────────────────────────────────────────────────────────────
+
+export const demoScrambles: Scramble[] = [
+  {
+    id: "demo-scramble-1",
+    creatorId: "user-demo-sarah",
+    type: "private",
+    status: "open",
+    name: "Friends & Fairways Scramble",
+    tagline: "Best ball, best vibes.",
+    organizerName: "Sarah Whitfield",
+    courseName: "Riverbend Commons",
+    date: "July 19, 2026",
+    shotgunTime: "8:00 AM",
+    estimatedEndTime: "1:00 PM",
+    format: "captains_choice",
+    holes: 18,
+    teamSize: 4,
+    maxTeams: 8,
+    isShotgunStart: true,
+    mullligansAllowed: true,
+    maxMulligansPerTeam: 2,
+    flights: [],
+    schedule: [],
+    contests: [],
+    sponsors: [],
+    packages: [
+      { id: "pkg-1", name: "Player Entry", priceCents: 7500, description: "Includes cart & lunch", includes: ["Cart", "Lunch", "Prizes"], spotsTaken: 2 },
+    ],
+    addOns: [],
+    teams: [
+      {
+        id: "team-demo-1",
+        teamName: "Team Eagle",
+        players: [{ name: "Sarah Whitfield", handicap: 15.6 }, { name: "Eli Carter", handicap: 17.8 }],
+        packageId: "pkg-1",
+        addOns: [],
+        paymentStatus: "paid" as const,
+        totalPaidCents: 15000,
+        registeredAt: "2026-07-01T10:00:00.000Z",
+      },
+    ],
+    createdAt: "2026-06-28T08:00:00.000Z",
+  },
+  {
+    id: "demo-scramble-2",
+    creatorId: "user-demo-marco",
+    type: "charity",
+    status: "in_progress",
+    name: "Drive for Hope Charity Classic",
+    tagline: "Golf for a great cause.",
+    organizerName: "Marco Delgado",
+    charityName: "Junior Golf Foundation of Tennessee",
+    charityMission: "Making golf accessible to youth across the state.",
+    courseName: "Iron Ridge Links",
+    date: "June 29, 2026",
+    shotgunTime: "7:30 AM",
+    format: "best_ball",
+    holes: 18,
+    teamSize: 4,
+    maxTeams: 20,
+    isShotgunStart: true,
+    mullligansAllowed: false,
+    flights: [],
+    schedule: [],
+    contests: [],
+    sponsors: [],
+    packages: [
+      { id: "pkg-2", name: "Team Registration", priceCents: 50000, description: "Full team of 4 — proceeds benefit junior golf", includes: ["Cart", "Dinner", "Awards"], spotsTaken: 14 },
+    ],
+    addOns: [],
+    teams: Array.from({ length: 14 }, (_, i) => ({
+      id: `team-charity-${i + 1}`,
+      teamName: `Team ${i + 1}`,
+      players: [],
+      packageId: "pkg-2",
+      addOns: [],
+      paymentStatus: "paid" as const,
+      totalPaidCents: 50000,
+      registeredAt: "2026-06-15T10:00:00.000Z",
+    })),
+    createdAt: "2026-06-01T08:00:00.000Z",
   },
 ];
 
