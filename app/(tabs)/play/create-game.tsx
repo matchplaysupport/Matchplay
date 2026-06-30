@@ -262,7 +262,7 @@ export default function CreateGameScreen() {
           style={{ marginTop: spacing.xl }}
         />
         <Body color={p.muted} style={{ textAlign: "center", marginTop: spacing.sm }}>
-          You'll be added as the host automatically.
+          You&apos;ll be added as the host automatically.
         </Body>
       </ScrollView>
     </SafeAreaView>
