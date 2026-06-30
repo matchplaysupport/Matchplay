@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 
-/** Cancels one of the signed-in golfer's bookings. RLS limits the update to
- *  the owner's own rows, so passing another user's id is a safe no-op.
- *  Note: this marks the booking cancelled but does not restore the tee-time
- *  spot (golfers can't write tee_times; a release function would be needed). */
+/** Cancels one of the signed-in golfer's bookings and restores the tee-time
+ *  spot via the cancel_booking SECURITY DEFINER function (which verifies
+ *  ownership). Falls back to a plain status update if that function isn't
+ *  installed yet (cancel still works, just without restoring the spot). */
 export async function cancelBooking(bookingId: string): Promise<{ ok: boolean; error?: string }> {
   if (!bookingId) return { ok: false, error: "Missing booking." };
 
@@ -16,11 +16,16 @@ export async function cancelBooking(bookingId: string): Promise<{ ok: boolean; e
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Please sign in again." };
 
-  const { error } = await supabase
-    .from("bookings")
-    .update({ status: "cancelled" })
-    .eq("id", bookingId);
-  if (error) return { ok: false, error: "Couldn't cancel. Please try again." };
+  const { error: rpcError } = await supabase.rpc("cancel_booking", { p_booking_id: bookingId });
+  if (rpcError) {
+    // Fallback (e.g. migration not applied): mark cancelled without restoring
+    // the spot. RLS limits this to the owner's own rows.
+    const { error: updError } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", bookingId);
+    if (updError) return { ok: false, error: "Couldn't cancel. Please try again." };
+  }
 
   revalidatePath("/golfer/dashboard");
   return { ok: true };
