@@ -8,11 +8,11 @@ import {
   Muted,
   Row,
   Subheading,
-  Title,
   useTheme,
 } from "@/design-system/components";
-import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
+import { demoScrambles, demoTournaments } from "@/features/courses/demoData";
 import { formatFormatLabel, prizePoolCents } from "@/services/tournaments";
 import { formatScrambleFormat, formatScrambleType, typeAccentColor } from "@/services/scrambles";
 import type { Scramble, Tournament } from "@/types/domain";
@@ -53,7 +53,7 @@ function TournamentCard({ tournament }: { tournament: Tournament }) {
       <Pressable onPress={() => router.push({ pathname: "/(tabs)/tournaments/detail", params: { id: tournament.id } })}>
         <Row style={styles.cardHeader}>
           <View style={{ flex: 1 }}>
-            <Subheading>{tournament.name}</Subheading>
+            <Subheading style={styles.cardTitle}>{tournament.name}</Subheading>
             <Muted style={{ marginTop: 2 }}>{tournament.courseName ?? "Course TBD"}</Muted>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: statusColor(tournament.status, p.primary, p.mutedLight) + "20" }]}>
@@ -116,7 +116,7 @@ function ScrambleCard({ scramble }: { scramble: Scramble }) {
       <Pressable onPress={() => router.push({ pathname: "/(tabs)/tournaments/scramble-detail", params: { id: scramble.id } })}>
         <Row style={styles.cardHeader}>
           <View style={{ flex: 1 }}>
-            <Subheading>{scramble.name}</Subheading>
+            <Subheading style={styles.cardTitle}>{scramble.name}</Subheading>
             {scramble.tagline && <Muted style={{ marginTop: 2 }}>{scramble.tagline}</Muted>}
             {!scramble.tagline && scramble.courseName && <Muted style={{ marginTop: 2 }}>{scramble.courseName}</Muted>}
           </View>
@@ -163,24 +163,31 @@ export default function TournamentsScreen() {
   const tournaments = useAppStore((state) => state.tournaments);
   const scrambles = useAppStore((state) => state.scrambles);
   const profile = useAppStore((state) => state.profile);
+  const demoMode = useAppStore((state) => state.demoMode);
 
-  const activeScrambles = scrambles.filter((s) => s.status === "open" || s.status === "in_progress");
-  const pastScrambles = scrambles.filter((s) => s.status === "completed" || s.status === "cancelled");
+  const allScrambles = demoMode
+    ? [...scrambles, ...demoScrambles.filter((d) => !scrambles.some((s) => s.id === d.id))]
+    : scrambles;
+  const allTournaments = demoMode
+    ? [...tournaments, ...demoTournaments.filter((d) => !tournaments.some((t) => t.id === d.id))]
+    : tournaments;
 
-  const activeTournaments = tournaments.filter((t) => t.status === "open" || t.status === "in_progress");
-  const pastTournaments = tournaments.filter((t) => t.status === "completed" || t.status === "cancelled");
+  const activeScrambles = allScrambles.filter((s) => s.status === "open" || s.status === "in_progress");
+  const pastScrambles = allScrambles.filter((s) => s.status === "completed" || s.status === "cancelled");
+
+  const activeTournaments = allTournaments.filter((t) => t.status === "open" || t.status === "in_progress");
+  const pastTournaments = allTournaments.filter((t) => t.status === "completed" || t.status === "cancelled");
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: p.background }} edges={["top"]}>
-      <View style={[styles.header, { backgroundColor: p.header }]}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <View style={styles.header}>
         <Row align="space-between">
           <View style={{ flex: 1, gap: spacing.xs }}>
-            <Text style={styles.kicker}>Clubhouse events</Text>
-            <Title style={styles.headerTitle}>Events</Title>
-            <Muted style={styles.headerSubtitle}>Host a scramble, run a bracket, or join what your group is playing.</Muted>
+            <Text style={styles.headerTitle}>Events</Text>
+            <Text style={styles.headerSubtitle}>Host a scramble, run a bracket, or join what your group is playing.</Text>
           </View>
           <View style={styles.headerGlyph}>
-            <Ionicons name="trophy" size={24} color="#06261C" />
+            <Ionicons name="chatbubble-outline" size={25} color="#E6D9B7" />
           </View>
         </Row>
       </View>
@@ -202,14 +209,14 @@ export default function TournamentsScreen() {
         )}
 
         {/* ── Scrambles ─────────────────────────────────────────── */}
-        <View style={[styles.sectionBlock, { backgroundColor: p.surface, borderColor: p.border }]}>
+        <View style={styles.sectionBlock}>
           <Row style={styles.sectionBlockHeader}>
             <Row style={{ gap: spacing.sm, alignItems: "center", flex: 1 }}>
               <View style={[styles.sectionIcon, { backgroundColor: "#7A3B8A18" }]}>
                 <Ionicons name="golf" size={18} color="#7A3B8A" />
               </View>
               <View>
-                <Text style={{ fontWeight: fontWeights.bold, fontSize: fontSizes.subheading, color: p.text }}>Scrambles</Text>
+                <Text style={styles.sectionTitle}>Scrambles</Text>
                 <Muted>Team format, everyone plays the best shot</Muted>
               </View>
             </Row>
@@ -250,14 +257,14 @@ export default function TournamentsScreen() {
         </View>
 
         {/* ── Tournaments ───────────────────────────────────────── */}
-        <View style={[styles.sectionBlock, { backgroundColor: p.surface, borderColor: p.border }]}>
+        <View style={styles.sectionBlock}>
           <Row style={styles.sectionBlockHeader}>
             <Row style={{ gap: spacing.sm, alignItems: "center", flex: 1 }}>
               <View style={[styles.sectionIcon, { backgroundColor: p.primary + "18" }]}>
                 <Ionicons name="trophy" size={18} color={p.primary} />
               </View>
               <View>
-                <Text style={{ fontWeight: fontWeights.bold, fontSize: fontSizes.subheading, color: p.text }}>Tournaments</Text>
+                <Text style={styles.sectionTitle}>Tournaments</Text>
                 <Muted>Stroke play, match play, stableford</Muted>
               </View>
             </Row>
@@ -302,33 +309,30 @@ export default function TournamentsScreen() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#062B24",
+  },
   container: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-    gap: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: 112,
+    gap: spacing.lg,
   },
   header: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
-    borderBottomLeftRadius: radii.xxl,
-    borderBottomRightRadius: radii.xxl,
-  },
-  kicker: {
-    color: "rgba(255,255,255,0.58)",
-    fontSize: fontSizes.micro,
-    fontWeight: fontWeights.heavy,
-    letterSpacing: 1,
-    textTransform: "uppercase",
+    paddingBottom: spacing.xl,
   },
   headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    lineHeight: 37,
+    color: "#F7F3E8",
+    fontFamily: "Georgia",
+    fontSize: 34,
+    fontWeight: fontWeights.bold,
+    lineHeight: 40,
   },
   headerSubtitle: {
-    color: "rgba(255,255,255,0.70)",
+    color: "rgba(247,243,232,0.72)",
     fontSize: fontSizes.body,
     lineHeight: 21,
   },
@@ -336,16 +340,19 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#F6C15A",
+    backgroundColor: "rgba(255,255,255,0.07)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.45)",
+    borderColor: "rgba(230,217,183,0.26)",
   },
   sectionBlock: {
-    borderRadius: radii.xl,
-    borderWidth: 1,
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: "#FFFDF7",
+    borderColor: "#E2DCCF",
     overflow: "hidden",
+    ...shadows.md,
   },
   sectionBlockHeader: {
     padding: spacing.lg,
@@ -353,7 +360,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(0,0,0,0.06)",
+    borderBottomColor: "#E2DCCF",
   },
   sectionIcon: {
     width: 36,
@@ -374,6 +381,18 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.md,
     marginBottom: spacing.xs,
     borderRadius: radii.lg,
+    backgroundColor: "#FFFCF4",
+    borderColor: "#E2DCCF",
+  },
+  cardTitle: {
+    color: "#0D2F27",
+    fontFamily: "Georgia",
+  },
+  sectionTitle: {
+    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.subheading,
+    color: "#0D2F27",
+    fontFamily: "Georgia",
   },
   cardHeader: {
     alignItems: "flex-start",

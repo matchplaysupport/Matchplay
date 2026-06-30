@@ -16,9 +16,10 @@
       "supportsTablet": true,
       "requireFullScreen": true,
       "bundleIdentifier": "com.theclubhouse.mobile",
-      "buildNumber": "1",
+      "buildNumber": "4",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "The Clubhouse uses approximate location to suggest nearby tee times, golfers, and open games."
+        "NSLocationWhenInUseUsageDescription": "The Clubhouse uses approximate location to suggest nearby tee times, golfers, and open games.",
+        "NSCameraUsageDescription": "The Clubhouse uses the camera to scan your payment card when you save a payment method."
       }
     },
     "android": {

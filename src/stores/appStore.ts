@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { demoProfiles, seededMessages, seededOpenGames } from "@/features/courses/demoData";
+import { demoProfiles } from "@/features/courses/demoData";
 import type {
   ActiveRoundState,
   Booking,
@@ -37,6 +37,8 @@ interface AppState {
   authUserId: string | null;
   /** True once zustand has finished rehydrating from AsyncStorage */
   _hasHydrated: boolean;
+  /** Dev toggle: layer demo golfers + open games on top of live data */
+  demoMode: boolean;
 
   // Data
   bookings: Booking[];
@@ -65,6 +67,7 @@ interface AppState {
   saveRound(round: Round): void;
   addOpenGame(game: OpenGame): void;
   updateOpenGame(game: OpenGame): void;
+  setOpenGames(games: OpenGame[]): void;
   addMessage(message: Message): void;
   addTournament(tournament: Tournament): void;
   updateTournament(tournament: Tournament): void;
@@ -72,6 +75,7 @@ interface AppState {
   updateScramble(scramble: Scramble): void;
   recordMetric(metric: keyof TractionMetrics): void;
   updateProfile(profile: Profile): void;
+  setDemoMode(value: boolean): void;
 
   // Scoring actions
   startRound(state: ActiveRoundState, course: Course): void;
@@ -87,10 +91,11 @@ export const useAppStore = create<AppState>()(
       isOnboarded: false,
       authUserId: null,
       _hasHydrated: false,
+      demoMode: false,
       bookings: [],
       rounds: [],
-      openGames: seededOpenGames,
-      messages: seededMessages,
+      openGames: [],
+      messages: [],
       tournaments: [],
       scrambles: [],
       metrics: initialMetrics,
@@ -157,6 +162,8 @@ export const useAppStore = create<AppState>()(
           openGames: state.openGames.map((g) => (g.id === game.id ? game : g)),
         })),
 
+      setOpenGames: (games) => set({ openGames: games }),
+
       addMessage: (message) =>
         set((state) => ({ messages: [message, ...state.messages] })),
 
@@ -187,6 +194,8 @@ export const useAppStore = create<AppState>()(
 
       updateProfile: (profile) => set({ profile }),
 
+      setDemoMode: (value) => set({ demoMode: value }),
+
       // ── Scoring ──────────────────────────────────────────────────────────────
       startRound: (state, course) => set({ activeRound: state, activeCourse: course }),
 
@@ -213,7 +222,7 @@ export const useAppStore = create<AppState>()(
       abandonRound: () => set({ activeRound: null, activeCourse: null }),
     }),
     {
-      name: "match-play-app-v2",
+      name: "match-play-app-v3",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state._hasHydrated = true;

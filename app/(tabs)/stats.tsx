@@ -21,6 +21,7 @@ import { env } from "@/lib/env";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { PaywallScreen } from "@/components/PaywallScreen";
 import { calculateCareerStats } from "@/services/careerStats";
+import { demoRounds } from "@/features/courses/demoData";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 
@@ -65,6 +66,7 @@ function TrendChart({ points }: { points: { roundId: string; differential: numbe
 export default function StatsScreen() {
   const profile = useAppStore((state) => state.profile);
   const rounds = useAppStore((state) => state.rounds);
+  const demoMode = useAppStore((state) => state.demoMode);
   const p = useTheme();
   const { can } = useEntitlement();
 
@@ -72,7 +74,8 @@ export default function StatsScreen() {
     analytics.track("handicap_viewed");
   }, []);
 
-  const stats = useMemo(() => calculateCareerStats(rounds), [rounds]);
+  const effectiveRounds = demoMode && rounds.length === 0 ? demoRounds : rounds;
+  const stats = useMemo(() => calculateCareerStats(effectiveRounds), [effectiveRounds]);
 
   if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("handicap")) {
     return (

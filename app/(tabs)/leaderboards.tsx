@@ -20,6 +20,7 @@ import { env } from "@/lib/env";
 import { router } from "expo-router";
 import { getLeaderboardProvider } from "@/integrations/leaderboard/LeaderboardProvider";
 import { useEntitlement } from "@/hooks/useEntitlement";
+import { demoLeaderboard } from "@/features/courses/demoData";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { useAppStore } from "@/stores/appStore";
 import type { LeaderboardEntry } from "@/types/domain";
@@ -63,6 +64,7 @@ export default function LeaderboardsScreen() {
   const [period, setPeriod] = useState<Period>("seasonal");
   const profile = useAppStore((state) => state.profile);
   const rounds = useAppStore((state) => state.rounds);
+  const demoMode = useAppStore((state) => state.demoMode);
   const p = useTheme();
 
   useEffect(() => {
@@ -85,7 +87,7 @@ export default function LeaderboardsScreen() {
   });
 
   const entries: LeaderboardEntry[] = useMemo(() => {
-    // In demo mode, anchor the local user at the top so there's always a "you" row.
+    // In mock auth mode, anchor the local user at the top.
     if (env.EXPO_PUBLIC_USE_MOCK_AUTH && profile && !profile.privacy.hideLeaderboards) {
       const me: LeaderboardEntry = {
         rank: 1,
@@ -102,8 +104,28 @@ export default function LeaderboardsScreen() {
         ...liveEntries.filter((e) => e.playerId !== profile.id).map((e, i) => ({ ...e, rank: i + 2 })),
       ];
     }
+    // In live mode with demo enabled, merge demo leaderboard with any live entries.
+    if (demoMode && liveEntries.length === 0) {
+      if (profile && !profile.privacy.hideLeaderboards) {
+        const me: LeaderboardEntry = {
+          rank: 1,
+          playerId: profile.id,
+          displayName: profile.displayName,
+          location: `${profile.city}, ${profile.state}`,
+          metricLabel: profile.handicapValue ? `${profile.handicapValue.toFixed(1)} HCP` : "No handicap",
+          points: 540 + bonusPoints,
+          verified: false,
+          movement: submittedRounds > 0 ? 3 : 1,
+        };
+        const others = demoLeaderboard
+          .filter((e) => e.playerId !== profile.id)
+          .map((e, i) => ({ ...e, rank: i + 2 }));
+        return [me, ...others];
+      }
+      return demoLeaderboard;
+    }
     return liveEntries;
-  }, [liveEntries, profile, bonusPoints, submittedRounds]);
+  }, [liveEntries, profile, bonusPoints, submittedRounds, demoMode]);
 
   const topThree = entries.slice(0, 3);
 

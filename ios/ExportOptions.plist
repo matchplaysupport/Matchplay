@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- App Store Connect distribution. uploadSymbols=false is the fix: the
+       prebuilt React/ReactNativeDependencies/hermes frameworks ship no dSYMs,
+       so skipping symbol upload removes the "Upload Symbols Failed" warnings.
+       Distribution itself is unaffected. -->
+  <key>method</key>
+  <string>app-store-connect</string>
+  <key>destination</key>
+  <string>upload</string>
+  <key>teamID</key>
+  <string>X52FLFGA9C</string>
+  <key>uploadSymbols</key>
+  <false/>
+  <key>uploadBitcode</key>
+  <false/>
+  <key>signingStyle</key>
+  <string>automatic</string>
+  <key>generateAppStoreInformation</key>
+  <true/>
+</dict>
+</plist>

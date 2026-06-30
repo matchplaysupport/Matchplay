@@ -39,6 +39,10 @@ export default function PlayLayout() {
         name="scorecard"
         options={{ title: "Scorecard", headerShown: false, presentation: "card" }}
       />
+      <Stack.Screen
+        name="create-game"
+        options={{ title: "Create game", headerShown: true, presentation: "card" }}
+      />
     </Stack>
   );
 }
