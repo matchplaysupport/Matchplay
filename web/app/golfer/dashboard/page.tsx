@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { calculateCareerStats, type StatRound } from "@/lib/careerStats";
-import { IconTrophy, IconFlag, IconChevron, IconUsers } from "../../components/icons";
-import SignOutButton from "../stats/SignOutButton";
+import { IconTrophy, IconChevron, IconUsers } from "../../components/icons";
+import { PortalNav } from "../PortalNav";
 
 export const metadata = {
   title: "Dashboard · The Clubhouse",
@@ -25,10 +25,6 @@ function shortName(name: string): string {
   return `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
 }
 
-function initial(name: string): string {
-  return (name.trim()[0] ?? "?").toUpperCase();
-}
-
 function formatMatchDate(iso: string): string {
   const d = new Date(iso);
   const day = d.toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric" });
@@ -41,18 +37,6 @@ function formatTournamentDate(iso: string): string {
 }
 
 // ── Presentational pieces ─────────────────────────────────────────────────────
-
-function NavTab({ href, label, active }: { href: string; label: string; active?: boolean }) {
-  return (
-    <a
-      href={href}
-      className="text-sm font-medium transition-colors hover:text-[var(--text)]"
-      style={{ color: active ? "var(--text)" : "var(--muted)", whiteSpace: "nowrap" }}
-    >
-      {label}
-    </a>
-  );
-}
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -116,7 +100,7 @@ export default async function GolferDashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, handicap_value")
+    .select("*")
     .eq("auth_user_id", user.id)
     .single();
 
@@ -222,53 +206,15 @@ export default async function GolferDashboardPage() {
   // ── Leaderboard (top of my best scope, else any top) ──
   let lbQuery = supabase
     .from("leaderboard_entries")
-    .select("rank, points, profile_id, profiles(display_name)")
+    .select("rank, points, profile_id, profiles(display_name, username)")
     .order("rank", { ascending: true })
     .limit(5);
   if (myRank) lbQuery = lbQuery.eq("scope", myRank.scope).eq("period", myRank.period).eq("category", myRank.category);
   const { data: leaderboard } = await lbQuery;
 
-  const navTabs = [
-    { href: "#top", label: "Dashboard", active: true },
-    { href: "#tournaments", label: "Tournaments" },
-    { href: "#matches", label: "Matches" },
-    { href: "#leaderboard", label: "Leaderboards" },
-    { href: "/golfer", label: "Tee Times" },
-  ];
-
   return (
     <main id="top" className="theme-club" style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      {/* Top nav */}
-      <header
-        className="sticky top-0 z-20"
-        style={{ background: "rgba(10,19,14,0.85)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--border)" }}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-7 min-w-0">
-            <Link href="/golfer" className="font-bold shrink-0" style={{ color: "var(--text)", letterSpacing: "0.04em" }}>
-              THE CLUBHOUSE
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              {navTabs.map((t) => (
-                <NavTab key={t.label} {...t} />
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <span
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{ background: "var(--grad-brand)", color: "#fff" }}
-            >
-              {initial(profile.display_name)}
-            </span>
-            <span className="hidden sm:inline text-sm font-medium" style={{ color: "var(--text)" }}>
-              {profile.display_name.split(/\s+/)[0]}
-            </span>
-            <span style={{ color: "var(--border-strong)" }}>·</span>
-            <SignOutButton />
-          </div>
-        </div>
-      </header>
+      <PortalNav displayName={profile.display_name} avatarUrl={profile.avatar_url} active="dashboard" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1
@@ -359,7 +305,8 @@ export default async function GolferDashboardPage() {
                   <EmptyRow>No leaderboard standings yet — play a verified round to get ranked.</EmptyRow>
                 )}
                 {(leaderboard ?? []).map((row, i, arr) => {
-                  const name = (row.profiles as { display_name: string } | null)?.display_name ?? "Player";
+                  const player = row.profiles as { display_name: string; username: string } | null;
+                  const name = player?.display_name ?? "Player";
                   const isMe = row.profile_id === profile.id;
                   return (
                     <div
@@ -368,9 +315,19 @@ export default async function GolferDashboardPage() {
                       style={i < arr.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}
                     >
                       <span className="w-5 text-sm font-bold tabular-nums" style={{ color: "var(--muted)" }}>{row.rank}</span>
-                      <span className="flex-1 text-sm font-medium truncate" style={{ color: isMe ? "var(--gold)" : "var(--text)" }}>
-                        {shortName(name)}{isMe ? " (you)" : ""}
-                      </span>
+                      {player?.username ? (
+                        <Link
+                          href={`/golfer/u/${player.username}`}
+                          className="flex-1 text-sm font-medium truncate hover:underline"
+                          style={{ color: isMe ? "var(--gold)" : "var(--text)" }}
+                        >
+                          {shortName(name)}{isMe ? " (you)" : ""}
+                        </Link>
+                      ) : (
+                        <span className="flex-1 text-sm font-medium truncate" style={{ color: isMe ? "var(--gold)" : "var(--text)" }}>
+                          {shortName(name)}{isMe ? " (you)" : ""}
+                        </span>
+                      )}
                       <span className="text-sm font-bold tabular-nums" style={{ color: "var(--brand-bright)" }}>{row.points}</span>
                     </div>
                   );
