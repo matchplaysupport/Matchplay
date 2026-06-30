@@ -79,6 +79,9 @@ export async function POST(req: Request) {
     );
   }
 
+  // Confirmation off ⇒ signUp returns a session; on ⇒ they must confirm email.
+  const needsConfirmation = !signUp.session;
+
   // 2. File the application with the service role (the user has no session yet).
   const svc = createServiceClient();
   const { error: insertError } = await svc.from("course_applications").insert({
@@ -96,11 +99,11 @@ export async function POST(req: Request) {
 
   if (insertError) {
     if (insertError.code === "23505") {
-      return NextResponse.json({ ok: true }); // already applied
+      return NextResponse.json({ ok: true, needsConfirmation }); // already applied
     }
     console.error("Course application insert error:", insertError);
     return NextResponse.json({ error: "Could not submit your application." }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, needsConfirmation });
 }
