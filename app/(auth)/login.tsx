@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Body, Button, Field, Muted, useTheme } from "@/design-system/components";
 import { fontSizes, fontWeights, radii, spacing } from "@/design-system/theme";
 import { env } from "@/lib/env";
-import { signInWithEmail, signUpWithEmail } from "@/lib/auth";
+import { fetchProfile, signInWithEmail, signUpWithEmail } from "@/lib/auth";
 import { useAppStore } from "@/stores/appStore";
+
+const logoDark = require("../../assets/logo-dark.png");
 
 export default function LoginScreen() {
   const [email, setEmail] = useState(env.EXPO_PUBLIC_USE_MOCK_AUTH ? "demo@matchplay.test" : "");
@@ -14,6 +16,7 @@ export default function LoginScreen() {
   const [mode, setMode] = useState<"sign_in" | "sign_up">("sign_in");
   const [loading, setLoading] = useState(false);
   const signIn = useAppStore((state) => state.signIn);
+  const setAuthSession = useAppStore((state) => state.setAuthSession);
   const p = useTheme();
 
   const handleContinue = async () => {
@@ -31,11 +34,21 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       if (mode === "sign_in") {
-        await signInWithEmail(email, password);
-        // AuthListener in _layout.tsx handles the session and redirects
+        const { user } = await signInWithEmail(email.trim(), password);
+        if (!user) throw new Error("No user was returned for this session.");
+
+        const profile = await fetchProfile(user.id);
+        setAuthSession(user.id, profile);
+        router.replace(profile ? "/(tabs)" : "/(auth)/onboarding");
       } else {
-        await signUpWithEmail(email, password);
-        // New user — send them through onboarding; AuthListener sets authUserId
+        const { user } = await signUpWithEmail(email.trim(), password);
+        if (!user) {
+          Alert.alert("Check your email", "Finish confirming your account, then sign in.");
+          return;
+        }
+
+        const profile = await fetchProfile(user.id);
+        setAuthSession(user.id, profile);
         router.replace("/(auth)/onboarding");
       }
     } catch (err: unknown) {
@@ -52,7 +65,7 @@ export default function LoginScreen() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <View style={styles.logoMark}>
-              <Text style={styles.logoText}>⛳</Text>
+              <Image source={logoDark} style={styles.logoImage} resizeMode="cover" />
             </View>
             <Text style={[styles.brandName, { color: "#FFFFFF" }]}>The Clubhouse</Text>
             <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: fontSizes.body, textAlign: "center", lineHeight: 22 }}>
@@ -120,6 +133,7 @@ export default function LoginScreen() {
               <Button
                 label={loading ? "Please wait…" : mode === "sign_in" ? "Sign in" : "Create account"}
                 onPress={() => void handleContinue()}
+                loading={loading}
                 size="lg"
               />
 
@@ -154,15 +168,19 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   logoMark: {
-    width: 72,
-    height: 72,
-    borderRadius: radii.xl,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    width: 76,
+    height: 76,
+    borderRadius: 20,
+    backgroundColor: "#021C17",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.xs,
+    overflow: "hidden",
   },
-  logoText: { fontSize: 36 },
+  logoImage: {
+    width: 76,
+    height: 76,
+  },
   brandName: { fontSize: fontSizes.display, fontWeight: fontWeights.heavy, letterSpacing: -0.5 },
   card: {
     marginHorizontal: spacing.lg,

@@ -28,10 +28,6 @@ const FAIRWAY_OPTIONS: { value: FairwayResult; label: string; icon: string }[] =
 
 export default function ScoringScreen() {
   const { can } = useEntitlement();
-  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
-    return <PaywallScreen requiredTier="plus" title="Scoring is a Match Play+ feature" description="Track every hole, record stats, and build your round history with Match Play+." />;
-  }
-
   const activeRound = useAppStore((state) => state.activeRound);
   const activeCourse = useAppStore((state) => state.activeCourse);
   const scoreHole = useAppStore((state) => state.scoreHole);
@@ -57,6 +53,10 @@ export default function ScoringScreen() {
   const par = holeData?.par ?? 4;
   const currentScore = activeRound?.scores.find((s) => s.holeNumber === currentHoleNum)?.grossScore ?? par;
   const [score, setScore] = useState(currentScore);
+
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
+    return <PaywallScreen requiredTier="plus" title="Scoring is a Clubhouse+ feature" description="Track every hole, record stats, and build your round history with Clubhouse+." />;
+  }
 
   if (!activeRound) {
     return (

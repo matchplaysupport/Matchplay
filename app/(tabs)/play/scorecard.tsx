@@ -104,14 +104,14 @@ function ScoreCell({ score, par }: { score: number | null; par: number }) {
 
 export default function ScorecardScreen() {
   const { can } = useEntitlement();
-  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
-    return <PaywallScreen requiredTier="plus" title="Scorecard is a Match Play+ feature" description="View your full scorecard with hole-by-hole stats and shot tracking." />;
-  }
-
   const p = useTheme();
   const activeCourse = useAppStore((s) => s.activeCourse);
   const activeRound = useAppStore((s) => s.activeRound);
   const [selectedTeeId, setSelectedTeeId] = useState(activeRound?.teeSetId ?? activeCourse?.teeSets[0]?.id ?? "");
+
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("scoring")) {
+    return <PaywallScreen requiredTier="plus" title="Scorecard is a Clubhouse+ feature" description="View your full scorecard with hole-by-hole stats and shot tracking." />;
+  }
 
   const course = activeCourse;
   const teeSet = course?.teeSets.find((ts) => ts.id === selectedTeeId) ?? course?.teeSets[0];

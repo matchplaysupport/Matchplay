@@ -57,10 +57,6 @@ function FieldLabel({ label }: { label: string }) {
 
 export default function CreateTournamentScreen() {
   const { can } = useEntitlement();
-  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("create_tournaments")) {
-    return <PaywallScreen requiredTier="pro" title="Create tournaments with Match Play Pro" description="Host stroke play, match play, and stableford events for your group." />;
-  }
-
   const p = useTheme();
   const profile = useAppStore((state) => state.profile);
   const addTournament = useAppStore((state) => state.addTournament);
@@ -76,6 +72,10 @@ export default function CreateTournamentScreen() {
   const [prizeDistribution, setPrizeDistribution] = useState<PrizeDistribution>("winner_takes_all");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+
+  if (!env.EXPO_PUBLIC_USE_MOCK_AUTH && !can("create_tournaments")) {
+    return <PaywallScreen requiredTier="pro" title="Create tournaments with Clubhouse Pro" description="Host stroke play, match play, and stableford events for your group." />;
+  }
 
   const hasBuyIn = buyInDollars.trim() !== "" && parseFloat(buyInDollars) > 0;
 

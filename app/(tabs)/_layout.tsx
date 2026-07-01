@@ -2,23 +2,15 @@ import { Tabs } from "expo-router";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/design-system/components";
-import { fontSizes, fontWeights, radii, shadows, spacing } from "@/design-system/theme";
+import { fontSizes, fontWeights, spacing } from "@/design-system/theme";
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
-function TabIcon({ name, focused, label, isCenter }: { name: IoniconsName; focused: boolean; label: string; isCenter?: boolean }) {
-  const p = useTheme();
-  if (isCenter) {
-    return (
-      <View style={[styles.centerButton, { backgroundColor: focused ? p.primaryDark : p.primary }]}>
-        <Ionicons name={name} size={27} color="#FFFFFF" />
-      </View>
-    );
-  }
+function TabIcon({ name, focused, label }: { name: IoniconsName; focused: boolean; label: string }) {
   return (
-    <View style={[styles.tabIcon, focused && { backgroundColor: p.successLight }]}>
-      <Ionicons name={focused ? name : (name.replace("-outline", "") + "-outline") as IoniconsName} size={22} color={focused ? p.primary : p.mutedLight} />
-      <Text style={{ fontSize: fontSizes.micro, fontWeight: focused ? fontWeights.semibold : fontWeights.medium, color: focused ? p.primary : p.mutedLight, marginTop: 2 }}>
+    <View style={styles.tabIcon}>
+      <Ionicons name={focused ? name : (name.replace("-outline", "") + "-outline") as IoniconsName} size={25} color={focused ? "#BFE8B3" : "rgba(247,243,232,0.72)"} />
+      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
         {label}
       </Text>
     </View>
@@ -31,7 +23,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: [styles.tabBar, { backgroundColor: p.tabBar, borderTopColor: "rgba(0,0,0,0.06)" }],
+        tabBarStyle: [styles.tabBar, { backgroundColor: p.header, borderTopColor: "rgba(247,243,232,0.16)" }],
         tabBarShowLabel: false,
       }}
     >
@@ -44,13 +36,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="tee-times"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="calendar-outline" focused={focused} label="Tee Times" />,
+          tabBarIcon: ({ focused }) => <TabIcon name="calendar-outline" focused={focused} label="Book" />,
         }}
       />
       <Tabs.Screen
         name="play"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="golf" focused={focused} label="Play" isCenter />,
+          tabBarIcon: ({ focused }) => <TabIcon name="golf-outline" focused={focused} label="Play" />,
         }}
       />
       <Tabs.Screen
@@ -61,6 +53,18 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="leaderboards"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="upgrade"
         options={{
           href: null,
         }}
@@ -77,31 +81,29 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: Platform.OS === "ios" ? 86 : 68,
-    paddingTop: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    height: Platform.OS === "ios" ? 96 : 76,
+    paddingTop: spacing.md,
+    paddingHorizontal: spacing.xs,
     borderTopWidth: StyleSheet.hairlineWidth,
-    ...shadows.sm,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 22,
+    elevation: 12,
   },
   tabIcon: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radii.full,
-    minWidth: 56,
+    gap: spacing.xs,
+    minWidth: 62,
   },
-  centerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: radii.full,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: Platform.OS === "ios" ? 14 : 10,
-    borderWidth: 3,
-    borderColor: "#FFFFFF",
-    ...shadows.md,
+  tabLabel: {
+    fontSize: fontSizes.tiny,
+    fontWeight: fontWeights.medium,
+    color: "rgba(247,243,232,0.72)",
+  },
+  tabLabelActive: {
+    color: "#BFE8B3",
+    fontWeight: fontWeights.semibold,
   },
 });

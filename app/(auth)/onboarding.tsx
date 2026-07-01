@@ -32,17 +32,37 @@ export default function OnboardingScreen() {
   const authUserId = useAppStore((state) => state.authUserId);
   const completeOnboarding = useAppStore((state) => state.completeOnboarding);
   const p = useTheme();
+  const baseProfile: Profile = profile ?? {
+    id: authUserId ? `pending-${authUserId}` : "pending-profile",
+    displayName: "",
+    username: "",
+    city: "Nashville",
+    state: "TN",
+    zipCode: "",
+    skillLevel: "recreational",
+    handicapSource: "match_play_estimate",
+    preferredRadiusMiles: 25,
+    preferredGameStyle: "both",
+    reliabilityLabel: "New player",
+    privacy: {
+      hideExactAge: true,
+      hideHandicap: false,
+      hideRoundHistory: false,
+      hideProfileDiscovery: false,
+      hideApproximateLocation: false,
+      hideLeaderboards: false,
+    },
+  };
 
   const [step, setStep] = useState(0);
-  const [displayName, setDisplayName] = useState(profile?.displayName ?? "");
-  const [username, setUsername] = useState(profile?.username ?? "");
-  const [city, setCity] = useState(profile?.city ?? "Nashville");
-  const [state, setState] = useState(profile?.state ?? "TN");
-  const [skillLevel, setSkillLevel] = useState<SkillLevel>(profile?.skillLevel ?? "recreational");
-  const [preferredStyle, setPreferredStyle] = useState<"casual" | "competitive" | "both">(profile?.preferredGameStyle ?? "both");
-  const [handicapStr, setHandicapStr] = useState(profile?.handicapValue?.toString() ?? "");
-
-  if (!profile) return null;
+  const [displayName, setDisplayName] = useState(baseProfile.displayName);
+  const [username, setUsername] = useState(baseProfile.username);
+  const [city, setCity] = useState(baseProfile.city);
+  const [state, setState] = useState(baseProfile.state);
+  const [skillLevel, setSkillLevel] = useState<SkillLevel>(baseProfile.skillLevel);
+  const [preferredStyle, setPreferredStyle] = useState<"casual" | "competitive" | "both">(baseProfile.preferredGameStyle);
+  const [handicapStr, setHandicapStr] = useState(baseProfile.handicapValue?.toString() ?? "");
+  const [saving, setSaving] = useState(false);
 
   const advance = () => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
@@ -53,11 +73,11 @@ export default function OnboardingScreen() {
     if (env.EXPO_PUBLIC_USE_MOCK_AUTH || !authUserId) {
       // Mock / dev path
       const completed: Profile = {
-        ...profile,
-        displayName: displayName || profile.displayName,
-        username: username || profile.username,
-        city: city || profile.city,
-        state: state || profile.state,
+        ...baseProfile,
+        displayName: displayName || baseProfile.displayName || "Golfer",
+        username: username || baseProfile.username || `golfer_${Date.now()}`,
+        city: city || baseProfile.city,
+        state: state || baseProfile.state,
         skillLevel,
         preferredGameStyle: preferredStyle,
         handicapSource: handicapValue != null ? "official_unverified" : "match_play_estimate",
@@ -78,6 +98,7 @@ export default function OnboardingScreen() {
       return;
     }
 
+    setSaving(true);
     try {
       await createProfile(resolvedAuthUserId, {
         displayName: displayName || "Golfer",
@@ -93,14 +114,16 @@ export default function OnboardingScreen() {
       });
 
       const saved = await fetchProfile(resolvedAuthUserId);
-      if (saved) {
-        completeOnboarding(saved);
-        analytics.track("onboarding_completed", { city, skillLevel });
-        router.replace("/(tabs)");
-      }
+      if (!saved) throw new Error("Profile was created, but could not be loaded.");
+
+      completeOnboarding(saved);
+      analytics.track("onboarding_completed", { city, skillLevel });
+      router.replace("/(tabs)");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save profile.";
       Alert.alert("Error", message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -147,7 +170,7 @@ export default function OnboardingScreen() {
         >
           {/* Avatar preview */}
           <Row align="center" style={{ justifyContent: "center", paddingVertical: spacing.md }}>
-            <Avatar name={displayName || profile.displayName} size={80} />
+            <Avatar name={displayName || baseProfile.displayName || "Golfer"} size={80} />
           </Row>
 
           {currentStep}
@@ -155,8 +178,9 @@ export default function OnboardingScreen() {
 
         <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.lg }}>
           <Button
-            label={step < TOTAL_STEPS - 1 ? "Continue" : "Complete profile"}
+            label={saving ? "Saving…" : step < TOTAL_STEPS - 1 ? "Continue" : "Complete profile"}
             onPress={step < TOTAL_STEPS - 1 ? advance : () => void finish()}
+            loading={saving}
             size="lg"
           />
         </View>

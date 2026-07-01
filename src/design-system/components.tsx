@@ -101,7 +101,7 @@ export function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
 export function DisplayTitle({ children, style }: PropsWithChildren<{ style?: StyleProp<TextStyle> }>) {
   const p = useTheme();
   return (
-    <Text style={[{ fontSize: fontSizes.display, fontWeight: fontWeights.heavy, color: p.text, letterSpacing: -0.5 }, style]}>
+    <Text style={[{ fontSize: fontSizes.display, fontWeight: fontWeights.heavy, color: p.text, letterSpacing: 0 }, style]}>
       {children}
     </Text>
   );
@@ -110,7 +110,7 @@ export function DisplayTitle({ children, style }: PropsWithChildren<{ style?: St
 export function Title({ children, style, color }: PropsWithChildren<{ style?: StyleProp<TextStyle>; color?: string }>) {
   const p = useTheme();
   return (
-    <Text style={[{ fontSize: fontSizes.title, fontWeight: fontWeights.heavy, color: color ?? p.text, letterSpacing: -0.3 }, style]}>
+    <Text style={[{ fontSize: fontSizes.title, fontWeight: fontWeights.heavy, color: color ?? p.text, letterSpacing: 0 }, style]}>
       {children}
     </Text>
   );
