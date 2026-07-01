@@ -129,8 +129,8 @@ const COURSE_FAQ = [
     a: "Under five minutes. Add your tee times, set pricing, and connect Stripe. We've designed the dashboard to require zero training — if you can use a calendar app, you can use The Clubhouse.",
   },
   {
-    q: "What are the founding pricing tiers?",
-    a: "Courses that join early lock in founding rates — starting at $99/mo for independent and municipal courses, $199/mo for resort and destination properties, and $399/mo for private clubs. These rates are locked in for life as long as your subscription remains active.",
+    q: "How much does The Clubhouse cost?",
+    a: "One flat plan with the full feature set at 0% commission. The standard rate is $199/mo, but the first 100 courses to join lock in a founding rate of $99/mo for life — it never increases as long as your subscription stays active. Private clubs and multi-venue operators can add Enterprise options like member-only booking, PMS/POS integration, and custom branding — just ask.",
   },
   {
     q: "When can we go live?",
@@ -407,56 +407,30 @@ function CoursePage() {
             </span>
           </Reveal>
 
-          <div className="mt-12 grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {/* Independent / Muni */}
-            <Reveal className="card p-7 flex flex-col">
-              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Starter</span>
-              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Independent & municipal courses</p>
-              <div className="mt-4 flex items-end gap-1">
-                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$99</span>
-                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
-              </div>
-              <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["0% commission, always", "Tee-sheet & pricing control", "Stripe Connect payouts (~2 days)", "Booking analytics dashboard", "Waitlist & last-minute fills"].map((f) => (
-                  <Check key={f}>{f}</Check>
-                ))}
-              </ul>
-              <a href="#waitlist" className="btn btn-ghost mt-7 w-full">Request access</a>
-            </Reveal>
-
-            {/* Resort / Destination */}
-            <Reveal delay={80} className="card p-7 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
+          <div className="mt-12 max-w-xl mx-auto">
+            {/* One plan — founding rate now, $199 standard later. Not segmented by course type
+                (matches the SavingsCalculator's founding-vs-standard model). */}
+            <Reveal className="card p-8 sm:p-10 flex flex-col" style={{ borderColor: "var(--gold)", boxShadow: "var(--shadow-lg)" }}>
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="chip" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Pro</span>
-                <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Most popular</span>
+                <span className="chip" style={{ background: "var(--surface-3)", color: "var(--brand)" }}>Clubhouse for Courses</span>
+                <span className="chip" style={{ background: "var(--grad-gold)", color: "#1A1206" }}>Founding rate</span>
               </div>
-              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Resort & destination courses</p>
-              <div className="mt-4 flex items-end gap-1">
-                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", background: "var(--grad-gold)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>$199</span>
-                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
+              <div className="mt-5 flex items-end gap-2 flex-wrap">
+                <span className="text-6xl font-extrabold" style={{ fontFamily: "var(--font-sora)", background: "var(--grad-gold)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>$99</span>
+                <span className="text-base mb-2" style={{ color: "var(--muted)" }}>/mo — locked for life</span>
               </div>
-              <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["Everything in Starter", "Multi-course management", "Group & tournament bookings (soon)", "Priority support", "Early access to new features"].map((f) => (
+              <p className="mt-2 text-sm" style={{ color: "var(--muted)" }}>
+                Standard rate is $199/mo. Founding partners — the first 100 courses — lock in $99 for life and never see an increase.
+              </p>
+              <div className="mt-6 grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                {["0% commission, always", "Full tee-sheet & pricing control", "Stripe Connect payouts (~2 days)", "Booking analytics dashboard", "Waitlist & last-minute fills", "Multi-course management", "Group & tournament bookings (soon)", "Priority support"].map((f) => (
                   <Check key={f}>{f}</Check>
                 ))}
-              </ul>
-              <a href="#waitlist" className="btn btn-gold mt-7 w-full">Request early access</a>
-            </Reveal>
-
-            {/* Private club */}
-            <Reveal delay={160} className="card p-7 flex flex-col">
-              <span className="chip self-start" style={{ background: "var(--surface-3)", color: "var(--gold)" }}>Premium</span>
-              <p className="mt-3 min-h-10 text-sm font-medium" style={{ color: "var(--muted)" }}>Private clubs & multi-venue operators</p>
-              <div className="mt-4 flex items-end gap-1">
-                <span className="text-5xl font-extrabold" style={{ fontFamily: "var(--font-sora)", color: "var(--text)" }}>$399</span>
-                <span className="text-sm mb-2" style={{ color: "var(--muted)" }}>/mo founding</span>
               </div>
-              <ul className="mt-6 flex flex-col gap-3 flex-1">
-                {["Everything in Pro", "Private member-only booking", "Dedicated account manager", "PMS/POS integration (roadmap)", "Custom branding options"].map((f) => (
-                  <Check key={f}>{f}</Check>
-                ))}
-              </ul>
-              <a href="#waitlist" className="btn btn-ghost mt-7 w-full">Request access</a>
+              <a href="/signup/course" className="btn btn-gold mt-8 w-full">Lock in your founding rate</a>
+              <p className="mt-4 text-xs text-center" style={{ color: "var(--muted)" }}>
+                Private club or multi-venue operator? <a href="#waitlist" style={{ color: "var(--brand)", fontWeight: 600 }}>Ask about Enterprise</a> — member-only booking, PMS/POS &amp; custom branding.
+              </p>
             </Reveal>
           </div>
 

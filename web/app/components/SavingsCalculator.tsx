@@ -8,7 +8,7 @@ import { track } from "../../lib/track";
 // Mirrors docs/PRICING.md: founding $99/mo locked-for-life, Pro $199/mo standard.
 const PLANS = {
   founding: { label: "Founding", monthly: 99, note: "Locked for life — first 100 courses" },
-  pro: { label: "Pro", monthly: 199, note: "Standard rate" },
+  standard: { label: "Standard", monthly: 199, note: "Standard rate after founding spots fill" },
 } as const;
 type PlanKey = keyof typeof PLANS;
 
