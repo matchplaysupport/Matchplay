@@ -1,5 +1,5 @@
 import Link from "next/link";
-import SignOutButton from "./stats/SignOutButton";
+import SignOutButton from "./_components/SignOutButton";
 
 function initial(name: string): string {
   return (name.trim()[0] ?? "?").toUpperCase();
